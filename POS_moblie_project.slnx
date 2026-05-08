@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="POS_moblie_project/POS_moblie_project.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>
