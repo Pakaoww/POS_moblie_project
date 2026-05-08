@@ -37,6 +37,7 @@ public class Product
     // Default constructor required by SQLite-net-pcl
     public Product()
     {
+
     }
 
     public Product(string productCode, string name, int categoryId, decimal price, int stock = 0)
