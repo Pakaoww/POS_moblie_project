@@ -2,11 +2,501 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="POS_moblie_project.Views.Settings.SettingsPage"
-             Title="SettingsPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Settings">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- ── Colors ── -->
+            <Color x:Key="BgPage">#0D0F1A</Color>
+            <Color x:Key="BgCard">#161929</Color>
+            <Color x:Key="BgInput">#1E2235</Color>
+            <Color x:Key="Accent">#FF6B35</Color>
+            <Color x:Key="AccentSoft">#FF6B3520</Color>
+            <Color x:Key="AccentAmber">#FFAA33</Color>
+            <Color x:Key="TextPrimary">#F0F2FF</Color>
+            <Color x:Key="TextSecondary">#8890B0</Color>
+            <Color x:Key="TextMuted">#454D6E</Color>
+            <Color x:Key="Border">#252A42</Color>
+            <Color x:Key="Success">#2ECC71</Color>
+            <Color x:Key="Danger">#E74C3C</Color>
+            <Color x:Key="DangerSoft">#E74C3C15</Color>
+
+            <!-- ── Section Header Label ── -->
+            <Style x:Key="SectionLabel" TargetType="Label">
+                <Setter Property="TextColor"        Value="{StaticResource TextMuted}"/>
+                <Setter Property="FontSize"         Value="10"/>
+                <Setter Property="FontAttributes"   Value="Bold"/>
+                <Setter Property="CharacterSpacing" Value="1.5"/>
+                <Setter Property="Margin"           Value="0,20,0,6"/>
+            </Style>
+
+            <!-- ── Card Border (replaces Frame) ── -->
+            <Style x:Key="Card" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource BgCard}"/>
+                <Setter Property="Stroke"          Value="{StaticResource Border}"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="StrokeShape"     Value="RoundRectangle 14"/>
+                <Setter Property="Padding"         Value="0"/>
+                <Setter Property="Margin"          Value="0,0,0,4"/>
+            </Style>
+
+            <!-- ── Field Label ── -->
+            <Style x:Key="FieldLabel" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextSecondary}"/>
+                <Setter Property="FontSize"  Value="12"/>
+                <Setter Property="Margin"    Value="0,0,0,4"/>
+            </Style>
+
+            <!-- ── Row Label Primary ── -->
+            <Style x:Key="RowTitle" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+                <Setter Property="FontSize"  Value="14"/>
+            </Style>
+
+            <!-- ── Row Label Secondary ── -->
+            <Style x:Key="RowSub" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextSecondary}"/>
+                <Setter Property="FontSize"  Value="11"/>
+                <Setter Property="Margin"    Value="0,2,0,0"/>
+            </Style>
+
+            <!-- ── Chevron ── -->
+            <Style x:Key="Chevron" TargetType="Label">
+                <Setter Property="TextColor"       Value="{StaticResource TextMuted}"/>
+                <Setter Property="FontSize"        Value="18"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
+            <!-- ── Divider ── -->
+            <Style x:Key="Divider" TargetType="BoxView">
+                <Setter Property="HeightRequest" Value="1"/>
+                <Setter Property="Color"         Value="{StaticResource Border}"/>
+                <Setter Property="Margin"        Value="16,0"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <!-- ════════════════════════════════════
+         TITLE BAR
+    ════════════════════════════════════ -->
+    <Shell.TitleView>
+        <StackLayout Orientation="Horizontal"
+                     Padding="0,0,16,0"
+                     VerticalOptions="Center">
+
+            <Label Text="Settings"
+                   TextColor="{StaticResource TextPrimary}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   VerticalOptions="Center"
+                   HorizontalOptions="FillAndExpand"/>
+
+            <Border BackgroundColor="{StaticResource AccentSoft}"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="12,6"
+                    VerticalOptions="Center">
+                <Label Text="Save"
+                       TextColor="{StaticResource Accent}"
+                       FontSize="13"
+                       FontAttributes="Bold"/>
+            </Border>
+
+        </StackLayout>
+    </Shell.TitleView>
+
+    <!-- ════════════════════════════════════
+         SCROLL CONTENT
+    ════════════════════════════════════ -->
+    <ScrollView>
+        <StackLayout Padding="16,8,16,32" Spacing="0">
+
+            <!-- ══════════════════════════
+                 PROFILE CARD
+            ══════════════════════════ -->
+            <Border Style="{StaticResource Card}" Margin="0,8,0,4">
+                <StackLayout Orientation="Horizontal"
+                             Padding="16"
+                             Spacing="14">
+
+                    <!-- Avatar / Logo -->
+                    <Border BackgroundColor="{StaticResource AccentSoft}"
+                            Stroke="{StaticResource Accent}"
+                            StrokeThickness="2"
+                            StrokeShape="RoundRectangle 24"
+                            WidthRequest="48"
+                            HeightRequest="48"
+                            VerticalOptions="Center">
+                        <Image Source="pos_logo.png"
+                               Aspect="AspectFill"
+                               WidthRequest="48"
+                               HeightRequest="48"/>
+                    </Border>
+
+                    <!-- Store Info -->
+                    <StackLayout HorizontalOptions="FillAndExpand"
+                                 VerticalOptions="Center"
+                                 Spacing="2">
+                        <Label Text="Admin"
+                               Style="{StaticResource RowTitle}"
+                               FontAttributes="Bold"
+                               FontSize="15"/>
+                        <Label Text="Tax ID: 0-1234-56789-01-2"
+                               Style="{StaticResource RowSub}"/>
+                    </StackLayout>
+
+                    <!-- Admin Badge -->
+                    <Border BackgroundColor="#FFAA3322"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 6"
+                            Padding="8,4"
+                            VerticalOptions="Center">
+                        <Label Text="ADMIN"
+                               TextColor="{StaticResource AccentAmber}"
+                               FontSize="10"
+                               FontAttributes="Bold"
+                               CharacterSpacing="1"/>
+                    </Border>
+
+                </StackLayout>
+            </Border>
+
+            <!-- ══════════════════════════
+                 SECTION: Store Information
+            ══════════════════════════ -->
+            <Label Text="STORE INFORMATION" Style="{StaticResource SectionLabel}"/>
+
+            <Border Style="{StaticResource Card}">
+                <StackLayout Spacing="0">
+
+                    <!-- Store Name (Local) -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🏪" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Store Name (Local)" Style="{StaticResource FieldLabel}"/>
+                            <Label Text="Sukjai Restaurant"  Style="{StaticResource RowTitle}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Store Name (English) -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🌐" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Store Name (English)" Style="{StaticResource FieldLabel}"/>
+                            <Label Text="Sukjai Restaurant"    Style="{StaticResource RowTitle}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Address -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="📍" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Address" Style="{StaticResource FieldLabel}"/>
+                            <Label Text="123/45 Silom Rd, Bang Rak, Bangkok 10500"
+                                   Style="{StaticResource RowTitle}"
+                                   LineBreakMode="TailTruncation"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Phone -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="📞" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Phone Number" Style="{StaticResource FieldLabel}"/>
+                            <Label Text="02-123-4567"  Style="{StaticResource RowTitle}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Border>
+
+            <!-- ══════════════════════════
+                 SECTION: Finance & Tax
+            ══════════════════════════ -->
+            <Label Text="FINANCE &amp; TAX" Style="{StaticResource SectionLabel}"/>
+
+            <Border Style="{StaticResource Card}">
+                <StackLayout Spacing="0">
+
+                    <!-- Currency -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="💱" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Currency"        Style="{StaticResource FieldLabel}"/>
+                            <Label Text="THB — Thai Baht" Style="{StaticResource RowTitle}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- VAT Rate -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="📋" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="VAT Rate" Style="{StaticResource FieldLabel}"/>
+                            <Label Text="7%"        Style="{StaticResource RowTitle}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Date Format -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="📅" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Date Format" Style="{StaticResource FieldLabel}"/>
+                            <Label Text="DD/MM/YYYY"  Style="{StaticResource RowTitle}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Border>
+
+            <!-- ══════════════════════════
+                 SECTION: Printing & Receipt
+            ══════════════════════════ -->
+            <Label Text="PRINTING &amp; RECEIPT" Style="{StaticResource SectionLabel}"/>
+
+            <Border Style="{StaticResource Card}">
+                <StackLayout Spacing="0">
+
+                    <!-- Printer Status -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🖨️" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Printer"             Style="{StaticResource RowTitle}"/>
+                            <Label Text="Epson TM-T82X (USB)" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Border BackgroundColor="#2ECC7120"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 6"
+                                Padding="8,3"
+                                VerticalOptions="Center">
+                            <Label Text="Connected"
+                                   TextColor="{StaticResource Success}"
+                                   FontSize="11"/>
+                        </Border>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Show VAT on Receipt -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🧾" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Show VAT on Receipt"          Style="{StaticResource RowTitle}"/>
+                            <Label Text="Display VAT amount separately" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Switch IsToggled="True"
+                                OnColor="{StaticResource Accent}"
+                                ThumbColor="White"
+                                VerticalOptions="Center"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Auto Print -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="⚡" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Auto Print Receipt"                   Style="{StaticResource RowTitle}"/>
+                            <Label Text="Print after every successful payment" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Switch IsToggled="True"
+                                OnColor="{StaticResource Accent}"
+                                ThumbColor="White"
+                                VerticalOptions="Center"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Border>
+
+            <!-- ══════════════════════════
+                 SECTION: Security
+            ══════════════════════════ -->
+            <Label Text="SECURITY" Style="{StaticResource SectionLabel}"/>
+
+            <Border Style="{StaticResource Card}">
+                <StackLayout Spacing="0">
+
+                    <!-- Change Password -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🔑" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Change Password"          Style="{StaticResource RowTitle}"/>
+                            <Label Text="Last updated 30 days ago" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- PIN Code -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🔢" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="PIN Code"               Style="{StaticResource RowTitle}"/>
+                            <Label Text="Used for screen unlock" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Auto Lock -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🔒" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Auto Lock Screen"              Style="{StaticResource RowTitle}"/>
+                            <Label Text="Lock after 15 min of inactivity" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Switch IsToggled="True"
+                                OnColor="{StaticResource Accent}"
+                                ThumbColor="White"
+                                VerticalOptions="Center"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Manage Users -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="👥" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Manage Users"       Style="{StaticResource RowTitle}"/>
+                            <Label Text="3 active accounts" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Border>
+
+            <!-- ══════════════════════════
+                 SECTION: System
+            ══════════════════════════ -->
+            <Label Text="SYSTEM" Style="{StaticResource SectionLabel}"/>
+
+            <Border Style="{StaticResource Card}">
+                <StackLayout Spacing="0">
+
+                    <!-- Data Backup -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="☁️" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Data Backup"                 Style="{StaticResource RowTitle}"/>
+                            <Label Text="Last backup: Today 09:00 AM" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Offline Mode -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="📡" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Offline Mode"                      Style="{StaticResource RowTitle}"/>
+                            <Label Text="Works without internet connection"  Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Switch IsToggled="True"
+                                OnColor="{StaticResource Accent}"
+                                ThumbColor="White"
+                                VerticalOptions="Center"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Notifications -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🔔" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Notifications"         Style="{StaticResource RowTitle}"/>
+                            <Label Text="Sound, stock, reports" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- About -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="ℹ️" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="About"                     Style="{StaticResource RowTitle}"/>
+                            <Label Text="NEXPOS v3.2.1 (Build 210)" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Border>
+
+            <!-- ══════════════════════════
+                 SECTION: Account
+            ══════════════════════════ -->
+            <Label Text="ACCOUNT" Style="{StaticResource SectionLabel}"/>
+
+            <!-- Sign Out -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource Border}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="0"
+                    Margin="0,0,0,4">
+                <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                    <Label Text="🚪" FontSize="20" VerticalOptions="Center"/>
+                    <Label Text="Sign Out"
+                           TextColor="{StaticResource Accent}"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           HorizontalOptions="FillAndExpand"
+                           VerticalOptions="Center"/>
+                </StackLayout>
+            </Border>
+
+            <!-- ══════════════════════════
+                 DANGER ZONE
+            ══════════════════════════ -->
+            <Border BackgroundColor="{StaticResource DangerSoft}"
+                    Stroke="#E74C3C35"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="0"
+                    Margin="0,12,0,4">
+                <StackLayout Spacing="0">
+
+                    <!-- Danger Header -->
+                    <StackLayout Padding="16,14,16,12">
+                        <Label Text="⚠️  Danger Zone"
+                               TextColor="{StaticResource Danger}"
+                               FontSize="13"
+                               FontAttributes="Bold"/>
+                    </StackLayout>
+                    <BoxView HeightRequest="1" Color="#E74C3C30" Margin="0"/>
+
+                    <!-- Reset All Data -->
+                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <Label Text="🗑️" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Reset All Data"
+                                   TextColor="{StaticResource Danger}"
+                                   FontSize="14"
+                                   FontAttributes="Bold"/>
+                            <Label Text="Permanently delete all products, sales and settings"
+                                   Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›"
+                               TextColor="{StaticResource Danger}"
+                               FontSize="18"
+                               VerticalOptions="Center"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Border>
+
+            <!-- Bottom Spacer -->
+            <BoxView HeightRequest="20" Color="Transparent"/>
+
+        </StackLayout>
+    </ScrollView>
 </ContentPage>
