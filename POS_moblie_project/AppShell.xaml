@@ -27,30 +27,21 @@
 
                     <!-- Logo Badge -->
                     <Border WidthRequest="50"
-                            HeightRequest="50"
-                            Padding="0"
-                            StrokeThickness="0">
+                        HeightRequest="50"
+                        Padding="0"
+                        StrokeThickness="0"
+                        BackgroundColor="#1C1C28">
 
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="14"/>
+                            <RoundRectangle CornerRadius="12"/>
                         </Border.StrokeShape>
 
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0"
-                                                 EndPoint="1,1">
-
-                                <GradientStop Color="#E8C547" Offset="0"/>
-                                <GradientStop Color="#C88A00" Offset="1"/>
-
-                            </LinearGradientBrush>
-                        </Border.Background>
-
-                        <Label Text="POS"
-                               FontSize="13"
-                               FontAttributes="Bold"
-                               TextColor="#12121A"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
+                        <Image Source="logo.png"
+                           WidthRequest="32"
+                           HeightRequest="32"
+                           Aspect="AspectFit"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
 
                     </Border>
 
