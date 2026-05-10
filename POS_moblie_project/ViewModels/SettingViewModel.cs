@@ -38,25 +38,25 @@ public partial class SettingsViewModel : ObservableObject
 
     [RelayCommand]
     private async Task ChangePasswordAsync()
-        => await NavigateToManagePasswordAsync(ManagePasswordMode.ChangePassword);
+    => await Shell.Current.GoToAsync("managePasswordPage");
 
     [RelayCommand]
     private async Task ChangePinAsync()
-        => await NavigateToManagePasswordAsync(ManagePasswordMode.ChangePin);
+        => await Shell.Current.GoToAsync("managePasswordPage");
 
     // ════════════════════════════════════════════════════════
     //  HELPER
     // ════════════════════════════════════════════════════════
 
-    private static async Task NavigateToManagePasswordAsync(ManagePasswordMode mode)
-    {
-        if (Shell.Current.Handler?.MauiContext?.Services
-            .GetService(typeof(ManagePasswordPage)) is ManagePasswordPage page)
-        {
-            page.SetMode(mode);
-        }
+    //private static async Task NavigateToManagePasswordAsync(ManagePasswordMode mode)
+    //{
+        //if (Shell.Current.Handler?.MauiContext?.Services
+           // .GetService(typeof(ManagePasswordPage)) is ManagePasswordPage page)
+       // {
+        //    page.SetMode(mode);
+       // }
 
         // ใช้ absolute path ตาม AppShell.xaml
-        await Shell.Current.GoToAsync("//settings/ManagePasswordPage");
-    }
+       // await Shell.Current.GoToAsync("//settings/ManagePasswordPage");
+    //}
 }

@@ -26,6 +26,9 @@ public partial class PasswordViewModel : ObservableObject
     private string _firstPinAttempt = string.Empty;
     private bool _isConfirmingNewPin;
 
+    // Page subscribes to this for shake animation
+    public event Action<string>? OnError;
+
     public PasswordViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
@@ -48,7 +51,6 @@ public partial class PasswordViewModel : ObservableObject
         if (EnteredPin.Length >= PinLength)
             return;
 
-        // Clear error on new input
         if (IsError)
         {
             IsError = false;
@@ -69,15 +71,12 @@ public partial class PasswordViewModel : ObservableObject
         }
 
         if (EnteredPin.Length > 0)
-        {
             EnteredPin = EnteredPin.Substring(0, EnteredPin.Length - 1);
-        }
     }
 
     [RelayCommand]
     private async Task ConfirmAsync()
     {
-        // Require full 6-digit PIN before submitting
         if (EnteredPin.Length != PinLength)
         {
             ShowError($"PIN must be {PinLength} digits");
@@ -85,13 +84,9 @@ public partial class PasswordViewModel : ObservableObject
         }
 
         if (IsFirstTimeSetup)
-        {
             await HandleFirstTimeSetupAsync();
-        }
         else
-        {
             await HandleLoginAsync();
-        }
     }
 
     [RelayCommand]
@@ -127,10 +122,12 @@ public partial class PasswordViewModel : ObservableObject
             }
             else
             {
+                // Shake then reset to step 1
                 ShowError("PINs don't match. Try again.");
+                await Task.Delay(800);
                 _firstPinAttempt = string.Empty;
                 _isConfirmingNewPin = false;
-                await Task.Delay(1200);
+                IsError = false;
                 StatusMessage = "Create a 6-digit PIN";
             }
         }
@@ -142,19 +139,17 @@ public partial class PasswordViewModel : ObservableObject
         var enteredHash = HashPin(EnteredPin);
 
         if (storedHash == enteredHash)
-        {
             NavigateToShell();
-        }
         else
-        {
             ShowError("Incorrect password");
-        }
     }
 
     private void ShowError(string message)
     {
         IsError = true;
         StatusMessage = message;
+        EnteredPin = string.Empty;       // Auto-clear dots immediately
+        OnError?.Invoke(message);        // Trigger shake animation in page
     }
 
     private void NavigateToShell()
