@@ -9,6 +9,23 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters -->
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <converters:PriceFormatConverter x:Key="PriceFormatConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+
+            <!-- Empty View Template (reusable for all CollectionViews) -->
+            <DataTemplate x:Key="EmptyViewTemplate">
+                <StackLayout Padding="12" Spacing="8"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center">
+                    <Label Text="📭" FontSize="48" HorizontalOptions="Center" />
+                    <Label Text="{Binding .}" HorizontalOptions="Center"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray500}}" />
+                </StackLayout>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
