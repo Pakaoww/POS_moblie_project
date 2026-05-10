@@ -90,7 +90,6 @@
                    FontAttributes="Bold"
                    VerticalOptions="Center"
                    HorizontalOptions="FillAndExpand"/>
- 
         </StackLayout>
     </Shell.TitleView>
 
