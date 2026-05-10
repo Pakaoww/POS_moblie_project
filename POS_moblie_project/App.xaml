@@ -17,6 +17,7 @@
             <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
             <converters:PriceFormatConverter x:Key="PriceFormatConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:StepDotConverter x:Key="StepDotConverter"/>
 
             <!-- Empty View Template (reusable for all CollectionViews) -->
             <DataTemplate x:Key="EmptyViewTemplate">

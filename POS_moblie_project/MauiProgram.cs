@@ -80,8 +80,14 @@ namespace POS_moblie_project
 
 #if DEBUG
             builder.Logging.AddDebug();
+
+            //Setting Page
             builder.Services.AddTransient<SettingsViewModel>();
             builder.Services.AddTransient<SettingsPage>();
+
+            //ChangePassword Page
+            builder.Services.AddTransient<ManagePasswordViewModel>();
+            builder.Services.AddTransient<ManagePasswordPage>();
 #endif
 
             return builder.Build();
