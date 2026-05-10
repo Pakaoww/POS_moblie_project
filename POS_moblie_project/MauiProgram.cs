@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using POS_moblie_project.Services;
 using POS_moblie_project.ViewModels;
+using POS_moblie_project.ViewModels.Settings;
 using POS_moblie_project.Views.Auth;
+using POS_moblie_project.Views.Settings;
 
 namespace POS_moblie_project
 {
@@ -78,6 +80,8 @@ namespace POS_moblie_project
 
 #if DEBUG
             builder.Logging.AddDebug();
+            builder.Services.AddTransient<SettingsViewModel>();
+            builder.Services.AddTransient<SettingsPage>();
 #endif
 
             return builder.Build();
