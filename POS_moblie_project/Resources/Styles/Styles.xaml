@@ -431,4 +431,42 @@
         <Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
     </Style>
 
+    <Style x:Key="KeypadButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="#E8E8E8" />
+        <Setter Property="TextColor" Value="#222222" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="40" />
+        <Setter Property="HeightRequest" Value="80" />
+        <Setter Property="WidthRequest" Value="80" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderWidth" Value="0" />
+    </Style>
+
+    <!-- Delete button (gray, slightly different) -->
+    <Style x:Key="KeypadActionButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="#D8D8D8" />
+        <Setter Property="TextColor" Value="#444444" />
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="40" />
+        <Setter Property="HeightRequest" Value="80" />
+        <Setter Property="WidthRequest" Value="80" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderWidth" Value="0" />
+    </Style>
+
+    <!-- OK / Confirm button (highlighted color) -->
+    <Style x:Key="KeypadConfirmButtonStyle" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="#4ECDC4" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CornerRadius" Value="40" />
+        <Setter Property="HeightRequest" Value="80" />
+        <Setter Property="WidthRequest" Value="80" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderWidth" Value="0" />
+    </Style>
+
 </ResourceDictionary>

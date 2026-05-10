@@ -12,6 +12,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
+            <converters:BoolToErrorColorConverter x:Key="BoolToErrorColorConverter" />
+            <converters:PinDotConverter x:Key="PinDotConverter" />
             <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
             <converters:PriceFormatConverter x:Key="PriceFormatConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />

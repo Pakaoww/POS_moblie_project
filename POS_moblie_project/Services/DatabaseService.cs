@@ -6,6 +6,7 @@ namespace POS_moblie_project.Services;
 public class DatabaseService
 {
     private SQLiteAsyncConnection _database;
+    private readonly SemaphoreSlim _initLock = new(1, 1);
     private const string DatabaseFilename = "mobilepos.db3";
 
     private static string DatabasePath =>
@@ -34,6 +35,23 @@ public class DatabaseService
         // Seed defaults if empty
         await InitializeDefaultCategoriesAsync();
         await InitializeDefaultSettingsAsync();
+    }
+
+    private async Task EnsureInitializedAsync()
+    {
+        if (_database != null)
+            return;
+
+        await _initLock.WaitAsync();
+        try
+        {
+            if (_database == null)
+                await InitializeAsync();
+        }
+        finally
+        {
+            _initLock.Release();
+        }
     }
 
     private async Task InitializeDefaultCategoriesAsync()
@@ -69,6 +87,34 @@ public class DatabaseService
         }
     }
 
-    // Expose the raw connection for use by CRUD methods added in later phases
-    internal SQLiteAsyncConnection Connection => _database;
+    // ============================================
+    // AppSettings methods
+    // ============================================
+    public async Task<string> GetSettingAsync(string key)
+    {
+        await EnsureInitializedAsync();
+
+        var setting = await _database.Table<AppSetting>()
+                                      .Where(s => s.Key == key)
+                                      .FirstOrDefaultAsync();
+        return setting?.Value ?? string.Empty;
+    }
+
+    public async Task SetSettingAsync(string key, string value)
+    {
+        await EnsureInitializedAsync();
+
+        var existing = await _database.Table<AppSetting>()
+                                       .Where(s => s.Key == key)
+                                       .FirstOrDefaultAsync();
+        if (existing == null)
+        {
+            await _database.InsertAsync(new AppSetting(key, value));
+        }
+        else
+        {
+            existing.Value = value;
+            await _database.UpdateAsync(existing);
+        }
+    }
 }
