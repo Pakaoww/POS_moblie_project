@@ -5,6 +5,7 @@ namespace POS_moblie_project.Views.Settings;
 public partial class ManagePasswordPage : ContentPage
 {
     private readonly ManagePasswordViewModel _viewModel;
+    private ManagePasswordMode _mode;
 
     public ManagePasswordPage(ManagePasswordViewModel viewModel)
     {
@@ -12,10 +13,15 @@ public partial class ManagePasswordPage : ContentPage
         _viewModel = viewModel;
         BindingContext = _viewModel;
 
-        // Subscribe events จาก ViewModel
         _viewModel.OnPinError += HandlePinError;
         _viewModel.OnStepChanged += HandleStepChanged;
         _viewModel.OnPinSuccess += HandlePinSuccess;
+    }
+
+    // ── รับ mode จาก SettingsViewModel ──────────────────────
+    public void SetMode(ManagePasswordMode mode)
+    {
+        _mode = mode;
     }
 
     // ── Lifecycle ─────────────────────────────────────────
@@ -23,13 +29,12 @@ public partial class ManagePasswordPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        _viewModel.InitializeCommand.Execute(null);
+        _viewModel.InitializeCommand.Execute(_mode);
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        // Unsubscribe ป้องกัน memory leak
         _viewModel.OnPinError -= HandlePinError;
         _viewModel.OnStepChanged -= HandleStepChanged;
         _viewModel.OnPinSuccess -= HandlePinSuccess;
@@ -37,23 +42,26 @@ public partial class ManagePasswordPage : ContentPage
 
     // ── Event Handlers ────────────────────────────────────
 
-    /// <summary>PIN ผิด — shake แล้ว clear จุด</summary>
     private async void HandlePinError(string errorMessage)
     {
         await ShakePinDotsAsync();
     }
 
-    /// <summary>เปลี่ยน step — flash animation บอกผู้ใช้</summary>
     private async void HandleStepChanged(string newTitle)
     {
         await PinDotsLayout.FadeTo(0, 120);
         await PinDotsLayout.FadeTo(1, 120);
     }
 
-    /// <summary>สำเร็จ — แสดง alert แล้วกลับหน้า Settings</summary>
     private async void HandlePinSuccess()
     {
-        await DisplayAlert("Success", "PIN changed successfully.", "OK");
+        var message = _mode == ManagePasswordMode.ChangePin
+            ? "PIN changed successfully."
+            : "Password changed successfully.";
+
+        await DisplayAlert("Success", message, "OK");
+
+        // กลับไปหน้า Settings
         await Shell.Current.GoToAsync("..");
     }
 

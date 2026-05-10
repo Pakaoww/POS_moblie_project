@@ -10,6 +10,12 @@ public enum PinStep
     ConfirmNew      // รอบ 3 — ยืนยัน PIN ใหม่
 }
 
+public enum ManagePasswordMode
+{
+    ChangePassword, // มาจากปุ่ม Change Password (3 รอบ)
+    ChangePin       // มาจากปุ่ม PIN Code (3 รอบเหมือนกัน)
+}
+
 public partial class ManagePasswordViewModel : ObservableObject
 {
     // ════════════════════════════════════════════════════════
@@ -31,44 +37,47 @@ public partial class ManagePasswordViewModel : ObservableObject
     [ObservableProperty]
     private string _errorMessage = string.Empty;
 
-    // เก็บ PIN ใหม่ชั่วคราวระหว่างรอบ 2 → 3
+    // Mode ที่รับมาจาก Settings
+    private ManagePasswordMode _mode = ManagePasswordMode.ChangePassword;
+
+    // เก็บ PIN ใหม่ชั่วคราว
     private string _newPinTemp = string.Empty;
 
     // ════════════════════════════════════════════════════════
-    //  PIN INPUT STATE
+    //  PIN INPUT
     // ════════════════════════════════════════════════════════
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(EnteredPin))]
     private string _enteredPin = string.Empty;
 
     // ════════════════════════════════════════════════════════
     //  EVENTS → ManagePasswordPage subscribe
     // ════════════════════════════════════════════════════════
 
-    /// <summary>PIN ผิด — ส่ง error message ไปให้ Page ทำ shake animation</summary>
     public event Action<string>? OnPinError;
-
-    /// <summary>เปลี่ยน step สำเร็จ — Page ทำ fade animation</summary>
     public event Action<string>? OnStepChanged;
-
-    /// <summary>เปลี่ยน PIN สำเร็จทั้ง 3 รอบ</summary>
     public event Action? OnPinSuccess;
 
     // ════════════════════════════════════════════════════════
-    //  INIT
+    //  INIT — เรียกจาก Page พร้อมบอก mode
     // ════════════════════════════════════════════════════════
 
     [RelayCommand]
-    private void Initialize()
+    private void Initialize(ManagePasswordMode mode)
     {
+        _mode = mode;
+
         CurrentStep = PinStep.VerifyCurrent;
-        StepTitle = "Enter current PIN";
         StepDescription = "Step 1 of 3";
         IsError = false;
         ErrorMessage = string.Empty;
         EnteredPin = string.Empty;
         _newPinTemp = string.Empty;
+
+        // Title ต่างกันตาม mode
+        StepTitle = _mode == ManagePasswordMode.ChangePin
+            ? "Enter current PIN"
+            : "Enter current PIN";
     }
 
     // ════════════════════════════════════════════════════════
@@ -79,12 +88,10 @@ public partial class ManagePasswordViewModel : ObservableObject
     private void DigitPressed(string digit)
     {
         if (EnteredPin.Length >= 6) return;
-
         IsError = false;
         ErrorMessage = string.Empty;
         EnteredPin += digit;
 
-        // Auto-confirm เมื่อครบ 6 หลัก
         if (EnteredPin.Length == 6)
             ConfirmCommand.Execute(null);
     }
@@ -110,21 +117,13 @@ public partial class ManagePasswordViewModel : ObservableObject
         }
 
         var pin = EnteredPin;
-        EnteredPin = string.Empty; // clear ก่อน process
+        EnteredPin = string.Empty;
 
         switch (CurrentStep)
         {
-            case PinStep.VerifyCurrent:
-                await HandleVerifyCurrentAsync(pin);
-                break;
-
-            case PinStep.EnterNew:
-                HandleEnterNew(pin);
-                break;
-
-            case PinStep.ConfirmNew:
-                await HandleConfirmNewAsync(pin);
-                break;
+            case PinStep.VerifyCurrent: await HandleVerifyCurrentAsync(pin); break;
+            case PinStep.EnterNew: HandleEnterNew(pin); break;
+            case PinStep.ConfirmNew: await HandleConfirmNewAsync(pin); break;
         }
     }
 
@@ -135,11 +134,11 @@ public partial class ManagePasswordViewModel : ObservableObject
         await Shell.Current.GoToAsync("..");
     }
 
+
     // ════════════════════════════════════════════════════════
     //  STEP HANDLERS
     // ════════════════════════════════════════════════════════
 
-    // รอบ 1 — ตรวจสอบ PIN ปัจจุบัน
     private async Task HandleVerifyCurrentAsync(string pin)
     {
         var saved = await SecureStorage.GetAsync("user_pin");
@@ -155,23 +154,24 @@ public partial class ManagePasswordViewModel : ObservableObject
 
         // ผ่าน → ไปรอบ 2
         CurrentStep = PinStep.EnterNew;
-        StepTitle = "Enter new PIN";
         StepDescription = "Step 2 of 3";
+        StepTitle = _mode == ManagePasswordMode.ChangePin
+            ? "Enter new PIN"
+            : "Enter new PIN";
         OnStepChanged?.Invoke(StepTitle);
     }
 
-    // รอบ 2 — รับ PIN ใหม่
     private void HandleEnterNew(string pin)
     {
         _newPinTemp = pin;
-
         CurrentStep = PinStep.ConfirmNew;
-        StepTitle = "Confirm new PIN";
         StepDescription = "Step 3 of 3";
+        StepTitle = _mode == ManagePasswordMode.ChangePin
+            ? "Confirm new PIN"
+            : "Confirm new PIN";
         OnStepChanged?.Invoke(StepTitle);
     }
 
-    // รอบ 3 — ยืนยัน PIN ใหม่
     private async Task HandleConfirmNewAsync(string pin)
     {
         if (pin != _newPinTemp)
@@ -179,17 +179,21 @@ public partial class ManagePasswordViewModel : ObservableObject
             IsError = true;
             ErrorMessage = "PINs do not match. Try again.";
 
-            // กลับไปรอบ 2 ใหม่
+            // กลับรอบ 2
             _newPinTemp = string.Empty;
             CurrentStep = PinStep.EnterNew;
-            StepTitle = "Enter new PIN";
             StepDescription = "Step 2 of 3";
+            StepTitle = "Enter new PIN";
             OnPinError?.Invoke(ErrorMessage);
             return;
         }
 
-        // บันทึก PIN ใหม่
-        await SecureStorage.SetAsync("user_pin", pin);
+        // บันทึก
+        var storageKey = _mode == ManagePasswordMode.ChangePin
+            ? "user_pin"
+            : "user_pin";
+
+        await SecureStorage.SetAsync(storageKey, pin);
         _newPinTemp = string.Empty;
         OnPinSuccess?.Invoke();
     }

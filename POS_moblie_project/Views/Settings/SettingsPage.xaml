@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels.Settings"
              x:Class="POS_moblie_project.Views.Settings.SettingsPage"
-             Title="Settings">
+             x:DataType="vm:SettingsViewModel"
+             Title="Settings"
+             BackgroundColor="#0D0F1A">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -96,12 +99,11 @@
                     <!-- VAT Rate — Toggle + Stepper -->
                     <StackLayout Padding="16,14" Spacing="10">
 
-                        <!-- Row 1: Icon + Label + Toggle -->
+                        <!-- Row: Icon + Label + Toggle -->
                         <StackLayout Orientation="Horizontal" Spacing="12">
                             <Label Text="📋" FontSize="20" VerticalOptions="Center"/>
                             <StackLayout HorizontalOptions="FillAndExpand"
-                                         Spacing="2"
-                                         VerticalOptions="Center">
+                                         Spacing="2" VerticalOptions="Center">
                                 <Label Text="VAT Rate"             Style="{StaticResource FieldLabel}"/>
                                 <Label Text="Enable VAT on orders" Style="{StaticResource RowSub}"/>
                             </StackLayout>
@@ -111,7 +113,7 @@
                                     VerticalOptions="Center"/>
                         </StackLayout>
 
-                        <!-- Row 2: Stepper (visible เมื่อ VatEnabled = true) -->
+                        <!-- Stepper (visible เมื่อ VatEnabled = true) -->
                         <Border BackgroundColor="{StaticResource BgInput}"
                                 Stroke="{StaticResource Border}"
                                 StrokeThickness="1"
@@ -124,27 +126,23 @@
                                 <Border BackgroundColor="{StaticResource BgCard}"
                                         Stroke="Transparent"
                                         StrokeShape="RoundRectangle 8"
-                                        WidthRequest="44"
-                                        HeightRequest="44">
+                                        WidthRequest="44" HeightRequest="44">
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding DecreaseVatCommand}"/>
                                     </Border.GestureRecognizers>
                                     <Label Text="−"
                                            TextColor="{StaticResource TextPrimary}"
-                                           FontSize="22"
-                                           FontAttributes="Bold"
+                                           FontSize="22" FontAttributes="Bold"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
                                 </Border>
 
                                 <!-- แสดงค่า % -->
                                 <StackLayout HorizontalOptions="FillAndExpand"
-                                             VerticalOptions="Center"
-                                             Spacing="2">
+                                             VerticalOptions="Center" Spacing="2">
                                     <Label Text="{Binding VatRateDisplay}"
                                            TextColor="{StaticResource TextPrimary}"
-                                           FontSize="20"
-                                           FontAttributes="Bold"
+                                           FontSize="20" FontAttributes="Bold"
                                            HorizontalOptions="Center"/>
                                     <Label Text="Tax Rate"
                                            TextColor="{StaticResource TextMuted}"
@@ -156,15 +154,13 @@
                                 <Border BackgroundColor="{StaticResource AccentSoft}"
                                         Stroke="Transparent"
                                         StrokeShape="RoundRectangle 8"
-                                        WidthRequest="44"
-                                        HeightRequest="44">
+                                        WidthRequest="44" HeightRequest="44">
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding IncreaseVatCommand}"/>
                                     </Border.GestureRecognizers>
                                     <Label Text="+"
                                            TextColor="{StaticResource Accent}"
-                                           FontSize="22"
-                                           FontAttributes="Bold"
+                                           FontSize="22" FontAttributes="Bold"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
                                 </Border>
@@ -188,6 +184,9 @@
 
                     <!-- Change Password -->
                     <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangePasswordCommand}"/>
+                        </StackLayout.GestureRecognizers>
                         <Label Text="🔑" FontSize="20" VerticalOptions="Center"/>
                         <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
                             <Label Text="Change Password"          Style="{StaticResource RowTitle}"/>
@@ -199,6 +198,9 @@
 
                     <!-- PIN Code -->
                     <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangePinCommand}"/>
+                        </StackLayout.GestureRecognizers>
                         <Label Text="🔢" FontSize="20" VerticalOptions="Center"/>
                         <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
                             <Label Text="PIN Code"               Style="{StaticResource RowTitle}"/>
