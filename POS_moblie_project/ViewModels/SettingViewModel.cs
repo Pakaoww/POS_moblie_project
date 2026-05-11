@@ -32,5 +32,5 @@ public partial class SettingsViewModel : ObservableObject
 
     [RelayCommand]
     private async Task ChangePinAsync()
-        => await Shell.Current.GoToAsync("managePasswordPage");
+        => await Shell.Current.GoToAsync("ManageCategoryPage");
 }
