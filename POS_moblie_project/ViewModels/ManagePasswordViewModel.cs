@@ -72,7 +72,7 @@ public partial class ManagePasswordViewModel : ObservableObject
         ErrorMessage = string.Empty;
         EnteredPin += digit;
 
-        // ← No auto-submit here. User must press OK explicitly.
+        // No auto-submit — user must press OK explicitly
     }
 
     [RelayCommand]

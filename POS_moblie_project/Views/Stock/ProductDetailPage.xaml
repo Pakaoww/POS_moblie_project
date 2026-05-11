@@ -1,12 +1,134 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
              x:Class="POS_moblie_project.Views.Stock.ProductDetailPage"
-             Title="ProductDetailPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:ProductDetailViewModel"
+             Title="{Binding PageTitle}"
+             BackgroundColor="White">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="14">
+
+            <!-- Image preview -->
+            <Border WidthRequest="160"
+                    HeightRequest="160"
+                    BackgroundColor="#F0F0F2"
+                    StrokeThickness="0"
+                    HorizontalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12" />
+                </Border.StrokeShape>
+                <Image Source="{Binding ImagePath}"
+                       Aspect="AspectFill" />
+            </Border>
+
+            <!-- Photo buttons -->
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Button Text="Take Photo"
+                        BackgroundColor="#E8E8EA"
+                        TextColor="#222222"
+                        FontSize="13"
+                        Padding="14,8"
+                        CornerRadius="8"
+                        Command="{Binding TakePhotoCommand}" />
+                <Button Text="Import"
+                        BackgroundColor="#E8E8EA"
+                        TextColor="#222222"
+                        FontSize="13"
+                        Padding="14,8"
+                        CornerRadius="8"
+                        Command="{Binding PickPhotoCommand}" />
+            </HorizontalStackLayout>
+
+            <!-- Fields -->
+            <Label Text="Product Code"
+                   FontSize="13"
+                   TextColor="#666666"
+                   Margin="0,10,0,0" />
+            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Entry Text="{Binding ProductCode}"
+                       BackgroundColor="Transparent" />
+            </Border>
+
+            <Label Text="Product Name"
+                   FontSize="13"
+                   TextColor="#666666" />
+            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Entry Text="{Binding ProductName}"
+                       BackgroundColor="Transparent" />
+            </Border>
+
+            <Label Text="Category"
+                   FontSize="13"
+                   TextColor="#666666" />
+            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Picker ItemsSource="{Binding Categories}"
+                        ItemDisplayBinding="{Binding Name}"
+                        SelectedItem="{Binding SelectedCategory}"
+                        BackgroundColor="Transparent" />
+            </Border>
+
+            <Label Text="Price"
+                   FontSize="13"
+                   TextColor="#666666" />
+            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Entry Text="{Binding Price}"
+                       Keyboard="Numeric"
+                       BackgroundColor="Transparent" />
+            </Border>
+
+            <Label Text="Stock"
+                   FontSize="13"
+                   TextColor="#666666" />
+            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Entry Text="{Binding Stock}"
+                       Keyboard="Numeric"
+                       BackgroundColor="Transparent" />
+            </Border>
+
+            <!-- Action buttons -->
+            <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="10"
+                  Margin="0,20,0,0">
+                <Button Grid.Column="0"
+                        Text="Delete"
+                        BackgroundColor="#E53935"
+                        TextColor="White"
+                        HeightRequest="46"
+                        CornerRadius="8"
+                        IsVisible="{Binding IsEditMode}"
+                        Command="{Binding DeleteCommand}" />
+                <Button Grid.Column="1"
+                        Text="Save"
+                        BackgroundColor="#4ECDC4"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        HeightRequest="46"
+                        CornerRadius="8"
+                        Command="{Binding SaveCommand}" />
+            </Grid>
+
+            <Button Text="Cancel"
+                    BackgroundColor="Transparent"
+                    TextColor="#666666"
+                    Command="{Binding CancelCommand}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -77,123 +77,75 @@
     <!-- ===================== -->
 
     <!-- HOME -->
-    <FlyoutItem Title="Home"
-                 Route="home">
-
+    <FlyoutItem Title="Home" Route="home">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf015;"
-                             FontFamily="FontAwesome"
-                             Color="#9090A8"
-                             Size="18"/>
+                         FontFamily="FontAwesome"
+                         Color="#9090A8"
+                         Size="18"/>
         </FlyoutItem.Icon>
-
         <ShellContent Route="HomePage"
-                      ContentTemplate="{DataTemplate home:HomePage}"/>
-
+                  ContentTemplate="{DataTemplate home:HomePage}"/>
     </FlyoutItem>
 
     <!-- POS -->
-    <FlyoutItem Title="POS"
-                 Route="pos">
-
+    <FlyoutItem Title="POS" Route="pos">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf109;"
-                             FontFamily="FontAwesome"
-                             Color="#9090A8"
-                             Size="18"/>
+                         FontFamily="FontAwesome"
+                         Color="#9090A8"
+                         Size="18"/>
         </FlyoutItem.Icon>
-
         <ShellContent Route="POSPage"
-                      ContentTemplate="{DataTemplate pos:POSPage}"/>
-
-        <ShellContent Route="CartPage"
-                      ContentTemplate="{DataTemplate pos:CartPage}"
-                      Shell.FlyoutItemIsVisible="False"/>
-
+                  ContentTemplate="{DataTemplate pos:POSPage}"/>
     </FlyoutItem>
 
     <!-- TRANSACTIONS -->
-    <FlyoutItem Title="Transactions"
-                 Route="transactions">
-
+    <FlyoutItem Title="Transactions" Route="transactions">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf362;"
-                             FontFamily="FontAwesome"
-                             Color="#9090A8"
-                             Size="18"/>
+                         FontFamily="FontAwesome"
+                         Color="#9090A8"
+                         Size="18"/>
         </FlyoutItem.Icon>
-
         <ShellContent Route="TransactionHistoryPage"
-                      ContentTemplate="{DataTemplate transactions:TransactionHistoryPage}"/>
-
-        <ShellContent Route="TransactionDetailPage"
-                      ContentTemplate="{DataTemplate transactions:TransactionDetailPage}"
-                      Shell.FlyoutItemIsVisible="False"/>
-
+                  ContentTemplate="{DataTemplate transactions:TransactionHistoryPage}"/>
     </FlyoutItem>
 
     <!-- STOCK -->
-    <FlyoutItem Title="Stock"
-                 Route="stock">
-
+    <FlyoutItem Title="Stock" Route="stock">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf1b2;"
-                             FontFamily="FontAwesome"
-                             Color="#9090A8"
-                             Size="18"/>
+                         FontFamily="FontAwesome"
+                         Color="#9090A8"
+                         Size="18"/>
         </FlyoutItem.Icon>
-
         <ShellContent Route="StockPage"
-                      ContentTemplate="{DataTemplate stock:StockPage}"/>
-
-        <ShellContent Route="ProductDetailPage"
-                      ContentTemplate="{DataTemplate stock:ProductDetailPage}"
-                      Shell.FlyoutItemIsVisible="False"/>
-
+                  ContentTemplate="{DataTemplate stock:StockPage}"/>
     </FlyoutItem>
 
     <!-- REPORTS -->
-    <FlyoutItem Title="Reports"
-                 Route="reports">
-
+    <FlyoutItem Title="Reports" Route="reports">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf080;"
-                             FontFamily="FontAwesome"
-                             Color="#9090A8"
-                             Size="18"/>
+                         FontFamily="FontAwesome"
+                         Color="#9090A8"
+                         Size="18"/>
         </FlyoutItem.Icon>
-
         <ShellContent Route="SalesReportPage"
-                      ContentTemplate="{DataTemplate reports:SalesReportPage}"/>
-
-        <ShellContent Route="ProductSalesDetailPage"
-                      ContentTemplate="{DataTemplate reports:ProductSalesDetailPage}"
-                      Shell.FlyoutItemIsVisible="False"/>
-
+                  ContentTemplate="{DataTemplate reports:SalesReportPage}"/>
     </FlyoutItem>
 
     <!-- SETTINGS -->
-    <FlyoutItem Title="Settings"
-                 Route="settings">
-
+    <FlyoutItem Title="Settings" Route="settings">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf013;"
-                             FontFamily="FontAwesome"
-                             Color="#9090A8"
-                             Size="18"/>
+                         FontFamily="FontAwesome"
+                         Color="#9090A8"
+                         Size="18"/>
         </FlyoutItem.Icon>
-
         <ShellContent Route="SettingsPage"
-                      ContentTemplate="{DataTemplate settings:SettingsPage}"/>
-
-        <ShellContent Route="ManageCategoryPage"
-                      ContentTemplate="{DataTemplate settings:ManageCategoryPage}"
-                      Shell.FlyoutItemIsVisible="False"/>
-
-        <ShellContent Route="ManagePasswordPage"
-                      ContentTemplate="{DataTemplate settings:ManagePasswordPage}"
-                      Shell.FlyoutItemIsVisible="False"/>
-
+                  ContentTemplate="{DataTemplate settings:SettingsPage}"/>
     </FlyoutItem>
 
     <!-- ===================== -->

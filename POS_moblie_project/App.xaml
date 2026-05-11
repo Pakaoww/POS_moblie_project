@@ -18,6 +18,7 @@
             <converters:PriceFormatConverter x:Key="PriceFormatConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:StepDotConverter x:Key="StepDotConverter"/>
+            <converters:BoolToVisibleTextConverter x:Key="BoolToVisibleTextConverter" />
 
             <!-- Empty View Template (reusable for all CollectionViews) -->
             <DataTemplate x:Key="EmptyViewTemplate">

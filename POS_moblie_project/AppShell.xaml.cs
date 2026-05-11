@@ -1,4 +1,8 @@
-﻿using POS_moblie_project.Views.Settings;
+﻿using POS_moblie_project.Views.POS;
+using POS_moblie_project.Views.Reports;
+using POS_moblie_project.Views.Settings;
+using POS_moblie_project.Views.Stock;
+using POS_moblie_project.Views.Transactions;
 
 namespace POS_moblie_project
 {
@@ -7,8 +11,13 @@ namespace POS_moblie_project
         public AppShell()
         {
             InitializeComponent();
-            // Register routes ที่ไม่ได้อยู่ใน FlyoutItem
-            //Routing.RegisterRoute(nameof(PasswordPage), typeof(PasswordPage));
+
+            // All sub-pages (not in flyout) must be registered here
+            Routing.RegisterRoute("ProductDetailPage", typeof(ProductDetailPage));
+            Routing.RegisterRoute("CartPage", typeof(CartPage));
+            Routing.RegisterRoute("TransactionDetailPage", typeof(TransactionDetailPage));
+            Routing.RegisterRoute("ProductSalesDetailPage", typeof(ProductSalesDetailPage));
+            Routing.RegisterRoute("ManageCategoryPage", typeof(ManageCategoryPage));
             Routing.RegisterRoute("managePasswordPage", typeof(ManagePasswordPage));
         }
     }

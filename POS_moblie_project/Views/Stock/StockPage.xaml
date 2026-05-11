@@ -1,12 +1,158 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
+             xmlns:models="clr-namespace:POS_moblie_project.Models"
              x:Class="POS_moblie_project.Views.Stock.StockPage"
-             Title="StockPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:StockViewModel"
+             Title="Stock"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="16" RowSpacing="10">
+
+        <!-- Search bar -->
+        <Border Grid.Row="0"
+                BackgroundColor="#F5F5F7"
+                Padding="12,4"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+            <Entry Placeholder="Search by name or code..."
+                   Text="{Binding SearchText}"
+                   BackgroundColor="Transparent" />
+        </Border>
+
+        <!-- Category filter -->
+        <Picker Grid.Row="1"
+                Title="Filter by category"
+                ItemsSource="{Binding CategoryFilters}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedCategory}"
+                BackgroundColor="#F5F5F7" />
+
+        <!-- Add button -->
+        <Button Grid.Row="2"
+                Text="+ Add Product"
+                BackgroundColor="#4ECDC4"
+                TextColor="White"
+                FontAttributes="Bold"
+                HeightRequest="44"
+                CornerRadius="8"
+                Command="{Binding AddProductCommand}" />
+
+        <!-- Product list -->
+        <RefreshView Grid.Row="3"
+                     IsRefreshing="{Binding IsLoading}"
+                     Command="{Binding LoadStockCommand}">
+            <CollectionView ItemsSource="{Binding Products}"
+                            SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <Label Text="No products found"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="#999999"
+                           Margin="0,40,0,0" />
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Product">
+                        <Border Margin="0,0,0,8"
+                                Padding="12"
+                                BackgroundColor="#F5F5F7"
+                                StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+
+                            <Grid ColumnDefinitions="60,*,Auto" ColumnSpacing="12">
+
+                                <!-- Product image -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="50"
+                                        HeightRequest="50"
+                                        BackgroundColor="#E0E0E5"
+                                        StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6" />
+                                    </Border.StrokeShape>
+                                    <Image Source="{Binding ImagePath}"
+                                           Aspect="AspectFill" />
+                                </Border>
+
+                                <!-- Product info -->
+                                <VerticalStackLayout Grid.Column="1"
+                                                     VerticalOptions="Center"
+                                                     Spacing="2">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#222222" />
+                                    <Label Text="{Binding ProductCode, StringFormat='Code: {0}'}"
+                                           FontSize="12"
+                                           TextColor="#666666" />
+                                    <Label Text="{Binding Stock, StringFormat='Stock: {0}'}"
+                                           FontSize="12"
+                                           TextColor="#666666" />
+                                    <Label Text="{Binding Price, StringFormat='฿{0:N2}'}"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="#4ECDC4" />
+                                </VerticalStackLayout>
+
+                                <!-- Actions -->
+                                <VerticalStackLayout Grid.Column="2"
+                                                     Spacing="8"
+                                                     VerticalOptions="Center">
+
+                                    <!-- Toggle visibility button instead of Switch -->
+                                    <Border WidthRequest="52"
+                                            HeightRequest="30"
+                                            StrokeThickness="0"
+                                            BackgroundColor="{Binding IsVisible, Converter={StaticResource BoolToColorConverter}}"
+                                            HorizontalOptions="Center">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="15" />
+                                        </Border.StrokeShape>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StockViewModel}}, Path=ToggleVisibilityCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="{Binding IsVisible, Converter={StaticResource BoolToVisibleTextConverter}}"
+                                               FontSize="10"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+
+                                    <HorizontalStackLayout Spacing="4">
+                                        <Button Text="Edit"
+                                                FontSize="11"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#4ECDC4"
+                                                Padding="6,2"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StockViewModel}}, Path=EditProductCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        <Button Text="Del"
+                                                FontSize="11"
+                                                BackgroundColor="Transparent"
+                                                TextColor="#E53935"
+                                                Padding="6,2"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StockViewModel}}, Path=DeleteProductCommand}"
+                                                CommandParameter="{Binding .}" />
+                                    </HorizontalStackLayout>
+
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
 </ContentPage>

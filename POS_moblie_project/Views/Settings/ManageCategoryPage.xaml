@@ -1,12 +1,80 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
+             xmlns:models="clr-namespace:POS_moblie_project.Models"
              x:Class="POS_moblie_project.Views.Settings.ManageCategoryPage"
-             Title="ManageCategoryPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:ManageCategoryViewModel"
+             Title="Manage Categories"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,*" Padding="16">
+
+        <Button Grid.Row="0"
+                Text="+ Add New Category"
+                BackgroundColor="#4ECDC4"
+                TextColor="White"
+                FontAttributes="Bold"
+                CornerRadius="8"
+                HeightRequest="48"
+                Margin="0,0,0,12"
+                Command="{Binding AddCategoryCommand}" />
+
+        <RefreshView Grid.Row="1"
+                     IsRefreshing="{Binding IsLoading}"
+                     Command="{Binding LoadCategoriesCommand}">
+            <CollectionView ItemsSource="{Binding Categories}"
+                            SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <Label Text="No categories yet. Tap + to add one."
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="#999999"
+                           Margin="0,40,0,0" />
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Category">
+                        <Border Margin="0,0,0,8"
+                                Padding="14,12"
+                                BackgroundColor="#F5F5F7"
+                                StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+
+                                <Label Grid.Column="0"
+                                       Text="{Binding Name}"
+                                       FontSize="16"
+                                       VerticalOptions="Center"
+                                       TextColor="#222222" />
+
+                                <Button Grid.Column="1"
+                                        Text="Edit"
+                                        FontSize="13"
+                                        BackgroundColor="Transparent"
+                                        TextColor="#4ECDC4"
+                                        Padding="8,4"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ManageCategoryViewModel}}, Path=EditCategoryCommand}"
+                                        CommandParameter="{Binding .}" />
+
+                                <Button Grid.Column="2"
+                                        Text="Delete"
+                                        FontSize="13"
+                                        BackgroundColor="Transparent"
+                                        TextColor="#E53935"
+                                        Padding="8,4"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ManageCategoryViewModel}}, Path=DeleteCategoryCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
 </ContentPage>

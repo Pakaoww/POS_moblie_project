@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="POS_moblie_project.Views.Splash.SplashPage"
+             Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="#12121A">
+
+    <Grid RowDefinitions="*,Auto,*" Padding="40">
+
+        <VerticalStackLayout Grid.Row="1" Spacing="20" HorizontalOptions="Center">
+
+            <Border WidthRequest="100"
+                    HeightRequest="100"
+                    Padding="0"
+                    StrokeThickness="0"
+                    BackgroundColor="#1C1C28"
+                    HorizontalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="24" />
+                </Border.StrokeShape>
+                <Image Source="logo.png"
+                       WidthRequest="60"
+                       HeightRequest="60"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
+
+            <Label Text="RETAIL PRO"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   TextColor="#F0F0FA"
+                   CharacterSpacing="3"
+                   HorizontalOptions="Center" />
+
+            <Label Text="Management System"
+                   FontSize="13"
+                   TextColor="#5A5A70"
+                   CharacterSpacing="1"
+                   HorizontalOptions="Center" />
+
+            <ActivityIndicator IsRunning="True"
+                               Color="#4ECDC4"
+                               Margin="0,30,0,0"
+                               HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>
