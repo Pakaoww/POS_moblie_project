@@ -35,6 +35,9 @@ namespace POS_moblie_project
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("Poppins-Bold.ttf", "PoppinsBold");
+                    fonts.AddFont("Poppins-Medium.ttf", "PoppinsMedium");
+                    fonts.AddFont("Poppins-Light.ttf", "PoppinsLight");
                 });
 
             // ============================================
