@@ -1,12 +1,77 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
+             xmlns:models="clr-namespace:POS_moblie_project.Models"
              x:Class="POS_moblie_project.Views.Reports.ProductSalesDetailPage"
-             Title="ProductSalesDetailPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:ProductSalesDetailViewModel"
+             Title="Product Sales Detail"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="16" RowSpacing="12">
+
+        <!-- Product header -->
+        <Grid Grid.Row="0" ColumnDefinitions="60,*" ColumnSpacing="12">
+            <Border Grid.Column="0"
+                    WidthRequest="54" HeightRequest="54"
+                    BackgroundColor="#E0E0E5" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Image Source="{Binding ImagePath}" Aspect="AspectFill" />
+            </Border>
+            <VerticalStackLayout Grid.Column="1"
+                                 VerticalOptions="Center" Spacing="3">
+                <Label Text="{Binding ProductName}"
+                       FontSize="18" FontAttributes="Bold"
+                       TextColor="#222222" />
+                <Label Text="{Binding ProductCode}"
+                       FontSize="13" TextColor="#666666" />
+                <Label Text="{Binding TotalSold, StringFormat='Total Sold: {0} units'}"
+                       FontSize="13" FontAttributes="Bold"
+                       TextColor="#4ECDC4" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <BoxView Grid.Row="1" HeightRequest="1" BackgroundColor="#E0E0E0" />
+
+        <!-- Sales history list -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding SalesHistory}"
+                        SelectionMode="None">
+            <CollectionView.EmptyView>
+                <Label Text="No sales history found"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       TextColor="#999999"
+                       Margin="0,40,0,0" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:TransactionItem">
+                    <Border Margin="0,0,0,8" Padding="14,12"
+                            BackgroundColor="#F5F5F7" StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="10" />
+                        </Border.StrokeShape>
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                            <Label Grid.Column="0"
+                                   Text="{Binding TransactionId, StringFormat='Transaction ID: {0}'}"
+                                   FontSize="13" TextColor="#222222"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Quantity, StringFormat='{0} sold'}"
+                                   FontSize="13" TextColor="#666666"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{Binding Subtotal, StringFormat='฿{0:N2}'}"
+                                   FontSize="13" FontAttributes="Bold"
+                                   TextColor="#4ECDC4"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
 </ContentPage>

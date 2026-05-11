@@ -1,10 +1,91 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using DocumentFormat.OpenXml.Spreadsheet;
+using POS_moblie_project.Models;
+using POS_moblie_project.Services;
+using System.Collections.ObjectModel;
 
-namespace POS_moblie_project.ViewModels
+namespace POS_moblie_project.ViewModels;
+
+[QueryProperty(nameof(TransactionId), "id")]
+public partial class TransactionDetailViewModel : ObservableObject
 {
-    internal class TransactionDetailViewModel
+    private readonly DatabaseService _databaseService;
+
+    [ObservableProperty]
+    private string transactionId = string.Empty;
+
+    [ObservableProperty]
+    private DateTime timestamp;
+
+    [ObservableProperty]
+    private ObservableCollection<TransactionItem> items = new();
+
+    [ObservableProperty]
+    private decimal subtotal;
+
+    [ObservableProperty]
+    private decimal vatRate;
+
+    [ObservableProperty]
+    private decimal vatAmount;
+
+    [ObservableProperty]
+    private decimal grandTotal;
+
+    [ObservableProperty]
+    private bool isVatEnabled;
+
+    [ObservableProperty]
+    private bool isLoading;
+
+    public TransactionDetailViewModel()
     {
+        _databaseService = ServiceHelper.GetService<DatabaseService>();
+    }
+
+    partial void OnTransactionIdChanged(string value)
+    {
+        if (!string.IsNullOrEmpty(value))
+            _ = LoadTransactionAsync(value);
+    }
+
+    private async Task LoadTransactionAsync(string id)
+    {
+        IsLoading = true;
+        try
+        {
+            var (transaction, transactionItems) =
+                await _databaseService.GetTransactionWithItemsAsync(id);
+
+            if (transaction == null) return;
+
+            Timestamp = transaction.Timestamp;
+            Subtotal = transaction.TotalAmount;
+            VatRate = transaction.VatRate;
+            VatAmount = transaction.VatAmount;
+            GrandTotal = transaction.GrandTotal;
+            IsVatEnabled = transaction.VatRate > 0;
+
+            Items.Clear();
+            foreach (var item in transactionItems)
+                Items.Add(item);
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Error", ex.Message, "OK");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task GoBackAsync()
+    {
+        await Shell.Current.GoToAsync("..");
     }
 }

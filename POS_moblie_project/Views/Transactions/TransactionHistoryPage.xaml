@@ -1,12 +1,132 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
+             xmlns:models="clr-namespace:POS_moblie_project.Models"
              x:Class="POS_moblie_project.Views.Transactions.TransactionHistoryPage"
-             Title="TransactionHistoryPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:TransactionHistoryViewModel"
+             Title="Transaction History"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="16" RowSpacing="10">
+
+        <!-- Search -->
+        <Border Grid.Row="0" BackgroundColor="#F5F5F7"
+                Padding="12,4" StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+            <Entry Placeholder="Search by Transaction ID..."
+                   Text="{Binding SearchText}"
+                   BackgroundColor="Transparent" />
+        </Border>
+
+        <!-- Date range -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
+            <DatePicker Grid.Column="0"
+                        Date="{Binding FromDate}"
+                        Format="dd/MM/yyyy"
+                        BackgroundColor="#F5F5F7" />
+            <Label Grid.Column="1" Text="to"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Center"
+                   TextColor="#666666" />
+            <DatePicker Grid.Column="2"
+                        Date="{Binding ToDate}"
+                        Format="dd/MM/yyyy"
+                        BackgroundColor="#F5F5F7" />
+        </Grid>
+
+        <!-- Search button -->
+        <Button Grid.Row="2"
+                Text="Search"
+                BackgroundColor="#4ECDC4"
+                TextColor="White"
+                FontAttributes="Bold"
+                HeightRequest="44"
+                CornerRadius="8"
+                Command="{Binding LoadTransactionsCommand}" />
+
+        <!-- Stats -->
+        <Border Grid.Row="3"
+                BackgroundColor="#F5F5F7"
+                Padding="16,12"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="*,*,*">
+                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                    <Label Text="{Binding TotalTransactions}"
+                           FontSize="20" FontAttributes="Bold"
+                           TextColor="#222222" HorizontalOptions="Center" />
+                    <Label Text="Transactions"
+                           FontSize="11" TextColor="#666666"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                    <Label Text="{Binding AverageRevenue, StringFormat='฿{0:N0}'}"
+                           FontSize="20" FontAttributes="Bold"
+                           TextColor="#222222" HorizontalOptions="Center" />
+                    <Label Text="Avg/Bill"
+                           FontSize="11" TextColor="#666666"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                    <Label Text="{Binding TotalRevenue, StringFormat='฿{0:N0}'}"
+                           FontSize="20" FontAttributes="Bold"
+                           TextColor="#4ECDC4" HorizontalOptions="Center" />
+                    <Label Text="Total Revenue"
+                           FontSize="11" TextColor="#666666"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- Transaction list -->
+        <RefreshView Grid.Row="4"
+                     IsRefreshing="{Binding IsLoading}"
+                     Command="{Binding LoadTransactionsCommand}">
+            <CollectionView ItemsSource="{Binding Transactions}"
+                            SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="No transactions found"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="#999999"
+                           Margin="0,40,0,0" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Transaction">
+                        <Border Margin="0,0,0,8" Padding="14,12"
+                                BackgroundColor="#F5F5F7" StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionHistoryViewModel}}, Path=ViewDetailCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                    <Label Text="{Binding TransactionId}"
+                                           FontSize="14" FontAttributes="Bold"
+                                           TextColor="#222222" />
+                                    <Label Text="{Binding Timestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                           FontSize="12" TextColor="#666666" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1"
+                                       Text="{Binding GrandTotal, StringFormat='฿{0:N2}'}"
+                                       FontSize="16" FontAttributes="Bold"
+                                       TextColor="#4ECDC4"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
 </ContentPage>

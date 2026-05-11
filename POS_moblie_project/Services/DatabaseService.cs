@@ -258,30 +258,6 @@ public class DatabaseService
         return transaction.Id;
     }
 
-    public async Task<List<Transaction>> GetTransactionsAsync(
-        DateTime from, DateTime to)
-    {
-        await EnsureInitializedAsync();
-        return await _database!.Table<Transaction>()
-                               .Where(t => t.Timestamp >= from
-                                        && t.Timestamp <= to)
-                               .OrderByDescending(t => t.Timestamp)
-                               .ToListAsync();
-    }
-
-    public async Task<(Transaction, List<TransactionItem>)>
-        GetTransactionWithItemsAsync(string transactionId)
-    {
-        await EnsureInitializedAsync();
-        var transaction = await _database!.Table<Transaction>()
-                                          .Where(t => t.TransactionId == transactionId)
-                                          .FirstOrDefaultAsync();
-        var items = await _database.Table<TransactionItem>()
-                                   .Where(i => i.TransactionId == transaction.Id)
-                                   .ToListAsync();
-        return (transaction, items);
-    }
-
     public async Task<string> GenerateTransactionIdAsync()
     {
         await EnsureInitializedAsync();
@@ -302,5 +278,91 @@ public class DatabaseService
         var orderNumber = (countToday + 1).ToString("D4");
 
         return $"{datePrefix}{orderNumber}";
+    }
+
+    // ============================================
+    // Report methods
+    // ============================================
+    public async Task<List<Transaction>> GetTransactionsAsync(
+        DateTime from, DateTime to)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.Table<Transaction>()
+                               .Where(t => t.Timestamp >= from
+                                        && t.Timestamp <= to)
+                               .OrderByDescending(t => t.Timestamp)
+                               .ToListAsync();
+    }
+
+    public async Task<(Transaction transaction, List<TransactionItem> items)>
+        GetTransactionWithItemsAsync(string transactionId)
+    {
+        await EnsureInitializedAsync();
+        var transaction = await _database!.Table<Transaction>()
+                                          .Where(t => t.TransactionId == transactionId)
+                                          .FirstOrDefaultAsync();
+        var items = await _database!.Table<TransactionItem>()
+                                    .Where(i => i.TransactionId == transaction.Id)
+                                    .ToListAsync();
+        return (transaction, items);
+    }
+
+    public async Task<List<TransactionItem>> GetTransactionItemsByProductAsync(
+        int productId, DateTime from, DateTime to)
+    {
+        await EnsureInitializedAsync();
+
+        // Get transaction IDs within date range first
+        var transactions = await _database!.Table<Transaction>()
+                                           .Where(t => t.Timestamp >= from
+                                                    && t.Timestamp <= to)
+                                           .ToListAsync();
+        var transactionIds = transactions.Select(t => t.Id).ToList();
+
+        // Get items for this product within those transactions
+        var allItems = await _database!.Table<TransactionItem>()
+                                       .Where(i => i.ProductId == productId)
+                                       .ToListAsync();
+
+        return allItems.Where(i => transactionIds.Contains(i.TransactionId)).ToList();
+    }
+
+    public async Task<List<SalesReportItem>> GetSalesReportAsync(
+        DateTime from, DateTime to)
+    {
+        await EnsureInitializedAsync();
+
+        var transactions = await _database!.Table<Transaction>()
+                                           .Where(t => t.Timestamp >= from
+                                                    && t.Timestamp <= to)
+                                           .ToListAsync();
+        var transactionIds = transactions.Select(t => t.Id).ToList();
+
+        var allItems = await _database!.Table<TransactionItem>().ToListAsync();
+        var filteredItems = allItems
+            .Where(i => transactionIds.Contains(i.TransactionId))
+            .ToList();
+
+        var products = await _database!.Table<Product>().ToListAsync();
+
+        var report = filteredItems
+            .GroupBy(i => i.ProductId)
+            .Select(g =>
+            {
+                var product = products.FirstOrDefault(p => p.Id == g.Key);
+                return new SalesReportItem
+                {
+                    ProductId = g.Key,
+                    ProductCode = product?.ProductCode ?? string.Empty,
+                    ProductName = g.First().ProductName,
+                    ImagePath = product?.ImagePath ?? string.Empty,
+                    TotalQuantity = g.Sum(i => i.Quantity),
+                    TotalRevenue = g.Sum(i => i.Subtotal)
+                };
+            })
+            .OrderByDescending(r => r.TotalQuantity)
+            .ToList();
+
+        return report;
     }
 }

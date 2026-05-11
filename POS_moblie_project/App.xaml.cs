@@ -1,5 +1,6 @@
-﻿using POS_moblie_project.Views;
+﻿using POS_moblie_project.ViewModels;
 using POS_moblie_project.Views.Splash;
+
 namespace POS_moblie_project;
 
 public partial class App : Application
