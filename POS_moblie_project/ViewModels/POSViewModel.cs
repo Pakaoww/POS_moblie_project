@@ -1,10 +1,184 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using POS_moblie_project.Models;
+using POS_moblie_project.Services;
+using System.Collections.ObjectModel;
 
-namespace POS_moblie_project.ViewModels
+namespace POS_moblie_project.ViewModels;
+
+public partial class POSViewModel : ObservableObject
 {
-    internal class POSViewModel
+    private readonly DatabaseService _databaseService;
+    private List<Product> _allProducts = new();
+    private List<Category> _allCategories = new();
+
+    // ── Product list state ──────────────────────────────
+    [ObservableProperty]
+    private ObservableCollection<ProductWithQuantity> products = new();
+
+    [ObservableProperty]
+    private ObservableCollection<Category> categoryFilters = new();
+
+    [ObservableProperty]
+    private Category selectedCategory;
+
+    [ObservableProperty]
+    private string searchText = string.Empty;
+
+    [ObservableProperty]
+    private bool isLoading;
+
+    // ── Cart state (singleton so CartPage shares it) ────
+    [ObservableProperty]
+    private ObservableCollection<CartItem> cartItems = new();
+
+    [ObservableProperty]
+    private int cartCount;
+
+    public POSViewModel()
     {
+        _databaseService = ServiceHelper.GetService<DatabaseService>();
+    }
+
+    partial void OnSearchTextChanged(string value) => ApplyFilters();
+    partial void OnSelectedCategoryChanged(Category value) => ApplyFilters();
+
+    [RelayCommand]
+    public async Task LoadProductsAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            _allProducts = await _databaseService.GetVisibleProductsAsync();
+            _allCategories = await _databaseService.GetAllCategoriesAsync();
+
+            CategoryFilters.Clear();
+            CategoryFilters.Add(new Category("All", -1));
+            foreach (var c in _allCategories)
+                CategoryFilters.Add(c);
+
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Error", ex.Message, "OK");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = _allProducts.AsEnumerable();
+
+        if (SelectedCategory != null && SelectedCategory.SortOrder != -1)
+            filtered = filtered.Where(p => p.CategoryId == SelectedCategory.Id);
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var s = SearchText.Trim().ToLowerInvariant();
+            filtered = filtered.Where(p =>
+                p.Name.ToLowerInvariant().Contains(s) ||
+                p.ProductCode.ToLowerInvariant().Contains(s));
+        }
+
+        Products.Clear();
+        foreach (var p in filtered)
+        {
+            // Preserve quantity already set in cart
+            var existing = CartItems.FirstOrDefault(c => c.ProductId == p.Id);
+            Products.Add(new ProductWithQuantity(p, existing?.Quantity ?? 0));
+        }
+    }
+
+    [RelayCommand]
+    private void IncreaseQuantity(ProductWithQuantity item)
+    {
+        if (item == null) return;
+        item.Quantity++;
+        UpdateCartFromProduct(item);
+    }
+
+    [RelayCommand]
+    private void DecreaseQuantity(ProductWithQuantity item)
+    {
+        if (item == null || item.Quantity <= 0) return;
+        item.Quantity--;
+        UpdateCartFromProduct(item);
+    }
+
+    [RelayCommand]
+    private void AddToCart(ProductWithQuantity item)
+    {
+        if (item == null || item.Quantity <= 0) return;
+        UpdateCartFromProduct(item);
+    }
+
+    private void UpdateCartFromProduct(ProductWithQuantity item)
+    {
+        var existing = CartItems.FirstOrDefault(c => c.ProductId == item.ProductId);
+
+        if (item.Quantity == 0)
+        {
+            if (existing != null)
+                CartItems.Remove(existing);
+        }
+        else if (existing != null)
+        {
+            existing.Quantity = item.Quantity;
+        }
+        else
+        {
+            CartItems.Add(new CartItem(item.Product, item.Quantity));
+        }
+
+        CartCount = CartItems.Sum(c => c.Quantity);
+    }
+
+    [RelayCommand]
+    private async Task GoToCartAsync()
+    {
+        if (CartItems.Count == 0)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Cart Empty", "Please add items to cart first.", "OK");
+            return;
+        }
+        await Shell.Current.GoToAsync("CartPage");
+    }
+
+    public void ClearCart()
+    {
+        CartItems.Clear();
+        CartCount = 0;
+        // Reset quantities on product list
+        foreach (var p in Products)
+            p.Quantity = 0;
+    }
+}
+
+/// <summary>
+/// Wraps Product with a mutable Quantity for the POS list UI
+/// </summary>
+public partial class ProductWithQuantity : ObservableObject
+{
+    public Product Product { get; }
+    public int ProductId => Product.Id;
+    public string Name => Product.Name;
+    public string ProductCode => Product.ProductCode;
+    public decimal Price => Product.Price;
+    public int Stock => Product.Stock;
+    public string ImagePath => Product.ImagePath;
+
+    [ObservableProperty]
+    private int quantity;
+
+    public ProductWithQuantity(Product product, int quantity = 0)
+    {
+        Product = product;
+        Quantity = quantity;
     }
 }

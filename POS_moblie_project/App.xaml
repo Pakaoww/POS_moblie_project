@@ -12,6 +12,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
+            <converters:CartStateConverter x:Key="CartStateConverter" />
             <converters:BoolToErrorColorConverter x:Key="BoolToErrorColorConverter" />
             <converters:PinDotConverter x:Key="PinDotConverter" />
             <converters:BoolToColorConverter x:Key="BoolToColorConverter" />

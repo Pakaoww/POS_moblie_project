@@ -225,4 +225,82 @@ public class DatabaseService
                                        .FirstOrDefaultAsync();
         return existing != null;
     }
+
+    // ============================================
+    // Transaction methods
+    // ============================================
+    public async Task<int> CreateTransactionAsync(
+        Transaction transaction, List<TransactionItem> items)
+    {
+        await EnsureInitializedAsync();
+
+        // Atomic: insert transaction + all items + decrement stock
+        await _database!.RunInTransactionAsync(db =>
+        {
+            db.Insert(transaction);
+
+            foreach (var item in items)
+            {
+                item.TransactionId = transaction.Id;
+                db.Insert(item);
+
+                // Decrement stock
+                var product = db.Get<Product>(item.ProductId);
+                if (product != null)
+                {
+                    product.Stock -= item.Quantity;
+                    product.UpdatedAt = DateTime.Now;
+                    db.Update(product);
+                }
+            }
+        });
+
+        return transaction.Id;
+    }
+
+    public async Task<List<Transaction>> GetTransactionsAsync(
+        DateTime from, DateTime to)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.Table<Transaction>()
+                               .Where(t => t.Timestamp >= from
+                                        && t.Timestamp <= to)
+                               .OrderByDescending(t => t.Timestamp)
+                               .ToListAsync();
+    }
+
+    public async Task<(Transaction, List<TransactionItem>)>
+        GetTransactionWithItemsAsync(string transactionId)
+    {
+        await EnsureInitializedAsync();
+        var transaction = await _database!.Table<Transaction>()
+                                          .Where(t => t.TransactionId == transactionId)
+                                          .FirstOrDefaultAsync();
+        var items = await _database.Table<TransactionItem>()
+                                   .Where(i => i.TransactionId == transaction.Id)
+                                   .ToListAsync();
+        return (transaction, items);
+    }
+
+    public async Task<string> GenerateTransactionIdAsync()
+    {
+        await EnsureInitializedAsync();
+
+        var today = DateTime.Now;
+        var datePrefix = today.ToString("yyyyMMdd");
+
+        // นับจำนวน transaction ของวันนี้
+        var startOfDay = today.Date;
+        var endOfDay = today.Date.AddDays(1);
+
+        var countToday = await _database!.Table<Transaction>()
+                                          .Where(t => t.Timestamp >= startOfDay
+                                                   && t.Timestamp < endOfDay)
+                                          .CountAsync();
+
+        // เลขที่คำสั่งซื้อเริ่มที่ 0001
+        var orderNumber = (countToday + 1).ToString("D4");
+
+        return $"{datePrefix}{orderNumber}";
+    }
 }

@@ -1,12 +1,279 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
+             xmlns:models="clr-namespace:POS_moblie_project.Models"
              x:Class="POS_moblie_project.Views.POS.CartPage"
-             Title="CartPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:CartViewModel"
+             Title="Cart"
+             BackgroundColor="White">
+
+    <Grid>
+
+        <!-- ═══════════════════════════════════
+             STATE 1: CART
+        ═══════════════════════════════════ -->
+        <Grid RowDefinitions="*,Auto"
+              Padding="16"
+              IsVisible="{Binding CurrentState,
+                          Converter={StaticResource CartStateConverter},
+                          ConverterParameter=Cart}">
+
+            <CollectionView Grid.Row="0"
+                            ItemsSource="{Binding CartItems}"
+                            SelectionMode="None">
+                <CollectionView.EmptyView>
+                    <Label Text="Your cart is empty"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="#999999" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:CartItem">
+                        <Border Margin="0,0,0,8" Padding="12"
+                                BackgroundColor="#F5F5F7" StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0"
+                                                     Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding ProductName}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           TextColor="#222222" />
+                                    <Label Text="{Binding UnitPrice, StringFormat='฿{0:N2} each'}"
+                                           FontSize="12" TextColor="#666666" />
+                                    <Label Text="{Binding Subtotal, StringFormat='Subtotal: ฿{0:N2}'}"
+                                           FontSize="13" FontAttributes="Bold"
+                                           TextColor="#4ECDC4" />
+                                </VerticalStackLayout>
+                                <Grid Grid.Column="1"
+                                      ColumnDefinitions="Auto,Auto,Auto,Auto"
+                                      ColumnSpacing="6" VerticalOptions="Center">
+                                    <Button Grid.Column="0" Text="−"
+                                            WidthRequest="36" HeightRequest="36"
+                                            CornerRadius="18" Padding="0" FontSize="18"
+                                            BackgroundColor="#E0E0E5" TextColor="#444444"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=DecreaseItemCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Label Grid.Column="1" Text="{Binding Quantity}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           WidthRequest="28" HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="#222222" />
+                                    <Button Grid.Column="2" Text="+"
+                                            WidthRequest="36" HeightRequest="36"
+                                            CornerRadius="18" Padding="0" FontSize="18"
+                                            BackgroundColor="#E0E0E5" TextColor="#444444"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=IncreaseItemCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Grid.Column="3" Text="🗑"
+                                            WidthRequest="36" HeightRequest="36"
+                                            CornerRadius="18" Padding="0" FontSize="16"
+                                            BackgroundColor="#FFE0E0" TextColor="#E53935"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=RemoveItemCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto"
+                  RowSpacing="8" Padding="0,8,0,0">
+                <Label Grid.Row="0"
+                       Text="{Binding Subtotal, StringFormat='Subtotal: ฿{0:N2}'}"
+                       FontSize="15" TextColor="#666666" HorizontalOptions="End" />
+                <Label Grid.Row="1"
+                       Text="{Binding VatAmount, StringFormat='VAT: ฿{0:N2}'}"
+                       FontSize="13" TextColor="#666666" HorizontalOptions="End"
+                       IsVisible="{Binding IsVatEnabled}" />
+                <Button Grid.Row="2"
+                        Text="{Binding GrandTotal, StringFormat='Checkout  ฿{0:N2}'}"
+                        BackgroundColor="#4ECDC4" TextColor="White"
+                        FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
+                        Command="{Binding CheckoutCommand}" />
+            </Grid>
+        </Grid>
+
+        <!-- ═══════════════════════════════════
+             STATE 2: CONFIRM ORDER
+        ═══════════════════════════════════ -->
+        <Grid RowDefinitions="Auto,*,Auto"
+              Padding="16"
+              IsVisible="{Binding CurrentState,
+                          Converter={StaticResource CartStateConverter},
+                          ConverterParameter=Confirm}">
+
+            <Label Grid.Row="0" Text="Confirm Order"
+                   FontSize="20" FontAttributes="Bold"
+                   TextColor="#222222" Margin="0,0,0,12" />
+
+            <CollectionView Grid.Row="1"
+                            ItemsSource="{Binding CartItems}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:CartItem">
+                        <Grid ColumnDefinitions="*,Auto,Auto"
+                              Padding="4,6" ColumnSpacing="8">
+                            <Label Grid.Column="0" Text="{Binding ProductName}"
+                                   FontSize="14" TextColor="#222222"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Quantity, StringFormat='x{0}'}"
+                                   FontSize="14" TextColor="#666666"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{Binding Subtotal, StringFormat='฿{0:N2}'}"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="#222222" VerticalOptions="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="6">
+                <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
+                <Label Grid.Row="1"
+                       Text="{Binding Subtotal, StringFormat='Subtotal: ฿{0:N2}'}"
+                       FontSize="14" TextColor="#666666" HorizontalOptions="End" />
+                <Label Grid.Row="2"
+                       Text="{Binding VatAmount, StringFormat='VAT: ฿{0:N2}'}"
+                       FontSize="13" TextColor="#666666" HorizontalOptions="End"
+                       IsVisible="{Binding IsVatEnabled}" />
+                <Label Grid.Row="3"
+                       Text="{Binding GrandTotal, StringFormat='Total: ฿{0:N2}'}"
+                       FontSize="18" FontAttributes="Bold"
+                       TextColor="#222222" HorizontalOptions="End" />
+                <Grid Grid.Row="4" ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Grid.Column="0" Text="Back"
+                            BackgroundColor="#E0E0E0" TextColor="#444444"
+                            HeightRequest="46" CornerRadius="8"
+                            Command="{Binding BackToCartCommand}" />
+                    <Button Grid.Column="1" Text="Charge"
+                            BackgroundColor="#4ECDC4" TextColor="White"
+                            FontAttributes="Bold" HeightRequest="46" CornerRadius="8"
+                            Command="{Binding GoToChargeCommand}" />
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- ═══════════════════════════════════
+             STATE 3: CHARGE KEYPAD
+        ═══════════════════════════════════ -->
+        <Grid RowDefinitions="Auto,*,Auto"
+              Padding="24,40,24,32"
+              IsVisible="{Binding CurrentState,
+                          Converter={StaticResource CartStateConverter},
+                          ConverterParameter=Charge}">
+
+            <VerticalStackLayout Grid.Row="0" Spacing="6">
+                <Label Text="Charge"
+                       FontSize="22" FontAttributes="Bold"
+                       TextColor="#222222" HorizontalOptions="Center" />
+                <Label Text="{Binding GrandTotal, StringFormat='Total: ฿{0:N2}'}"
+                       FontSize="16" TextColor="#666666"
+                       HorizontalOptions="Center" />
+                <Label Text="{Binding MoneyReceivedInput, StringFormat='Received: ฿{0}'}"
+                       FontSize="28" FontAttributes="Bold"
+                       TextColor="#222222" HorizontalOptions="Center" />
+                <Label Text="{Binding Change, StringFormat='Change: ฿{0:N2}'}"
+                       FontSize="18" TextColor="#4ECDC4"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <Grid Grid.Row="1"
+                  RowDefinitions="*,*,*,*"
+                  ColumnDefinitions="*,*,*"
+                  RowSpacing="14" ColumnSpacing="14"
+                  VerticalOptions="Center"
+                  HorizontalOptions="Center"
+                  MaximumWidthRequest="300">
+                <Button Grid.Row="0" Grid.Column="0" Text="1" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="1" />
+                <Button Grid.Row="0" Grid.Column="1" Text="2" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="2" />
+                <Button Grid.Row="0" Grid.Column="2" Text="3" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="3" />
+                <Button Grid.Row="1" Grid.Column="0" Text="4" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="4" />
+                <Button Grid.Row="1" Grid.Column="1" Text="5" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="5" />
+                <Button Grid.Row="1" Grid.Column="2" Text="6" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="6" />
+                <Button Grid.Row="2" Grid.Column="0" Text="7" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="7" />
+                <Button Grid.Row="2" Grid.Column="1" Text="8" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="8" />
+                <Button Grid.Row="2" Grid.Column="2" Text="9" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="9" />
+                <Button Grid.Row="3" Grid.Column="0" Text="⌫" Style="{StaticResource KeypadActionButtonStyle}" Command="{Binding ChargeDeleteCommand}" />
+                <Button Grid.Row="3" Grid.Column="1" Text="0" Style="{StaticResource KeypadButtonStyle}" Command="{Binding ChargeDigitPressedCommand}" CommandParameter="0" />
+                <Button Grid.Row="3" Grid.Column="2" Text="OK" Style="{StaticResource KeypadConfirmButtonStyle}" Command="{Binding ConfirmChargeCommand}" />
+            </Grid>
+
+            <Button Grid.Row="2"
+                    Text="Back"
+                    BackgroundColor="Transparent"
+                    TextColor="#555555"
+                    HorizontalOptions="Start"
+                    Command="{Binding BackToConfirmCommand}" />
+        </Grid>
+
+        <!-- ═══════════════════════════════════
+             STATE 4: RECEIPT
+        ═══════════════════════════════════ -->
+        <Grid RowDefinitions="Auto,*,Auto"
+              Padding="20"
+              IsVisible="{Binding CurrentState,
+                          Converter={StaticResource CartStateConverter},
+                          ConverterParameter=Receipt}">
+
+            <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,16">
+                <Label Text="✓ Payment Complete"
+                       FontSize="20" FontAttributes="Bold"
+                       TextColor="#4ECDC4" HorizontalOptions="Center" />
+                <Label Text="{Binding ReceiptTransactionId, StringFormat='Transaction ID: {0}'}"
+                       FontSize="12" TextColor="#666666"
+                       HorizontalOptions="Center" />
+                <Label Text="{Binding ReceiptTimestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                       FontSize="12" TextColor="#666666"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <CollectionView Grid.Row="1"
+                            ItemsSource="{Binding CartItems}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:CartItem">
+                        <Grid ColumnDefinitions="*,Auto,Auto"
+                              Padding="4,6" ColumnSpacing="8">
+                            <Label Grid.Column="0" Text="{Binding ProductName}"
+                                   FontSize="14" TextColor="#222222"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Quantity, StringFormat='x{0}'}"
+                                   FontSize="14" TextColor="#666666"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{Binding Subtotal, StringFormat='฿{0:N2}'}"
+                                   FontSize="14" FontAttributes="Bold"
+                                   TextColor="#222222" VerticalOptions="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8">
+                <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
+                <Label Grid.Row="1"
+                       Text="{Binding VatAmount, StringFormat='VAT: ฿{0:N2}'}"
+                       FontSize="13" TextColor="#666666" HorizontalOptions="End"
+                       IsVisible="{Binding IsVatEnabled}" />
+                <Label Grid.Row="2"
+                       Text="{Binding GrandTotal, StringFormat='Total: ฿{0:N2}'}"
+                       FontSize="18" FontAttributes="Bold"
+                       TextColor="#222222" HorizontalOptions="End" />
+                <Button Grid.Row="3"
+                        Text="🏠  Back to Home"
+                        BackgroundColor="#4ECDC4" TextColor="White"
+                        FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
+                        Command="{Binding GoHomeCommand}" />
+            </Grid>
+        </Grid>
+
+    </Grid>
 </ContentPage>

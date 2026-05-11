@@ -1,12 +1,179 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
+             xmlns:models="clr-namespace:POS_moblie_project.Models"
              x:Class="POS_moblie_project.Views.POS.POSPage"
-             Title="POSPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:POSViewModel"
+             Title="POS"
+             BackgroundColor="White">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="10">
+
+        <!-- Search bar -->
+        <Border Grid.Row="0"
+                BackgroundColor="#F5F5F7"
+                Padding="12,4"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+            <Entry Placeholder="Enter your product..."
+                   Text="{Binding SearchText}"
+                   BackgroundColor="Transparent" />
+        </Border>
+
+        <!-- Category filter -->
+        <Picker Grid.Row="1"
+                Title="Category"
+                ItemsSource="{Binding CategoryFilters}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedCategory}"
+                BackgroundColor="#F5F5F7" />
+
+        <!-- Product list -->
+        <RefreshView Grid.Row="2"
+                     IsRefreshing="{Binding IsLoading}"
+                     Command="{Binding LoadProductsCommand}">
+            <CollectionView ItemsSource="{Binding Products}"
+                            SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <Label Text="No products available"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="#999999"
+                           Margin="0,40,0,0" />
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ProductWithQuantity">
+                        <Border Margin="0,0,0,8"
+                                Padding="12"
+                                BackgroundColor="#F5F5F7"
+                                StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+
+                            <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
+
+                                <!-- Image -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="48"
+                                        HeightRequest="48"
+                                        BackgroundColor="#E0E0E5"
+                                        StrokeThickness="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6" />
+                                    </Border.StrokeShape>
+                                    <Image Source="{Binding ImagePath}"
+                                           Aspect="AspectFill" />
+                                </Border>
+
+                                <!-- Name + price -->
+                                <VerticalStackLayout Grid.Column="1"
+                                                     VerticalOptions="Center"
+                                                     Spacing="2">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#222222" />
+                                    <Label Text="{Binding Price, StringFormat='฿{0:N2}'}"
+                                           FontSize="13"
+                                           TextColor="#4ECDC4" />
+                                </VerticalStackLayout>
+
+                                <!-- Quantity controls + Add -->
+                                <Grid Grid.Column="2"
+                                      ColumnDefinitions="Auto,Auto,Auto,Auto"
+                                      ColumnSpacing="6"
+                                      VerticalOptions="Center">
+
+                                    <Button Grid.Column="0"
+                                            Text="−"
+                                            WidthRequest="36"
+                                            HeightRequest="36"
+                                            CornerRadius="18"
+                                            Padding="0"
+                                            FontSize="18"
+                                            BackgroundColor="#E0E0E5"
+                                            TextColor="#444444"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:POSViewModel}}, Path=DecreaseQuantityCommand}"
+                                            CommandParameter="{Binding .}" />
+
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Quantity}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           WidthRequest="28"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="#222222" />
+
+                                    <Button Grid.Column="2"
+                                            Text="+"
+                                            WidthRequest="36"
+                                            HeightRequest="36"
+                                            CornerRadius="18"
+                                            Padding="0"
+                                            FontSize="18"
+                                            BackgroundColor="#E0E0E5"
+                                            TextColor="#444444"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:POSViewModel}}, Path=IncreaseQuantityCommand}"
+                                            CommandParameter="{Binding .}" />
+
+                                    <Button Grid.Column="3"
+                                            Text="Add"
+                                            WidthRequest="52"
+                                            HeightRequest="36"
+                                            CornerRadius="8"
+                                            Padding="0"
+                                            FontSize="13"
+                                            BackgroundColor="#4ECDC4"
+                                            TextColor="White"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:POSViewModel}}, Path=AddToCartCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Bottom cart bar -->
+        <Border Grid.Row="3"
+                BackgroundColor="#222222"
+                Padding="16,12"
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Label Grid.Column="0"
+                       Text="🛒"
+                       FontSize="20"
+                       VerticalOptions="Center" />
+                <Label Grid.Column="1"
+                       Text="{Binding CartCount, StringFormat='{0} item(s)'}"
+                       FontSize="15"
+                       TextColor="White"
+                       VerticalOptions="Center"
+                       Margin="8,0,0,0" />
+                <Button Grid.Column="2"
+                        Text="Go to cart"
+                        BackgroundColor="#4ECDC4"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        HeightRequest="38"
+                        Padding="14,0"
+                        CornerRadius="8"
+                        Command="{Binding GoToCartCommand}" />
+            </Grid>
+        </Border>
+
+    </Grid>
 </ContentPage>
