@@ -202,6 +202,66 @@
 
                 </StackLayout>
             </Border>
+            <!-- ══════════════════════════
+                 DATA MANAGEMENT
+            ══════════════════════════ -->
+            <Label Text="DATA MANAGEMENT" Style="{StaticResource SectionLabel}"/>
+
+            <Border Style="{StaticResource Card}">
+                <StackLayout Spacing="0" Padding="16,14">
+
+                    <!-- Export Excel -->
+                    <StackLayout Orientation="Horizontal" Padding="0,4" Spacing="12">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ExportExcelCommand}"/>
+                        </StackLayout.GestureRecognizers>
+                        <Label Text="📊" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Export to Excel" Style="{StaticResource RowTitle}"/>
+                            <Label Text="Export all data as .xlsx file" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Backup Database -->
+                    <StackLayout Orientation="Horizontal" Padding="0,4" Spacing="12">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding BackupDatabaseCommand}"/>
+                        </StackLayout.GestureRecognizers>
+                        <Label Text="💾" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Backup Database" Style="{StaticResource RowTitle}"/>
+                            <Label Text="Save a copy of the .db3 file" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+
+                    <BoxView Style="{StaticResource Divider}"/>
+
+                    <!-- Import / Restore -->
+                    <StackLayout Orientation="Horizontal" Padding="0,4" Spacing="12">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ImportDatabaseCommand}"/>
+                        </StackLayout.GestureRecognizers>
+                        <Label Text="📥" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Import / Restore" Style="{StaticResource RowTitle}"/>
+                            <Label Text="Restore from a .db3 backup file" Style="{StaticResource RowSub}"/>
+                        </StackLayout>
+                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </Border>
+
+            <!-- Loading indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                   IsVisible="{Binding IsBusy}"
+                   Color="#FF6B35"
+                   HorizontalOptions="Center"
+                   Margin="0,16,0,0"/>
 
 
         </StackLayout>

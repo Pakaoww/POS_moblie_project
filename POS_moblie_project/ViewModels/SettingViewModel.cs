@@ -7,10 +7,12 @@ namespace POS_moblie_project.ViewModels.Settings;
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly DatabaseService _databaseService;
+    private readonly BackupService _backupService;
 
     public SettingsViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
+        _backupService = ServiceHelper.GetService<BackupService>();
     }
 
     // ════════════════════════════════════════════════════════
@@ -58,7 +60,7 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     // ════════════════════════════════════════════════════════
-    //  SECURITY & NAVIGATION
+    //  NAVIGATION
     // ════════════════════════════════════════════════════════
 
     [RelayCommand]
@@ -68,4 +70,118 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task ManageCategoryAsync()
         => await Shell.Current.GoToAsync("ManageCategoryPage");
+
+    // ════════════════════════════════════════════════════════
+    //  BACKUP / EXPORT / IMPORT
+    // ════════════════════════════════════════════════════════
+
+    [ObservableProperty]
+    private bool isBusy;
+
+    [RelayCommand]
+    private async Task ExportExcelAsync()
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+        try
+        {
+            var filePath = await _backupService.ExportToExcelAsync();
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Export POS Data",
+                File = new ShareFile(filePath)
+            });
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Export Failed", ex.Message, "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task BackupDatabaseAsync()
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+        try
+        {
+            var filePath = await _backupService.BackupDatabaseAsync();
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Backup POS Database",
+                File = new ShareFile(filePath)
+            });
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Backup Failed", ex.Message, "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportDatabaseAsync()
+    {
+        if (IsBusy) return;
+
+        var confirm = await Application.Current.MainPage.DisplayAlert(
+            "Import Database",
+            "This will REPLACE all current data with the imported file. Continue?",
+            "Yes, Import", "Cancel");
+
+        if (!confirm) return;
+
+        IsBusy = true;
+        try
+        {
+            var result = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Select .db3 backup file",
+                FileTypes = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.Android, new[] { "application/octet-stream" } },
+                        { DevicePlatform.iOS, new[] { "public.data" } },
+                    })
+            });
+
+            if (result == null) return;
+
+            var success = await _backupService.ImportDatabaseAsync(result.FullPath);
+
+            if (success)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Import Successful",
+                    "Database restored. The app will restart.",
+                    "OK");
+
+                // Restart app เพื่อ reload database
+                Application.Current.MainPage = new AppShell();
+            }
+            else
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Import Failed", "Could not restore database.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Import Failed", ex.Message, "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
 }

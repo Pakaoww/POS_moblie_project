@@ -84,6 +84,9 @@ namespace POS_moblie_project
             builder.Services.AddSingleton<SalesReportPage>();
             builder.Services.AddTransient<ProductSalesDetailPage>();
 
+            // Backup service (for export):
+            builder.Services.AddSingleton<BackupService>();
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

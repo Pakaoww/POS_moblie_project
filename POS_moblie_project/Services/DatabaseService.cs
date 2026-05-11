@@ -365,4 +365,10 @@ public class DatabaseService
 
         return report;
     }
+
+    public async Task<List<TransactionItem>> GetAllTransactionItemsAsync()
+    {
+        await EnsureInitializedAsync();
+        return await _database!.Table<TransactionItem>().ToListAsync();
+    }
 }
