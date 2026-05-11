@@ -91,13 +91,42 @@
             <!-- ══════════════════════════
                  FINANCE & TAX
             ══════════════════════════ -->
-            <Label Text="FINANCE &amp; TAX" Style="{StaticResource SectionLabel}"/>
 
             <Border Style="{StaticResource Card}">
                 <StackLayout Spacing="0">
 
                     <!-- VAT Rate — Toggle + Stepper -->
                     <StackLayout Padding="16,14" Spacing="10">
+
+
+
+                        <!-- Change Password -->
+                        <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangePasswordCommand}"/>
+                            </StackLayout.GestureRecognizers>
+                            <Label Text="🔑" FontSize="20" VerticalOptions="Center"/>
+                            <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Change Password"          Style="{StaticResource RowTitle}"/>
+                                <Label Text="Last updated 30 days ago" Style="{StaticResource RowSub}"/>
+                            </StackLayout>
+                            <Label Text="›" Style="{StaticResource Chevron}"/>
+                        </StackLayout>
+                        <BoxView Style="{StaticResource Divider}"/>
+
+                        <!-- Manage Category -->
+                        <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangePinCommand}"/>
+                            </StackLayout.GestureRecognizers>
+                            <Label Text="📁" FontSize="20" VerticalOptions="Center"/>
+                            <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Manage Category"               Style="{StaticResource RowTitle}"/>
+                                <Label Text="Change Category" Style="{StaticResource RowSub}"/>
+                            </StackLayout>
+                            <Label Text="›" Style="{StaticResource Chevron}"/>
+                        </StackLayout>
+                        <BoxView Style="{StaticResource Divider}"/>
 
                         <!-- Row: Icon + Label + Toggle -->
                         <StackLayout Orientation="Horizontal" Spacing="12">
@@ -174,43 +203,6 @@
                 </StackLayout>
             </Border>
 
-            <!-- ══════════════════════════
-                 SECURITY
-            ══════════════════════════ -->
-            <Label Text="SECURITY" Style="{StaticResource SectionLabel}"/>
-
-            <Border Style="{StaticResource Card}">
-                <StackLayout Spacing="0">
-
-                    <!-- Change Password -->
-                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
-                        <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ChangePasswordCommand}"/>
-                        </StackLayout.GestureRecognizers>
-                        <Label Text="🔑" FontSize="20" VerticalOptions="Center"/>
-                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Change Password"          Style="{StaticResource RowTitle}"/>
-                            <Label Text="Last updated 30 days ago" Style="{StaticResource RowSub}"/>
-                        </StackLayout>
-                        <Label Text="›" Style="{StaticResource Chevron}"/>
-                    </StackLayout>
-                    <BoxView Style="{StaticResource Divider}"/>
-
-                    <!-- PIN Code -->
-                    <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
-                        <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ChangePinCommand}"/>
-                        </StackLayout.GestureRecognizers>
-                        <Label Text="🔢" FontSize="20" VerticalOptions="Center"/>
-                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
-                            <Label Text="PIN Code"               Style="{StaticResource RowTitle}"/>
-                            <Label Text="Used for screen unlock" Style="{StaticResource RowSub}"/>
-                        </StackLayout>
-                        <Label Text="›" Style="{StaticResource Chevron}"/>
-                    </StackLayout>
-
-                </StackLayout>
-            </Border>
 
         </StackLayout>
     </ScrollView>

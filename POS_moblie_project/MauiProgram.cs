@@ -10,6 +10,7 @@ using POS_moblie_project.Views.Stock;
 using POS_moblie_project.Views.POS;
 using POS_moblie_project.Views.Transactions;
 using POS_moblie_project.Views.Reports;
+using POS_moblie_project.Views.Home;
 
 namespace POS_moblie_project
 {
@@ -52,7 +53,7 @@ namespace POS_moblie_project
             builder.Services.AddTransient<ProductDetailViewModel>();
 
             // Later phases (uncomment as built):
-            // builder.Services.AddSingleton<HomeViewModel>();
+            builder.Services.AddSingleton<HomeViewModel>();
             builder.Services.AddSingleton<POSViewModel>();
             builder.Services.AddTransient<CartViewModel>();
             builder.Services.AddSingleton<TransactionHistoryViewModel>();
@@ -72,7 +73,7 @@ namespace POS_moblie_project
             builder.Services.AddTransient<ProductDetailPage>();
 
             // Later phases (uncomment as built):
-            // builder.Services.AddSingleton<HomePage>();
+            builder.Services.AddSingleton<HomePage>();
             builder.Services.AddSingleton<POSPage>();
             builder.Services.AddTransient<CartPage>();
             builder.Services.AddSingleton<TransactionHistoryPage>();

@@ -5,14 +5,37 @@ namespace POS_moblie_project.ViewModels.Settings;
 
 public partial class SettingsViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private bool _vatEnabled = true;
+    private const string VatEnabledKey = "vat_enabled";
+    private const string VatRateKey = "vat_rate";
+
+    // ── Constructor: โหลดค่าที่บันทึกไว้ ──────────────────
+    public SettingsViewModel()
+    {
+        _vatEnabled = Preferences.Get(VatEnabledKey, true);
+        _vatRate = Preferences.Get(VatRateKey, 7);
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  VAT
+    // ════════════════════════════════════════════════════════
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VatRateDisplay))]
-    private int _vatRate = 7;
+    private bool _vatEnabled;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(VatRateDisplay))]
+    private int _vatRate;
 
     public string VatRateDisplay => $"{VatRate} %";
+
+    // บันทึกทันทีเมื่อ VatEnabled เปลี่ยน
+    partial void OnVatEnabledChanged(bool value)
+        => Preferences.Set(VatEnabledKey, value);
+
+    // บันทึกทันทีเมื่อ VatRate เปลี่ยน
+    partial void OnVatRateChanged(int value)
+        => Preferences.Set(VatRateKey, value);
 
     [RelayCommand]
     private void IncreaseVat()
@@ -25,6 +48,10 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (VatRate > 0) VatRate--;
     }
+
+    // ════════════════════════════════════════════════════════
+    //  SECURITY
+    // ════════════════════════════════════════════════════════
 
     [RelayCommand]
     private async Task ChangePasswordAsync()
