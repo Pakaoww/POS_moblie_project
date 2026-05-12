@@ -8,6 +8,26 @@
              Title="POS"
              BackgroundColor="White">
 
+    <Shell.TitleView>
+        <StackLayout Orientation="Horizontal"
+                 Padding="0,0,18,0"
+                 VerticalOptions="Center">
+            <Label Text="POS"
+               TextColor="{StaticResource TextPrimary}"
+               FontSize="18"
+               FontAttributes="Bold"
+               VerticalOptions="Center"
+               HorizontalOptions="FillAndExpand"/>
+            <Button Grid.Column="0"
+                    Text="🛒"
+                    FontSize="15"
+                    VerticalOptions="Center"
+                    BackgroundColor="#4ECDC4"
+                    TextColor="Black"
+                    Command="{Binding GoToHoldCommand}"/>
+        </StackLayout>
+    </Shell.TitleView>
+    
     <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="10">
 
         <!-- แทน Search bar เดิม -->
@@ -159,7 +179,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
-
+        
         <!-- Bottom cart bar -->
         <Border Grid.Row="3"
                 BackgroundColor="#222222"
@@ -168,18 +188,31 @@
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="12" />
             </Border.StrokeShape>
-            <Grid ColumnDefinitions="Auto,*,Auto">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+                  ColumnSpacing="10">
                 <Label Grid.Column="0"
                        Text="🛒"
                        FontSize="20"
                        VerticalOptions="Center" />
+
                 <Label Grid.Column="1"
                        Text="{Binding CartCount, StringFormat='{0} item(s)'}"
                        FontSize="15"
                        TextColor="White"
                        VerticalOptions="Center"
                        Margin="8,0,0,0" />
+
                 <Button Grid.Column="2"
+                        Text="Hold"
+                        BackgroundColor="#4ECDC4"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        HeightRequest="38"
+                        Padding="10,0"
+                        CornerRadius="8"
+                        Command="{Binding AddToHoldCommand}" />
+
+                <Button Grid.Column="3"
                         Text="Go to cart"
                         BackgroundColor="#4ECDC4"
                         TextColor="White"

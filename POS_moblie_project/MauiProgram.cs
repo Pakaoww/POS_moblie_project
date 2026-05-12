@@ -60,6 +60,7 @@ namespace POS_moblie_project
             // Later phases (uncomment as built):
             builder.Services.AddSingleton<HomeViewModel>();
             builder.Services.AddSingleton<POSViewModel>();
+            builder.Services.AddSingleton<HoldViewModel>();
             builder.Services.AddTransient<CartViewModel>();
             builder.Services.AddSingleton<TransactionHistoryViewModel>();
             builder.Services.AddTransient<TransactionDetailViewModel>();
