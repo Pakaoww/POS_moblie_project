@@ -149,6 +149,26 @@ public partial class POSViewModel : ObservableObject
         }
         await Shell.Current.GoToAsync("CartPage");
     }
+    [RelayCommand]
+    private async Task ScanBarcodeAsync()
+    {
+        var tcs = new TaskCompletionSource<string>();
+
+        var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
+        {
+            tcs.SetResult(result);
+        });
+
+        await Application.Current.MainPage.Navigation.PushModalAsync(scannerPage);
+
+        var scannedValue = await tcs.Task;
+
+        if (!string.IsNullOrWhiteSpace(scannedValue))
+        {
+            // ใส่ค่าใน SearchText เพื่อ filter สินค้า
+            SearchText = scannedValue;
+        }
+    }
 
     public void ClearCart()
     {

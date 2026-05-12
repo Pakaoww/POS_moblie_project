@@ -97,4 +97,33 @@ public partial class SalesReportViewModel : ObservableObject
         await Shell.Current.GoToAsync(
             $"ProductSalesDetailPage?id={item.ProductId}");
     }
+
+    [RelayCommand]
+    private async Task ExportExcelAsync()
+    {
+        if (_allItems.Count == 0)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "No Data", "No sales data to export.", "OK");
+            return;
+        }
+
+        try
+        {
+            var backupService = ServiceHelper.GetService<BackupService>();
+            var filePath = await backupService
+                .ExportSalesReportAsync(_allItems, FromDate, ToDate);
+
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Export Sales Report",
+                File = new ShareFile(filePath)
+            });
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Export Failed", ex.Message, "OK");
+        }
+    }
 }

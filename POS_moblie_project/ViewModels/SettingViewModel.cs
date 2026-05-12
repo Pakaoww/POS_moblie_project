@@ -79,31 +79,6 @@ public partial class SettingsViewModel : ObservableObject
     private bool isBusy;
 
     [RelayCommand]
-    private async Task ExportExcelAsync()
-    {
-        if (IsBusy) return;
-        IsBusy = true;
-        try
-        {
-            var filePath = await _backupService.ExportToExcelAsync();
-            await Share.Default.RequestAsync(new ShareFileRequest
-            {
-                Title = "Export POS Data",
-                File = new ShareFile(filePath)
-            });
-        }
-        catch (Exception ex)
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Export Failed", ex.Message, "OK");
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    [RelayCommand]
     private async Task BackupDatabaseAsync()
     {
         if (IsBusy) return;

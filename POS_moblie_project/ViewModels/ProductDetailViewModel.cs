@@ -259,6 +259,24 @@ public partial class ProductDetailViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task ScanBarcodeAsync()
+    {
+        var tcs = new TaskCompletionSource<string>();
+
+        var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
+        {
+            tcs.SetResult(result);
+        });
+
+        await Application.Current.MainPage.Navigation.PushModalAsync(scannerPage);
+
+        var scannedValue = await tcs.Task;
+
+        if (!string.IsNullOrWhiteSpace(scannedValue))
+            ProductCode = scannedValue;
+    }
+
+    [RelayCommand]
     private async Task CancelAsync()
     {
         await Shell.Current.GoToAsync("..");

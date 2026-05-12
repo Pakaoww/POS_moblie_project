@@ -138,6 +138,93 @@ public class BackupService
         return filePath;
     }
 
+    // Export เฉพาะ Transaction History ที่กำลังแสดง
+    public async Task<string> ExportTransactionHistoryAsync(
+        List<Transaction> transactions)
+    {
+        using var workbook = new XLWorkbook();
+        var sheet = workbook.Worksheets.Add("Transaction History");
+
+        // Header
+        sheet.Cell(1, 1).Value = "Transaction ID";
+        sheet.Cell(1, 2).Value = "Date";
+        sheet.Cell(1, 3).Value = "Time";
+        sheet.Cell(1, 4).Value = "Subtotal";
+        sheet.Cell(1, 5).Value = "VAT";
+        sheet.Cell(1, 6).Value = "Total";
+        sheet.Cell(1, 7).Value = "Received";
+        sheet.Cell(1, 8).Value = "Change";
+        sheet.Row(1).Style.Font.Bold = true;
+
+        for (int i = 0; i < transactions.Count; i++)
+        {
+            var t = transactions[i];
+            sheet.Cell(i + 2, 1).Value = t.TransactionId;
+            sheet.Cell(i + 2, 2).Value = t.Timestamp.ToString("dd/MM/yyyy");
+            sheet.Cell(i + 2, 3).Value = t.Timestamp.ToString("HH:mm");
+            sheet.Cell(i + 2, 4).Value = (double)t.TotalAmount;
+            sheet.Cell(i + 2, 5).Value = (double)t.VatAmount;
+            sheet.Cell(i + 2, 6).Value = (double)t.GrandTotal;
+            sheet.Cell(i + 2, 7).Value = (double)t.MoneyReceived;
+            sheet.Cell(i + 2, 8).Value = (double)t.Change;
+        }
+
+        sheet.Columns().AdjustToContents();
+
+        var fileName = $"Transactions_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+        using var stream = File.Create(filePath);
+        workbook.SaveAs(stream);
+
+        return filePath;
+    }
+
+    // Export เฉพาะ Sales Report ที่กำลังแสดง
+    public async Task<string> ExportSalesReportAsync(
+        List<SalesReportItem> reportItems,
+        DateTime from, DateTime to)
+    {
+        using var workbook = new XLWorkbook();
+        var sheet = workbook.Worksheets.Add("Sales Report");
+
+        // Date range info
+        sheet.Cell(1, 1).Value = $"Sales Report: {from:dd/MM/yyyy} - {to:dd/MM/yyyy}";
+        sheet.Cell(1, 1).Style.Font.Bold = true;
+
+        // Header
+        sheet.Cell(3, 1).Value = "Product Code";
+        sheet.Cell(3, 2).Value = "Product Name";
+        sheet.Cell(3, 3).Value = "Total Qty Sold";
+        sheet.Cell(3, 4).Value = "Total Revenue";
+        sheet.Row(3).Style.Font.Bold = true;
+
+        for (int i = 0; i < reportItems.Count; i++)
+        {
+            var item = reportItems[i];
+            sheet.Cell(i + 4, 1).Value = item.ProductCode;
+            sheet.Cell(i + 4, 2).Value = item.ProductName;
+            sheet.Cell(i + 4, 3).Value = item.TotalQuantity;
+            sheet.Cell(i + 4, 4).Value = (double)item.TotalRevenue;
+        }
+
+        // Summary row
+        var lastRow = reportItems.Count + 5;
+        sheet.Cell(lastRow, 2).Value = "TOTAL";
+        sheet.Cell(lastRow, 3).Value = reportItems.Sum(i => i.TotalQuantity);
+        sheet.Cell(lastRow, 4).Value = (double)reportItems.Sum(i => i.TotalRevenue);
+        sheet.Row(lastRow).Style.Font.Bold = true;
+
+        sheet.Columns().AdjustToContents();
+
+        var fileName = $"SalesReport_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+        using var stream = File.Create(filePath);
+        workbook.SaveAs(stream);
+
+        return filePath;
+    }
+
+
     // ============================================
     // BACKUP — คัดลอกไฟล์ .db3 ทั้งหมด
     // ============================================

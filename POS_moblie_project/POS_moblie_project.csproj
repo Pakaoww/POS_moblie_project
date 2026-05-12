@@ -103,10 +103,12 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.60" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+		<PackageReference Include="QRCoder" Version="1.8.0" />
 		<PackageReference Include="SQLite" Version="3.13.0" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
 		<PackageReference Include="SQLitePCLRaw.core" Version="3.0.3" />
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.7.4" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -135,6 +137,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Settings\SettingsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Shared\BarcodeScannerPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Splash\SplashPage.xaml">

@@ -11,6 +11,7 @@ using POS_moblie_project.Views.POS;
 using POS_moblie_project.Views.Transactions;
 using POS_moblie_project.Views.Reports;
 using POS_moblie_project.Views.Home;
+using ZXing.Net.Maui.Controls;
 
 namespace POS_moblie_project
 {
@@ -31,6 +32,7 @@ namespace POS_moblie_project
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
+                .UseBarcodeReader()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

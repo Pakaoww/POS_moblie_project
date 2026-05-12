@@ -10,18 +10,34 @@
 
     <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="10">
 
-        <!-- Search bar -->
-        <Border Grid.Row="0"
-                BackgroundColor="#F5F5F7"
-                Padding="12,4"
-                StrokeThickness="0">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="20" />
-            </Border.StrokeShape>
-            <Entry Placeholder="Enter your product..."
-                   Text="{Binding SearchText}"
-                   BackgroundColor="Transparent" />
-        </Border>
+        <!-- แทน Search bar เดิม -->
+        <Grid Grid.Row="0"
+      ColumnDefinitions="*,Auto"
+      ColumnSpacing="8">
+
+            <Border Grid.Column="0"
+            BackgroundColor="#F5F5F7"
+            Padding="12,4"
+            StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20" />
+                </Border.StrokeShape>
+                <Entry Placeholder="Enter your product..."
+               Text="{Binding SearchText}"
+               BackgroundColor="Transparent" />
+            </Border>
+
+            <Button Grid.Column="1"
+            Text="📷"
+            FontSize="18"
+            WidthRequest="48"
+            HeightRequest="48"
+            CornerRadius="24"
+            BackgroundColor="#4ECDC4"
+            TextColor="White"
+            Padding="0"
+            Command="{Binding ScanBarcodeCommand}" />
+        </Grid>
 
         <!-- Category filter -->
         <Picker Grid.Row="1"

@@ -98,4 +98,33 @@ public partial class TransactionHistoryViewModel : ObservableObject
         await Shell.Current.GoToAsync(
             $"TransactionDetailPage?id={transaction.TransactionId}");
     }
+
+    [RelayCommand]
+    private async Task ExportExcelAsync()
+    {
+        if (_allTransactions.Count == 0)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "No Data", "No transactions to export.", "OK");
+            return;
+        }
+
+        try
+        {
+            var backupService = ServiceHelper.GetService<BackupService>();
+            var filePath = await backupService
+                .ExportTransactionHistoryAsync(_allTransactions);
+
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Export Transaction History",
+                File = new ShareFile(filePath)
+            });
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Export Failed", ex.Message, "OK");
+        }
+    }
 }

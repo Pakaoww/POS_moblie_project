@@ -89,7 +89,7 @@
         <StackLayout Padding="16,8,16,32" Spacing="0">
 
             <!-- ══════════════════════════
-                 FINANCE & TAX
+                           TAX
             ══════════════════════════ -->
 
             <Border Style="{StaticResource Card}">
@@ -205,25 +205,11 @@
             <!-- ══════════════════════════
                  DATA MANAGEMENT
             ══════════════════════════ -->
+            <!-- DATA MANAGEMENT -->
             <Label Text="DATA MANAGEMENT" Style="{StaticResource SectionLabel}"/>
 
             <Border Style="{StaticResource Card}">
                 <StackLayout Spacing="0" Padding="16,14">
-
-                    <!-- Export Excel -->
-                    <StackLayout Orientation="Horizontal" Padding="0,4" Spacing="12">
-                        <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ExportExcelCommand}"/>
-                        </StackLayout.GestureRecognizers>
-                        <Label Text="📊" FontSize="20" VerticalOptions="Center"/>
-                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Export to Excel" Style="{StaticResource RowTitle}"/>
-                            <Label Text="Export all data as .xlsx file" Style="{StaticResource RowSub}"/>
-                        </StackLayout>
-                        <Label Text="›" Style="{StaticResource Chevron}"/>
-                    </StackLayout>
-
-                    <BoxView Style="{StaticResource Divider}"/>
 
                     <!-- Backup Database -->
                     <StackLayout Orientation="Horizontal" Padding="0,4" Spacing="12">
@@ -256,7 +242,6 @@
                 </StackLayout>
             </Border>
 
-            <!-- Loading indicator -->
             <ActivityIndicator IsRunning="{Binding IsBusy}"
                    IsVisible="{Binding IsBusy}"
                    Color="#FF6B35"
