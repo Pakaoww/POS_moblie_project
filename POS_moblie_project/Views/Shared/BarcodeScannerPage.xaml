@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
              x:Class="POS_moblie_project.Views.Shared.BarcodeScannerPage"
              Title="Scan Barcode"
              BackgroundColor="Black">
 
     <Grid RowDefinitions="*,Auto">
 
-        <!-- Camera view -->
         <zxing:CameraBarcodeReaderView
             x:Name="BarcodeReader"
             Grid.Row="0"
             BarcodesDetected="OnBarcodesDetected"
-            IsDetecting="True">
-            <zxing:CameraBarcodeReaderView.Options>
-                <zxing:BarcodeReaderOptions
-                    Formats="QrCode,Code128,Code39,Ean13,Ean8,Upca,Upce"
-                    AutoRotate="True"
-                    Multiple="False" />
-            </zxing:CameraBarcodeReaderView.Options>
-        </zxing:CameraBarcodeReaderView>
+            IsDetecting="True" />
 
         <!-- Overlay -->
         <Grid Grid.Row="0" InputTransparent="True">
-
             <BoxView Color="#88000000" />
 
             <Border WidthRequest="260"
@@ -59,13 +50,26 @@
         <!-- Bottom bar -->
         <Grid Grid.Row="1"
               BackgroundColor="#12121A"
-              Padding="20,16">
-            <Button Text="Cancel"
+              Padding="20,16"
+              ColumnDefinitions="*,*"
+              ColumnSpacing="12">
+
+            <Button Grid.Column="0"
+                    Text="🖼 Import"
+                    BackgroundColor="#2A3A4A"
+                    TextColor="White"
+                    HeightRequest="46"
+                    CornerRadius="10"
+                    Clicked="OnImportClicked" />
+
+            <Button Grid.Column="1"
+                    Text="Cancel"
                     BackgroundColor="#2A2A3A"
                     TextColor="White"
                     HeightRequest="46"
                     CornerRadius="10"
                     Clicked="OnCancelClicked" />
+
         </Grid>
 
     </Grid>
