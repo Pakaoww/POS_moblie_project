@@ -261,11 +261,12 @@ public partial class ProductDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task ScanBarcodeAsync()
     {
-        var tcs = new TaskCompletionSource<string>();
+        var tcs = new TaskCompletionSource<string>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
 
         var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
         {
-            tcs.SetResult(result);
+            tcs.TrySetResult(result);
         });
 
         await Application.Current.MainPage.Navigation.PushModalAsync(scannerPage);

@@ -140,9 +140,6 @@
 	  <MauiXaml Update="Views\Settings\SettingsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Shared\BarcodeScannerPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Views\Splash\SplashPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -158,7 +155,10 @@
 	  <MauiXaml Update="Views\Transactions\TransactionHistoryPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-		<MauiXaml Update="Views\Shared\BarcodeScannerPage.xaml" Inflator="Runtime" />
+		<MauiXaml Update="Views\Shared\BarcodeScannerPage.xaml"
+			 Inflator="Runtime">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 
 </Project>
