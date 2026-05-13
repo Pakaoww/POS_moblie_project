@@ -209,6 +209,11 @@ public partial class ProductDetailViewModel : ObservableObject
                 _editingProduct.Price = Price;
                 _editingProduct.Stock = Stock;
                 _editingProduct.ImagePath = ImagePath ?? string.Empty;
+
+                // Auto-off เมื่อ stock ถูกแก้เป็น 0
+                if (Stock <= 0 && _editingProduct.IsVisible)
+                    _editingProduct.IsVisible = false;
+
                 await _databaseService.UpdateProductAsync(_editingProduct);
             }
             else
@@ -220,7 +225,9 @@ public partial class ProductDetailViewModel : ObservableObject
                     Price,
                     Stock)
                 {
-                    ImagePath = ImagePath ?? string.Empty
+                    ImagePath = ImagePath ?? string.Empty,
+                    // สินค้าใหม่ที่ stock = 0 → ปิดอัตโนมัติ
+                    IsVisible = Stock > 0
                 };
                 await _databaseService.CreateProductAsync(product);
             }

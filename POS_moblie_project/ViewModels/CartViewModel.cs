@@ -120,9 +120,21 @@ public partial class CartViewModel : ObservableObject
     // ── Cart actions ──────────────────────────────────────
 
     [RelayCommand]
-    private void IncreaseItem(CartItem item)
+    private async Task IncreaseItemAsync(CartItem item)
     {
         if (item == null) return;
+
+        // ดึง stock จริงจาก DB
+        var product = await _databaseService.GetProductAsync(item.ProductId);
+        if (product != null && item.Quantity >= product.Stock)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Stock Limit",
+                $"Only {product.Stock} unit(s) available in stock.",
+                "OK");
+            return;
+        }
+
         item.Quantity++;
         RecalculateTotals();
         SyncToPos(item);
@@ -293,13 +305,25 @@ public partial class CartViewModel : ObservableObject
                 Change);
 
             var items = CartItems.Select(c => new TransactionItem(
-                0,
-                c.ProductId,
-                c.ProductName,
-                c.UnitPrice,
-                c.Quantity)).ToList();
+                0, c.ProductId, c.ProductName, c.UnitPrice, c.Quantity)).ToList();
 
             await _databaseService.CreateTransactionAsync(transaction, items);
+
+            // ── ลด stock และ auto-off ถ้า stock = 0 ──────────
+            foreach (var cartItem in CartItems)
+            {
+                var product = await _databaseService.GetProductAsync(cartItem.ProductId);
+                if (product == null) continue;
+
+                product.Stock -= cartItem.Quantity;
+                if (product.Stock < 0) product.Stock = 0;
+
+                // auto-off เมื่อ stock หมด
+                if (product.Stock == 0 && product.IsVisible)
+                    product.IsVisible = false;
+
+                await _databaseService.UpdateProductAsync(product);
+            }
 
             ReceiptTransactionId = transactionId;
             ReceiptTimestamp = transaction.Timestamp;

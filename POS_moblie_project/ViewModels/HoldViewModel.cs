@@ -9,10 +9,6 @@ public partial class HoldViewModel : ObservableObject
 {
     private readonly POSViewModel _posViewModel;
 
-    // ════════════════════════════════════════════════════════
-    //  SESSIONS (หลายตะกร้า)
-    // ════════════════════════════════════════════════════════
-
     public ObservableCollection<HoldSession> Sessions { get; } = new();
 
     [ObservableProperty]
@@ -23,21 +19,16 @@ public partial class HoldViewModel : ObservableObject
     private HoldSession? _selectedSession;
 
     public bool HasSelectedSession => SelectedSession is not null;
-
-    public ObservableCollection<HoldItem> SelectedItems
-        => SelectedSession?.Items ?? new();
-
-    public decimal GrandTotal
-        => SelectedSession?.Total ?? 0;
-
+    public ObservableCollection<HoldItem> SelectedItems => SelectedSession?.Items ?? new();
+    public decimal GrandTotal => SelectedSession?.Total ?? 0;
     public bool IsEmpty => !Sessions.Any();
-
-    // จำนวนตะกร้าทั้งหมด (แสดงบน badge)
     public int SessionCount => Sessions.Count;
 
-    // ════════════════════════════════════════════════════════
-    //  CONSTRUCTOR
-    // ════════════════════════════════════════════════════════
+    // คืนจำนวนรวมของ productId ที่ hold ไว้ทุก session
+    public int TotalReserved(int productId)
+        => Sessions.SelectMany(s => s.Items)
+                   .Where(i => i.ProductId == productId)
+                   .Sum(i => i.Quantity);
 
     public HoldViewModel()
     {
@@ -49,28 +40,15 @@ public partial class HoldViewModel : ObservableObject
         };
     }
 
-    // ════════════════════════════════════════════════════════
-    //  ADD NEW SESSION (เรียกจาก POSViewModel ตอนกด Hold)
-    // ════════════════════════════════════════════════════════
-
     public void AddSession(IEnumerable<HoldItem> items)
     {
         var session = new HoldSession();
         foreach (var item in items)
             session.Items.Add(item);
-
         Sessions.Add(session);
-
-        // เลือก session ใหม่เป็น active
         SelectedSession = session;
-
-        // อัป HoldCount ใน POS
         _posViewModel.HoldCount = Sessions.Sum(s => s.ItemCount);
     }
-
-    // ════════════════════════════════════════════════════════
-    //  SELECT SESSION
-    // ════════════════════════════════════════════════════════
 
     [RelayCommand]
     private void SelectSession(HoldSession session)
@@ -78,10 +56,6 @@ public partial class HoldViewModel : ObservableObject
         SelectedSession = session;
         RefreshTotals();
     }
-
-    // ════════════════════════════════════════════════════════
-    //  ITEM COMMANDS (ใน selected session)
-    // ════════════════════════════════════════════════════════
 
     [RelayCommand]
     private void IncreaseItem(HoldItem item)
@@ -96,9 +70,7 @@ public partial class HoldViewModel : ObservableObject
     {
         if (item is null || SelectedSession is null) return;
         if (item.Quantity > 1)
-        {
             item.Quantity--;
-        }
         else
         {
             SelectedSession.Items.Remove(item);
@@ -118,10 +90,6 @@ public partial class HoldViewModel : ObservableObject
         RefreshTotals();
     }
 
-    // ════════════════════════════════════════════════════════
-    //  SESSION COMMANDS
-    // ════════════════════════════════════════════════════════
-
     [RelayCommand]
     private void ClearHold()
     {
@@ -139,41 +107,28 @@ public partial class HoldViewModel : ObservableObject
         RefreshTotals();
     }
 
-    // ════════════════════════════════════════════════════════
-    //  RESUME — โหลด session กลับไป POS
-    // ════════════════════════════════════════════════════════
-
     [RelayCommand]
     private async Task ResumeOrderAsync()
     {
         if (SelectedSession is null) return;
-
-        // โหลด items กลับไปที่ cart ของ POS
-        _posViewModel.CartItems.Clear();
         foreach (var item in SelectedSession.Items)
         {
-            _posViewModel.CartItems.Add(
-                new CartItem(item.Product, item.Quantity));
+            var existing = _posViewModel.CartItems
+                .FirstOrDefault(c => c.ProductId == item.ProductId);
+            if (existing != null)
+                existing.Quantity += item.Quantity;
+            else
+                _posViewModel.CartItems.Add(new CartItem(item.Product, item.Quantity));
 
-            // อัป quantity ใน product list ด้วย
-            var product = _posViewModel.Products
+            var posItem = _posViewModel.Products
                 .FirstOrDefault(p => p.ProductId == item.ProductId);
-            if (product is not null)
-                product.Quantity = item.Quantity;
+            if (posItem is not null) posItem.Quantity = 0;
         }
-        _posViewModel.CartCount =
-            _posViewModel.CartItems.Sum(x => x.Quantity);
-
-        // ลบ session นี้ออก
+        _posViewModel.CartCount = _posViewModel.CartItems.Sum(x => x.Quantity);
         RemoveSelectedSession();
         RefreshTotals();
-
         await Shell.Current.GoToAsync("..");
     }
-
-    // ════════════════════════════════════════════════════════
-    //  CHECKOUT — ย้าย session ไปหน้า cart
-    // ════════════════════════════════════════════════════════
 
     [RelayCommand]
     private async Task CheckoutAsync()
@@ -184,27 +139,20 @@ public partial class HoldViewModel : ObservableObject
                 "Empty", "No items in this session.", "OK");
             return;
         }
-
-        // ย้าย items ของ session นี้ไป cart
-        _posViewModel.CartItems.Clear();
         foreach (var item in SelectedSession.Items)
         {
-            _posViewModel.CartItems.Add(
-                new CartItem(item.Product, item.Quantity));
+            var existing = _posViewModel.CartItems
+                .FirstOrDefault(c => c.ProductId == item.ProductId);
+            if (existing != null)
+                existing.Quantity += item.Quantity;
+            else
+                _posViewModel.CartItems.Add(new CartItem(item.Product, item.Quantity));
         }
-        _posViewModel.CartCount =
-            _posViewModel.CartItems.Sum(x => x.Quantity);
-
-        // ลบ session นี้ออก (hold หาย แต่ cart ยังอยู่)
+        _posViewModel.CartCount = _posViewModel.CartItems.Sum(x => x.Quantity);
         RemoveSelectedSession();
         RefreshTotals();
-
         await Shell.Current.GoToAsync("CartPage");
     }
-
-    // ════════════════════════════════════════════════════════
-    //  HELPERS
-    // ════════════════════════════════════════════════════════
 
     private void RemoveSelectedSession()
     {
@@ -220,9 +168,6 @@ public partial class HoldViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedItems));
         OnPropertyChanged(nameof(IsEmpty));
         OnPropertyChanged(nameof(SessionCount));
-        if (SelectedSession is not null)
-        {
-            OnPropertyChanged(nameof(SelectedSession));
-        }
+        OnPropertyChanged(nameof(SelectedSession));
     }
 }

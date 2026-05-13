@@ -99,6 +99,17 @@ public partial class StockViewModel : ObservableObject
     private async Task ToggleVisibilityAsync(Product product)
     {
         if (product == null) return;
+
+        // ถ้า stock = 0 และพยายามเปิด → แจ้งเตือนและไม่ทำอะไร
+        if (!product.IsVisible == true && product.Stock <= 0)
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Out of Stock",
+                "The product is out of stock, unable to be sold.",
+                "OK");
+            return;
+        }
+
         try
         {
             await _databaseService.ToggleProductVisibilityAsync(product.Id);

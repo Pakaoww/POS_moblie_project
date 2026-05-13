@@ -232,11 +232,10 @@ public class DatabaseService
     // Transaction methods
     // ============================================
     public async Task<int> CreateTransactionAsync(
-        Transaction transaction, List<TransactionItem> items)
+    Transaction transaction, List<TransactionItem> items)
     {
         await EnsureInitializedAsync();
 
-        // Atomic: insert transaction + all items + decrement stock
         await _database!.RunInTransactionAsync(db =>
         {
             db.Insert(transaction);
@@ -246,11 +245,16 @@ public class DatabaseService
                 item.TransactionId = transaction.Id;
                 db.Insert(item);
 
-                // Decrement stock
                 var product = db.Get<Product>(item.ProductId);
                 if (product != null)
                 {
                     product.Stock -= item.Quantity;
+                    if (product.Stock < 0) product.Stock = 0;
+
+                    // auto-off เมื่อ stock หมด
+                    if (product.Stock == 0 && product.IsVisible)
+                        product.IsVisible = false;
+
                     product.UpdatedAt = DateTime.Now;
                     db.Update(product);
                 }

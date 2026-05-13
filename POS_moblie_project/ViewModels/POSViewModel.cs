@@ -1,9 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DocumentFormat.OpenXml.Spreadsheet;
 using POS_moblie_project.Models;
 using POS_moblie_project.Services;
-using POS_moblie_project.Views.POS;
 using System.Collections.ObjectModel;
 
 namespace POS_moblie_project.ViewModels;
@@ -14,7 +12,6 @@ public partial class POSViewModel : ObservableObject
     private List<Product> _allProducts = new();
     private List<Category> _allCategories = new();
 
-    // ── Product list state ──────────────────────────────
     [ObservableProperty]
     private ObservableCollection<ProductWithQuantity> products = new();
 
@@ -30,16 +27,11 @@ public partial class POSViewModel : ObservableObject
     [ObservableProperty]
     private bool isLoading;
 
-    // ── Cart state (singleton so CartPage shares it) ────
     [ObservableProperty]
     private ObservableCollection<CartItem> cartItems = new();
 
     [ObservableProperty]
     private int cartCount;
-
-    // Hold State
-    [ObservableProperty]
-    private ObservableCollection<HoldItem> holdItems = new();
 
     [ObservableProperty]
     private int holdCount;
@@ -70,8 +62,7 @@ public partial class POSViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
         }
         finally
         {
@@ -96,19 +87,35 @@ public partial class POSViewModel : ObservableObject
 
         Products.Clear();
         foreach (var p in filtered)
-        {
-            // Preserve quantity already set in cart
-            var existing = CartItems.FirstOrDefault(c => c.ProductId == p.Id);
-            Products.Add(new ProductWithQuantity(p, existing?.Quantity ?? 0));
-        }
+            Products.Add(new ProductWithQuantity(p, 0));
+    }
+
+    // stock จริง - ที่อยู่ใน cart - ที่ hold ไว้ทุก session
+    private int GetAvailableStock(ProductWithQuantity item)
+    {
+        var inCart = CartItems
+            .FirstOrDefault(c => c.ProductId == item.ProductId)?.Quantity ?? 0;
+        var holdVm = ServiceHelper.GetService<HoldViewModel>();
+        var inHold = holdVm.TotalReserved(item.ProductId);
+        return item.Stock - inCart - inHold;
     }
 
     [RelayCommand]
     private void IncreaseQuantity(ProductWithQuantity item)
     {
         if (item == null) return;
-        item.Quantity++;
 
+        // หัก staging quantity ด้วย
+        var available = GetAvailableStock(item) - item.Quantity;
+        if (available <= 0)
+        {
+            Application.Current.MainPage.DisplayAlert(
+                "Stock Limit",
+                $"No more stock available for \"{item.Name}\".",
+                "OK");
+            return;
+        }
+        item.Quantity++;
     }
 
     [RelayCommand]
@@ -116,89 +123,52 @@ public partial class POSViewModel : ObservableObject
     {
         if (item == null || item.Quantity <= 0) return;
         item.Quantity--;
-
     }
 
     [RelayCommand]
     private void AddToCart(ProductWithQuantity item)
     {
         if (item == null || item.Quantity <= 0) return;
-        UpdateCartFromProduct(item);
+
+        var available = GetAvailableStock(item);
+        var addQty = Math.Min(item.Quantity, available);
+        if (addQty <= 0) return;
+
+        var existing = CartItems.FirstOrDefault(c => c.ProductId == item.ProductId);
+        if (existing != null)
+            existing.Quantity += addQty;
+        else
+            CartItems.Add(new CartItem(item.Product, addQty));
+
+        CartCount = CartItems.Sum(c => c.Quantity);
+        item.Quantity = 0;
     }
 
     [RelayCommand]
     private async Task AddToHoldAsync()
     {
-        var selectedProducts = Products.Where(p => p.Quantity > 0).ToList();
-
-        if (!selectedProducts.Any())
+        // Hold จาก CartItems ที่มีอยู่ ไม่ใช่ staging
+        if (CartItems.Count == 0)
         {
             await Application.Current.MainPage.DisplayAlert(
-                "No Items", "Please select items to hold.", "OK");
+                "No Items", "Please add items to cart before holding.", "OK");
             return;
         }
 
-        // สร้าง HoldItems จาก selected products
-        var holdItems = selectedProducts.Select(p =>
-            new HoldItem(p.Product, p.Quantity)).ToList();
+        var holdItems = CartItems
+            .Select(c => new HoldItem(
+                _allProducts.First(p => p.Id == c.ProductId),
+                c.Quantity))
+            .ToList();
 
-        // ส่งไปเพิ่ม session ใน HoldViewModel
         var holdViewModel = ServiceHelper.GetService<HoldViewModel>();
         holdViewModel.AddSession(holdItems);
 
-        // Reset quantities ใน POS list
-        foreach (var p in selectedProducts)
-            p.Quantity = 0;
-
+        // เคลียร์ Cart หลัง hold
         CartItems.Clear();
         CartCount = 0;
 
         await Shell.Current.GoToAsync("HoldPage");
-    }
-
-    private void UpdateHoldFromProduct(ProductWithQuantity item)
-    {
-        var existing = HoldItems
-            .FirstOrDefault(h => h.ProductId == item.ProductId);
-
-        if (item.Quantity == 0)
-        {
-            if (existing != null)
-                HoldItems.Remove(existing);
-        }
-        else if (existing != null)
-        {
-            existing.Quantity = item.Quantity;
-        }
-        else
-        {
-            HoldItems.Add(new HoldItem(
-                item.Product,
-                item.Quantity));
-        }
-
-        HoldCount = HoldItems.Sum(h => h.Quantity);
-    }
-
-    private void UpdateCartFromProduct(ProductWithQuantity item)
-    {
-        var existing = CartItems.FirstOrDefault(c => c.ProductId == item.ProductId);
-
-        if (item.Quantity == 0)
-        {
-            if (existing != null)
-                CartItems.Remove(existing);
-        }
-        else if (existing != null)
-        {
-            existing.Quantity = item.Quantity;
-        }
-        else
-        {
-            CartItems.Add(new CartItem(item.Product, item.Quantity));
-        }
-
-        CartCount = CartItems.Sum(c => c.Quantity);
     }
 
     [RelayCommand]
@@ -212,45 +182,34 @@ public partial class POSViewModel : ObservableObject
         }
         await Shell.Current.GoToAsync("CartPage");
     }
+
     [RelayCommand]
     private async Task GoToHoldAsync()
-    {
-        await Shell.Current.GoToAsync("HoldPage");
-    }
+        => await Shell.Current.GoToAsync("HoldPage");
+
     [RelayCommand]
     private async Task ScanBarcodeAsync()
     {
         var tcs = new TaskCompletionSource<string>();
-
         var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
         {
             tcs.SetResult(result);
         });
-
         await Application.Current.MainPage.Navigation.PushModalAsync(scannerPage);
-
         var scannedValue = await tcs.Task;
-
         if (!string.IsNullOrWhiteSpace(scannedValue))
-        {
-            // ใส่ค่าใน SearchText เพื่อ filter สินค้า
             SearchText = scannedValue;
-        }
     }
 
     public void ClearCart()
     {
         CartItems.Clear();
         CartCount = 0;
-        // Reset quantities on product list
         foreach (var p in Products)
             p.Quantity = 0;
     }
 }
 
-/// <summary>
-/// Wraps Product with a mutable Quantity for the POS list UI
-/// </summary>
 public partial class ProductWithQuantity : ObservableObject
 {
     public Product Product { get; }
