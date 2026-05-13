@@ -1,7 +1,6 @@
 using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
 using ZXing.Common;
-// ไม่ต้อง using ZXing ตรงๆ — ใช้ fully qualified แทน
 
 namespace POS_moblie_project.Views.Shared;
 
@@ -15,12 +14,7 @@ public partial class BarcodeScannerPage : ContentPage
         InitializeComponent();
         _onScanned = onScanned;
 
-        BarcodeReader.Options = new BarcodeReaderOptions
-        {
-            Formats = BarcodeFormats.All,
-            AutoRotate = true,
-            Multiple = false
-        };
+        BarcodeReader.BarcodesDetected += OnBarcodesDetected;
 
         StartScanLineAnimation();
     }
@@ -29,76 +23,181 @@ public partial class BarcodeScannerPage : ContentPage
     {
         base.OnAppearing();
 
+        SetStatus("🔒 กำลังขอสิทธิ์กล้อง...", "White");
+
         var status = await Permissions.RequestAsync<Permissions.Camera>();
         if (status != PermissionStatus.Granted)
         {
+            SetStatus("❌ ไม่ได้รับสิทธิ์กล้อง", "Red");
             await DisplayAlert("Permission Denied",
                 "Camera permission is required to scan barcodes.", "OK");
             await Navigation.PopModalAsync();
+            return;
         }
+
+        SetStatus("📷 กล้องพร้อม — เล็งไปที่บาร์โค้ด", "White");
+        InitializeCamera();
+    }
+
+    private void InitializeCamera()
+    {
+        BarcodeReader.IsVisible = true;
+        BarcodeReader.Options = new BarcodeReaderOptions
+        {
+            TryInverted = false,
+            TryHarder = true,
+            AutoRotate = true,
+            Formats = BarcodeFormat.Code128
+            | BarcodeFormat.Code39
+            | BarcodeFormat.Code93
+            | BarcodeFormat.Ean13
+            | BarcodeFormat.Ean8
+            | BarcodeFormat.UpcA
+            | BarcodeFormat.UpcE
+            | BarcodeFormat.Codabar
+            | BarcodeFormat.Pdf417
+            | BarcodeFormat.DataMatrix
+            | BarcodeFormat.QrCode
+            | BarcodeFormat.Aztec,
+            Multiple = false
+        };
+        BarcodeReader.CameraLocation = CameraLocation.Rear;
+        BarcodeReader.IsEnabled = true;
+        BarcodeReader.IsDetecting = true;
+        SetStatus("🔍 กำลังสแกน...", "White");
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        BarcodeReader.IsDetecting = false;
+        DeinitializeCamera();
     }
 
-    // ── Camera scan ──────────────────────────────────────
-    private void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
+    private void DeinitializeCamera()
     {
-        if (_hasScanned) return;
-        _hasScanned = true;
+        BarcodeReader.IsEnabled = false;
+        BarcodeReader.IsDetecting = false;
+        BarcodeReader.IsVisible = false;
+    }
 
-        var barcode = e.Results?.FirstOrDefault();
-        if (barcode == null)
+    private void SetStatus(string message, string color = "White")
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            _hasScanned = false;
-            return;
-        }
-
-        var value = barcode.Value;
-
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            BarcodeReader.IsDetecting = false;
-            _onScanned?.Invoke(value);
-            await Navigation.PopModalAsync();
+            StatusLabel.Text = message;
+            StatusLabel.TextColor = Color.FromArgb(color switch
+            {
+                "Red" => "#FF4444",
+                "Green" => "#4ECDC4",
+                _ => "#FFFFFF"
+            });
         });
     }
 
-    // ── Import from Gallery ──────────────────────────────
+    private void SetResult(string value)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            ResultLabel.Text = $"อ่านได้: {value}";
+        });
+    }
+
+    // ── Camera scan ──────────────────────────────────────────────────────────────
+    private void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
+    {
+        if (_hasScanned) return;
+
+        var first = e.Results?.FirstOrDefault();
+        if (first == null) return;
+
+        _hasScanned = true;
+        BarcodeReader.IsDetecting = false;
+
+        SetStatus("✅ อ่านได้แล้ว — กรุณายืนยัน", "Green");
+        SetResult(first.Value);
+
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            var confirm = await DisplayAlert(
+                "ยืนยันบาร์โค้ด",
+                $"อ่านได้: {first.Value}\nใช้ค่านี้หรือไม่?",
+                "ยืนยัน", "สแกนใหม่");
+
+            if (confirm)
+            {
+                _onScanned?.Invoke(first.Value);
+                await Navigation.PopModalAsync();
+            }
+            else
+            {
+                // สแกนใหม่
+                _hasScanned = false;
+                SetStatus("🔍 กำลังสแกน...", "White");
+                SetResult("");
+                await Task.Delay(1500);
+                BarcodeReader.IsDetecting = true;
+            }
+        });
+    }
+
+    // ── Import from Gallery ──────────────────────────────────────────────────────
     private async void OnImportClicked(object sender, EventArgs e)
     {
         try
         {
             BarcodeReader.IsDetecting = false;
+            SetStatus("🖼 กำลังเปิดรูปภาพ...", "White");
 
             var result = await MediaPicker.Default.PickPhotoAsync();
             if (result == null)
             {
+                SetStatus("🔍 กำลังสแกน...", "White");
                 BarcodeReader.IsDetecting = true;
                 return;
             }
 
+            SetStatus("🔎 กำลังอ่านบาร์โค้ดจากรูป...", "White");
             var scannedValue = await DecodeImageAsync(result);
 
             if (!string.IsNullOrWhiteSpace(scannedValue))
             {
-                _hasScanned = true;
-                _onScanned?.Invoke(scannedValue);
-                await Navigation.PopModalAsync();
+                SetStatus("✅ อ่านได้แล้ว — กรุณายืนยัน", "Green");
+                SetResult(scannedValue);
+
+                var confirm = await DisplayAlert(
+                    "ยืนยันบาร์โค้ด",
+                    $"อ่านได้: {scannedValue}\nใช้ค่านี้หรือไม่?",
+                    "ยืนยัน", "สแกนใหม่");
+
+                if (confirm)
+                {
+                    _hasScanned = true;
+                    _onScanned?.Invoke(scannedValue);
+                    await Navigation.PopModalAsync();
+                }
+                else
+                {
+                    SetStatus("🔍 กำลังสแกน...", "White");
+                    SetResult("");
+                    await Task.Delay(1500);
+                    BarcodeReader.IsDetecting = true;
+                }
             }
             else
             {
+                SetStatus("❌ ไม่พบบาร์โค้ดในรูปภาพ", "Red");
                 await DisplayAlert("Not Found",
                     "No barcode found in the selected image.", "OK");
+                SetStatus("🔍 กำลังสแกน...", "White");
+                await Task.Delay(1500);
                 BarcodeReader.IsDetecting = true;
             }
         }
         catch (Exception ex)
         {
+            SetStatus($"❌ Error: {ex.Message}", "Red");
             await DisplayAlert("Error", $"Failed to read image: {ex.Message}", "OK");
+            await Task.Delay(1500);
             BarcodeReader.IsDetecting = true;
         }
     }
@@ -118,7 +217,6 @@ public partial class BarcodeScannerPage : ContentPage
                 Options = new DecodingOptions
                 {
                     TryHarder = true,
-                    // ใช้ ZXing.BarcodeFormat แบบ fully qualified
                     PossibleFormats = new List<ZXing.BarcodeFormat>
                     {
                         ZXing.BarcodeFormat.QR_CODE,
@@ -136,9 +234,7 @@ public partial class BarcodeScannerPage : ContentPage
                 }
             };
 
-            var luminanceSource = await Task.Run(() =>
-                DecodeRawBitmap(imageBytes));
-
+            var luminanceSource = await Task.Run(() => DecodeRawBitmap(imageBytes));
             if (luminanceSource == null) return null;
 
             var decodeResult = reader.Decode(luminanceSource);

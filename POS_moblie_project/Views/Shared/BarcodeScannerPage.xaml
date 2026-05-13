@@ -3,51 +3,81 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
              x:Class="POS_moblie_project.Views.Shared.BarcodeScannerPage"
-             Title="Scan Barcode"
-             BackgroundColor="Black">
+             NavigationPage.HasNavigationBar="False">
 
     <Grid RowDefinitions="*,Auto">
 
         <zxing:CameraBarcodeReaderView
             x:Name="BarcodeReader"
             Grid.Row="0"
-            BarcodesDetected="OnBarcodesDetected"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
             IsDetecting="True" />
 
-        <!-- Overlay -->
-        <Grid Grid.Row="0" InputTransparent="True">
-            <BoxView Color="#88000000" />
+        <Grid Grid.Row="0"
+              InputTransparent="False"
+              RowDefinitions="*,260,*"
+              ColumnDefinitions="*,260,*">
 
-            <Border WidthRequest="260"
-                    HeightRequest="260"
+            <BoxView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                     Color="#AA000000" InputTransparent="True" />
+            <BoxView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                     Color="#AA000000" InputTransparent="True" />
+            <BoxView Grid.Row="1" Grid.Column="0"
+                     Color="#AA000000" InputTransparent="True" />
+            <BoxView Grid.Row="1" Grid.Column="2"
+                     Color="#AA000000" InputTransparent="True" />
+
+            <Border Grid.Row="1" Grid.Column="1"
                     BackgroundColor="Transparent"
                     StrokeThickness="3"
                     Stroke="#4ECDC4"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center">
+                    InputTransparent="True">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="12" />
                 </Border.StrokeShape>
-                <BoxView Color="Transparent" />
+                <BoxView x:Name="ScanLine"
+                         Color="#4ECDC4"
+                         HeightRequest="2"
+                         VerticalOptions="Center"
+                         Opacity="0.8"
+                         InputTransparent="True" />
             </Border>
 
-            <BoxView x:Name="ScanLine"
-                     Color="#4ECDC4"
-                     HeightRequest="2"
-                     WidthRequest="240"
-                     HorizontalOptions="Center"
-                     VerticalOptions="Center"
-                     Opacity="0.8" />
-
-            <Label Text="Align barcode within the frame"
+            <!-- Status label บนกรอบ -->
+            <Label x:Name="StatusLabel"
+                   Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                   Text="🔍 กำลังเปิดกล้อง..."
                    TextColor="White"
                    FontSize="14"
                    HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   Margin="0,160,0,0" />
+                   VerticalOptions="End"
+                   Margin="0,0,0,12"
+                   InputTransparent="True" />
+
+            <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                   Text="Align barcode within the frame"
+                   TextColor="White"
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Start"
+                   Margin="0,12,0,0"
+                   InputTransparent="True" />
+
+            <!-- ผลที่อ่านได้ -->
+            <Label x:Name="ResultLabel"
+                   Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                   Text=""
+                   TextColor="#4ECDC4"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="End"
+                   Margin="0,0,0,8"
+                   InputTransparent="True" />
+
         </Grid>
 
-        <!-- Bottom bar -->
         <Grid Grid.Row="1"
               BackgroundColor="#12121A"
               Padding="20,16"
@@ -69,7 +99,6 @@
                     HeightRequest="46"
                     CornerRadius="10"
                     Clicked="OnCancelClicked" />
-
         </Grid>
 
     </Grid>
