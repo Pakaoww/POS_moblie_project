@@ -77,6 +77,7 @@ public partial class SettingsViewModel : ObservableObject
         if (VatRate > 0) VatRate--;
     }
 
+
     // ════════════════════════════════════════════════════════
     //  NAVIGATION
     // ════════════════════════════════════════════════════════
@@ -175,4 +176,9 @@ public partial class SettingsViewModel : ObservableObject
             IsBusy = false;
         }
     }
+    [RelayCommand]
+    private void ToggleVat() => VatEnabled = !VatEnabled;
+
+    [RelayCommand]
+    private void ToggleShowCurrencySymbol() => ShowCurrencySymbol = !ShowCurrencySymbol;
 }

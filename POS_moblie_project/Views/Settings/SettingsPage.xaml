@@ -136,10 +136,35 @@
                                 <Label Text="VAT Rate"             Style="{StaticResource FieldLabel}"/>
                                 <Label Text="Enable VAT on orders" Style="{StaticResource RowSub}"/>
                             </StackLayout>
-                            <Switch IsToggled="{Binding VatEnabled}"
-                                    OnColor="{StaticResource Accent}"
-                                    ThumbColor="White"
-                                    VerticalOptions="Center"/>
+                            <Border WidthRequest="62"
+        HeightRequest="30"
+        StrokeThickness="0"
+        BackgroundColor="{Binding VatEnabled, Converter={StaticResource BoolToColorConverter}}"
+        VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="15" />
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleVatCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,*" Padding="3,0">
+                                    <Label Text="{Binding VatEnabled, Converter={StaticResource BoolToVisibleTextConverter}}"
+               FontSize="10" FontAttributes="Bold" TextColor="White"
+               HorizontalOptions="Center" VerticalOptions="Center"
+               Grid.Column="{Binding VatEnabled, Converter={StaticResource BoolToLabelColumnConverter}}" />
+                                    <Border WidthRequest="22" HeightRequest="22"
+                BackgroundColor="White" StrokeThickness="0"
+                HorizontalOptions="Center" VerticalOptions="Center"
+                Grid.Column="{Binding VatEnabled, Converter={StaticResource BoolToThumbColumnConverter}}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="11" />
+                                        </Border.StrokeShape>
+                                        <Border.Shadow>
+                                            <Shadow Brush="#00000040" Offset="0,2" Radius="4" Opacity="0.3" />
+                                        </Border.Shadow>
+                                    </Border>
+                                </Grid>
+                            </Border>
                         </StackLayout>
 
                         <!-- Stepper (visible เมื่อ VatEnabled = true) -->
@@ -218,10 +243,35 @@
                          Spacing="2" VerticalOptions="Center">
                             <Label Text="Show Currency Symbol" Style="{StaticResource RowTitle}"/>
                         </StackLayout>
-                        <Switch IsToggled="{Binding ShowCurrencySymbol}"
-                    OnColor="{StaticResource Accent}"
-                    ThumbColor="White"
-                    VerticalOptions="Center"/>
+                        <Border WidthRequest="62"
+        HeightRequest="30"
+        StrokeThickness="0"
+        BackgroundColor="{Binding ShowCurrencySymbol, Converter={StaticResource BoolToColorConverter}}"
+        VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="15" />
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleShowCurrencySymbolCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,*" Padding="3,0">
+                                <Label Text="{Binding ShowCurrencySymbol, Converter={StaticResource BoolToVisibleTextConverter}}"
+               FontSize="10" FontAttributes="Bold" TextColor="White"
+               HorizontalOptions="Center" VerticalOptions="Center"
+               Grid.Column="{Binding ShowCurrencySymbol, Converter={StaticResource BoolToLabelColumnConverter}}" />
+                                <Border WidthRequest="22" HeightRequest="22"
+                BackgroundColor="White" StrokeThickness="0"
+                HorizontalOptions="Center" VerticalOptions="Center"
+                Grid.Column="{Binding ShowCurrencySymbol, Converter={StaticResource BoolToThumbColumnConverter}}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="11" />
+                                    </Border.StrokeShape>
+                                    <Border.Shadow>
+                                        <Shadow Brush="#00000040" Offset="0,2" Radius="4" Opacity="0.3" />
+                                    </Border.Shadow>
+                                </Border>
+                            </Grid>
+                        </Border>
                     </StackLayout>
 
                     <!-- Symbol input (แสดงเมื่อเปิด) -->
