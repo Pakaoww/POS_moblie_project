@@ -103,14 +103,23 @@
                                        FontAttributes="Bold"
                                        TextColor="#222222"/>
 
-                                <Label Text="{Binding UnitPrice, StringFormat='฿{0:N2} each'}"
-                                       FontSize="13"
-                                       TextColor="#777777"/>
+                                <Label FontSize="13" TextColor="#777777">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding UnitPrice, Converter={StaticResource PriceFormatConverter}}"/>
+                                            <Span Text=" each"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
 
-                                <Label Text="{Binding Subtotal, StringFormat='Subtotal ฿{0:N2}'}"
-                                       FontSize="14"
-                                       FontAttributes="Bold"
-                                       TextColor="#4ECDC4"/>
+                                <Label FontSize="14" FontAttributes="Bold" TextColor="#4ECDC4">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Subtotal "/>
+                                            <Span Text="{Binding Subtotal, Converter={StaticResource PriceFormatConverter}}"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
 
                             </VerticalStackLayout>
 
