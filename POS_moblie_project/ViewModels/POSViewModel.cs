@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DocumentFormat.OpenXml.Spreadsheet;
 using POS_moblie_project.Models;
 using POS_moblie_project.Services;
+using POS_moblie_project.Views.POS;
 using System.Collections.ObjectModel;
 
 namespace POS_moblie_project.ViewModels;
@@ -34,6 +36,13 @@ public partial class POSViewModel : ObservableObject
 
     [ObservableProperty]
     private int cartCount;
+
+    // Hold State
+    [ObservableProperty]
+    private ObservableCollection<HoldItem> holdItems = new();
+
+    [ObservableProperty]
+    private int holdCount;
 
     public POSViewModel()
     {
@@ -99,7 +108,7 @@ public partial class POSViewModel : ObservableObject
     {
         if (item == null) return;
         item.Quantity++;
-        UpdateCartFromProduct(item);
+
     }
 
     [RelayCommand]
@@ -107,7 +116,7 @@ public partial class POSViewModel : ObservableObject
     {
         if (item == null || item.Quantity <= 0) return;
         item.Quantity--;
-        UpdateCartFromProduct(item);
+
     }
 
     [RelayCommand]
@@ -115,6 +124,41 @@ public partial class POSViewModel : ObservableObject
     {
         if (item == null || item.Quantity <= 0) return;
         UpdateCartFromProduct(item);
+    }
+
+    [RelayCommand]
+    private void AddToHold(ProductWithQuantity item)
+    {
+        var selectedProducts = Products.Where(p => p.Quantity > 0);
+
+        foreach (var itemhold in selectedProducts)
+        {
+            UpdateHoldFromProduct(itemhold);
+        }
+    }
+
+    private void UpdateHoldFromProduct(ProductWithQuantity item)
+    {
+        var existing = HoldItems
+            .FirstOrDefault(h => h.ProductId == item.ProductId);
+
+        if (item.Quantity == 0)
+        {
+            if (existing != null)
+                HoldItems.Remove(existing);
+        }
+        else if (existing != null)
+        {
+            existing.Quantity = item.Quantity;
+        }
+        else
+        {
+            HoldItems.Add(new HoldItem(
+                item.Product,
+                item.Quantity));
+        }
+
+        HoldCount = HoldItems.Sum(h => h.Quantity);
     }
 
     private void UpdateCartFromProduct(ProductWithQuantity item)
@@ -148,6 +192,11 @@ public partial class POSViewModel : ObservableObject
             return;
         }
         await Shell.Current.GoToAsync("CartPage");
+    }
+    [RelayCommand]
+    private async Task GoToHoldAsync()
+    {
+        await Shell.Current.GoToAsync("HoldPage");
     }
     [RelayCommand]
     private async Task ScanBarcodeAsync()

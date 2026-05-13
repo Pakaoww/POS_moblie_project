@@ -122,6 +122,9 @@
 		<MauiXaml Update="Views\POS\CartPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Views\POS\HoldPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Views\POS\POSPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
@@ -155,8 +158,7 @@
 		<MauiXaml Update="Views\Transactions\TransactionHistoryPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
-		<MauiXaml Update="Views\Shared\BarcodeScannerPage.xaml"
-			 Inflator="Runtime">
+		<MauiXaml Update="Views\Shared\BarcodeScannerPage.xaml" Inflator="Runtime">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 	</ItemGroup>
