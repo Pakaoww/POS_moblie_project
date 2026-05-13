@@ -112,6 +112,11 @@ public partial class HoldViewModel : ObservableObject
         _posViewModel.CartCount =
             _posViewModel.CartItems.Sum(x => x.Quantity);
 
+        // ── Clear Hold หลัง move แล้ว ─────────────────────
+        HoldItems.Clear();
+        _posViewModel.HoldCount = 0;
+        RecalculateTotal();
+
         // =========================
         // GO TO CART PAGE
         // =========================
