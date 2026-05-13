@@ -22,6 +22,9 @@
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:StepDotConverter x:Key="StepDotConverter"/>
             <converters:BoolToVisibleTextConverter x:Key="BoolToVisibleTextConverter" />
+            <converters:BoolToThumbColumnConverter x:Key="BoolToThumbColumnConverter"/>
+            <converters:BoolToLabelColumnConverter x:Key="BoolToLabelColumnConverter"/>
+            <converters:BoolToLabelAlignConverter  x:Key="BoolToLabelAlignConverter"/>
 
             <!-- Empty View Template (reusable for all CollectionViews) -->
             <DataTemplate x:Key="EmptyViewTemplate">

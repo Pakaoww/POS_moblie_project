@@ -59,7 +59,7 @@
     <!--    NAVIGATION ITEMS   -->
     <!-- ===================== -->
 
-    <FlyoutItem Title="Home" Route="home">
+    <FlyoutItem Title="Dashboard" Route="home">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf015;" FontFamily="FontAwesome"
                              Color="{StaticResource NavIcon}" Size="18"/>

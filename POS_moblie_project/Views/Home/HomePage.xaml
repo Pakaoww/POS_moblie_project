@@ -6,7 +6,7 @@
              x:Class="POS_moblie_project.Views.Home.HomePage"
              x:DataType="vm:HomeViewModel"
              BackgroundColor="#f6f6f6"
-             Title="Home"
+             Title="Dashboard"
              Shell.NavBarIsVisible="True">
 
     <ScrollView>
@@ -15,12 +15,6 @@
             <VerticalStackLayout Grid.Row="1"
                                  Padding="20,24,20,32"
                                  Spacing="16">
-
-                <!-- Greeting -->
-                <Label Text="Good morning 👋"
-                       FontSize="13"
-                       TextColor="#c4c4c4"
-                       Margin="4,0,0,0" />
 
                 <!-- POS & Stock Buttons Row -->
                 <Grid ColumnDefinitions="*,*"
