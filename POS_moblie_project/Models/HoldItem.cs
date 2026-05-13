@@ -1,4 +1,4 @@
-﻿using AndroidX.Camera.Video;
+﻿//using AndroidX.Camera.Video;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace POS_moblie_project.Models;

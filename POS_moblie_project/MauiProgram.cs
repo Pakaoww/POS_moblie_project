@@ -1,16 +1,17 @@
 ﻿using CommunityToolkit.Maui;
+using Microcharts.Maui;
 using Microsoft.Extensions.Logging;
 using POS_moblie_project.Services;
 using POS_moblie_project.ViewModels;
 using POS_moblie_project.ViewModels.Settings;
 using POS_moblie_project.Views.Auth;
+using POS_moblie_project.Views.Home;
+using POS_moblie_project.Views.POS;
+using POS_moblie_project.Views.Reports;
 using POS_moblie_project.Views.Settings;
 using POS_moblie_project.Views.Splash;
 using POS_moblie_project.Views.Stock;
-using POS_moblie_project.Views.POS;
 using POS_moblie_project.Views.Transactions;
-using POS_moblie_project.Views.Reports;
-using POS_moblie_project.Views.Home;
 using ZXing.Net.Maui.Controls;
 
 namespace POS_moblie_project
@@ -90,9 +91,9 @@ namespace POS_moblie_project
             builder.Services.AddTransient<TransactionDetailPage>();
             builder.Services.AddSingleton<SalesReportPage>();
             builder.Services.AddTransient<ProductSalesDetailPage>();
-            
 
-            
+            builder.UseMicrocharts();
+
 
 #if DEBUG
             builder.Logging.AddDebug();
