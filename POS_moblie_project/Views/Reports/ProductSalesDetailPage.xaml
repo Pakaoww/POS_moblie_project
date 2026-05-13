@@ -23,13 +23,11 @@
             <VerticalStackLayout Grid.Column="1"
                                  VerticalOptions="Center" Spacing="3">
                 <Label Text="{Binding ProductName}"
-                       FontSize="18" FontAttributes="Bold"
-                       TextColor="#222222" />
+                       FontSize="18" FontAttributes="Bold" TextColor="#222222" />
                 <Label Text="{Binding ProductCode}"
                        FontSize="13" TextColor="#666666" />
                 <Label Text="{Binding TotalSold, StringFormat='Total Sold: {0} units'}"
-                       FontSize="13" FontAttributes="Bold"
-                       TextColor="#4ECDC4" />
+                       FontSize="13" FontAttributes="Bold" TextColor="#4ECDC4" />
             </VerticalStackLayout>
         </Grid>
 
@@ -41,10 +39,8 @@
                         SelectionMode="None">
             <CollectionView.EmptyView>
                 <Label Text="No sales history found"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       TextColor="#999999"
-                       Margin="0,40,0,0" />
+                       HorizontalOptions="Center" VerticalOptions="Center"
+                       TextColor="#999999" Margin="0,40,0,0" />
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:TransactionItem">
@@ -63,10 +59,9 @@
                                    FontSize="13" TextColor="#666666"
                                    VerticalOptions="Center" />
                             <Label Grid.Column="2"
-                                   Text="{Binding Subtotal, StringFormat='฿{0:N2}'}"
+                                   Text="{Binding Subtotal, Converter={StaticResource PriceFormatConverter}}"
                                    FontSize="13" FontAttributes="Bold"
-                                   TextColor="#4ECDC4"
-                                   VerticalOptions="Center" />
+                                   TextColor="#4ECDC4" VerticalOptions="Center" />
                         </Grid>
                     </Border>
                 </DataTemplate>

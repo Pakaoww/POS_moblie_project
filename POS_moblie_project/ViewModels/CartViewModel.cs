@@ -39,6 +39,27 @@ public partial class CartViewModel : ObservableObject
     [ObservableProperty]
     private bool isVatEnabled;
 
+    // ── Discount state ────────────────────────────────────
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DiscountTypeIsPercent))]
+    [NotifyPropertyChangedFor(nameof(DiscountTypeIsAmount))]
+    private string discountType = "none";
+
+    public bool DiscountTypeIsPercent => DiscountType == "percent";
+    public bool DiscountTypeIsAmount => DiscountType == "amount";
+
+    [ObservableProperty]
+    private string discountInput = string.Empty;
+
+    [ObservableProperty]
+    private decimal discountValue;   // % or fixed value entered
+
+    [ObservableProperty]
+    private decimal discountAmount;  // resolved baht amount
+
+    [ObservableProperty]
+    private bool isDiscountSectionVisible = false;
+
     [ObservableProperty]
     private string moneyReceivedInput = string.Empty;
 
@@ -67,6 +88,11 @@ public partial class CartViewModel : ObservableObject
         MoneyReceivedInput = string.Empty;
         MoneyReceived = 0;
         Change = 0;
+        DiscountType = "none";
+        DiscountInput = string.Empty;
+        DiscountValue = 0;
+        DiscountAmount = 0;
+        IsDiscountSectionVisible = false;
 
         IsVatEnabled = (await _databaseService.GetSettingAsync("vat_enabled")) == "true";
         var rateStr = await _databaseService.GetSettingAsync("vat_rate");
@@ -78,8 +104,17 @@ public partial class CartViewModel : ObservableObject
     private void RecalculateTotals()
     {
         Subtotal = CartItems.Sum(i => i.Subtotal);
-        VatAmount = IsVatEnabled ? Math.Round(Subtotal * VatRate / 100, 2) : 0;
-        GrandTotal = Subtotal + VatAmount;
+
+        if (DiscountType == "percent")
+            DiscountAmount = Math.Round(Subtotal * DiscountValue / 100, 2);
+        else if (DiscountType == "amount")
+            DiscountAmount = Math.Min(DiscountValue, Subtotal);
+        else
+            DiscountAmount = 0;
+
+        var afterDiscount = Subtotal - DiscountAmount;
+        VatAmount = IsVatEnabled ? Math.Round(afterDiscount * VatRate / 100, 2) : 0;
+        GrandTotal = afterDiscount + VatAmount;
     }
 
     // ── Cart actions ──────────────────────────────────────
@@ -128,6 +163,46 @@ public partial class CartViewModel : ObservableObject
             .FirstOrDefault(p => p.ProductId == item.ProductId);
         if (posItem != null) posItem.Quantity = item.Quantity;
         _posViewModel.CartCount = CartItems.Sum(c => c.Quantity);
+    }
+
+    // ── Discount actions ──────────────────────────────────
+
+    [RelayCommand]
+    private void ToggleDiscountSection()
+    {
+        IsDiscountSectionVisible = !IsDiscountSectionVisible;
+        if (!IsDiscountSectionVisible)
+        {
+            DiscountType = "none";
+            DiscountInput = string.Empty;
+            DiscountValue = 0;
+            RecalculateTotals();
+        }
+    }
+
+    [RelayCommand]
+    private void SetDiscountType(string type)
+    {
+        DiscountType = type;
+        DiscountInput = string.Empty;
+        DiscountValue = 0;
+        RecalculateTotals();
+    }
+
+    [RelayCommand]
+    private void ApplyDiscount()
+    {
+        if (decimal.TryParse(DiscountInput, out var val) && val >= 0)
+        {
+            if (DiscountType == "percent" && val > 100)
+                val = 100;
+            DiscountValue = val;
+        }
+        else
+        {
+            DiscountValue = 0;
+        }
+        RecalculateTotals();
     }
 
     // ── Checkout flow ──────────────────────────────────────
@@ -208,6 +283,9 @@ public partial class CartViewModel : ObservableObject
             var transaction = new Transaction(
                 transactionId,
                 Subtotal,
+                DiscountType,
+                DiscountValue,
+                DiscountAmount,
                 IsVatEnabled ? VatRate : 0,
                 VatAmount,
                 GrandTotal,

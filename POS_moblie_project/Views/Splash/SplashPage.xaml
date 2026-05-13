@@ -27,7 +27,7 @@
                        VerticalOptions="Center" />
             </Border>
 
-            <Label Text="RETAIL PRO"
+            <Label Text="POS FOR SME"
                    FontSize="22"
                    FontAttributes="Bold"
                    TextColor="#F0F0FA"

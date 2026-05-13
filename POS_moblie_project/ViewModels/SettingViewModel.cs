@@ -8,11 +8,13 @@ public partial class SettingsViewModel : ObservableObject
 {
     private readonly DatabaseService _databaseService;
     private readonly BackupService _backupService;
+    private readonly CurrencyService _currencyService;
 
     public SettingsViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
         _backupService = ServiceHelper.GetService<BackupService>();
+        _currencyService = ServiceHelper.GetService<CurrencyService>();
     }
 
     // ════════════════════════════════════════════════════════
@@ -29,23 +31,39 @@ public partial class SettingsViewModel : ObservableObject
 
     public string VatRateDisplay => $"{VatRate} %";
 
+    // ════════════════════════════════════════════════════════
+    //  CURRENCY
+    // ════════════════════════════════════════════════════════
+
+    [ObservableProperty]
+    private bool _showCurrencySymbol = true;
+
+    [ObservableProperty]
+    private string _currencySymbol = "฿";
+
     [RelayCommand]
     public async Task LoadSettingsAsync()
     {
         VatEnabled = (await _databaseService.GetSettingAsync("vat_enabled")) == "true";
         var rateStr = await _databaseService.GetSettingAsync("vat_rate");
         VatRate = int.TryParse(rateStr, out var r) ? r : 7;
+
+        ShowCurrencySymbol = (await _databaseService.GetSettingAsync("show_currency_symbol")) != "false";
+        var sym = await _databaseService.GetSettingAsync("currency_symbol");
+        CurrencySymbol = string.IsNullOrWhiteSpace(sym) ? "฿" : sym;
     }
 
     partial void OnVatEnabledChanged(bool value)
-    {
-        _ = _databaseService.SetSettingAsync("vat_enabled", value ? "true" : "false");
-    }
+        => _ = _databaseService.SetSettingAsync("vat_enabled", value ? "true" : "false");
 
     partial void OnVatRateChanged(int value)
-    {
-        _ = _databaseService.SetSettingAsync("vat_rate", value.ToString());
-    }
+        => _ = _databaseService.SetSettingAsync("vat_rate", value.ToString());
+
+    partial void OnShowCurrencySymbolChanged(bool value)
+        => _ = _currencyService.SetShowSymbolAsync(value);
+
+    partial void OnCurrencySymbolChanged(string value)
+        => _ = _currencyService.SetSymbolAsync(value);
 
     [RelayCommand]
     private void IncreaseVat()
@@ -139,8 +157,6 @@ public partial class SettingsViewModel : ObservableObject
                     "Import Successful",
                     "Database restored. The app will restart.",
                     "OK");
-
-                // Restart app เพื่อ reload database
                 Application.Current.MainPage = new AppShell();
             }
             else

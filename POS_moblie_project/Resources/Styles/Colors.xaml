@@ -77,4 +77,14 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- เพิ่มใน Colors.xaml (ส่วน Main Color Palette) -->
+    <Color x:Key="NavBg">#12121A</Color>
+    <Color x:Key="NavItem">#1C1C28</Color>
+    <Color x:Key="NavDivider">#1E1E2E</Color>
+    <Color x:Key="NavText">#F0F0FA</Color>
+    <Color x:Key="NavSubText">#5A5A70</Color>
+    <Color x:Key="NavIcon">#9090A8</Color>
+    <Color x:Key="NavChevron">#3A3A50</Color>
+    
 </ResourceDictionary>

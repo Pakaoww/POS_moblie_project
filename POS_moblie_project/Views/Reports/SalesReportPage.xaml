@@ -23,46 +23,31 @@
 
         <!-- Date range -->
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
-            <DatePicker Grid.Column="0"
-                        Date="{Binding FromDate}"
-                        Format="dd/MM/yyyy"
-                        BackgroundColor="#F5F5F7" />
+            <DatePicker Grid.Column="0" Date="{Binding FromDate}"
+                        Format="dd/MM/yyyy" BackgroundColor="#F5F5F7" />
             <Label Grid.Column="1" Text="to"
-                   VerticalOptions="Center"
-                   HorizontalOptions="Center"
+                   VerticalOptions="Center" HorizontalOptions="Center"
                    TextColor="#666666" />
-            <DatePicker Grid.Column="2"
-                        Date="{Binding ToDate}"
-                        Format="dd/MM/yyyy"
-                        BackgroundColor="#F5F5F7" />
+            <DatePicker Grid.Column="2" Date="{Binding ToDate}"
+                        Format="dd/MM/yyyy" BackgroundColor="#F5F5F7" />
         </Grid>
 
-        <!-- Search button -->
+        <!-- Buttons -->
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-            <Button Grid.Column="0"
-            Text="Search"
-            BackgroundColor="#4ECDC4"
-            TextColor="White"
-            FontAttributes="Bold"
-            HeightRequest="44"
-            CornerRadius="8"
-            Command="{Binding LoadReportCommand}" />
-            <Button Grid.Column="1"
-            Text="📊 Export"
-            BackgroundColor="#2ECC71"
-            TextColor="White"
-            FontAttributes="Bold"
-            HeightRequest="44"
-            Padding="12,0"
-            CornerRadius="8"
-            Command="{Binding ExportExcelCommand}" />
+            <Button Grid.Column="0" Text="Search"
+                    BackgroundColor="#4ECDC4" TextColor="White"
+                    FontAttributes="Bold" HeightRequest="44" CornerRadius="8"
+                    Command="{Binding LoadReportCommand}" />
+            <Button Grid.Column="1" Text="📊 Export"
+                    BackgroundColor="#2ECC71" TextColor="White"
+                    FontAttributes="Bold" HeightRequest="44"
+                    Padding="12,0" CornerRadius="8"
+                    Command="{Binding ExportExcelCommand}" />
         </Grid>
 
         <!-- Stats -->
-        <Border Grid.Row="3"
-                BackgroundColor="#F5F5F7"
-                Padding="16,12"
-                StrokeThickness="0">
+        <Border Grid.Row="3" BackgroundColor="#F5F5F7"
+                Padding="16,12" StrokeThickness="0">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="10" />
             </Border.StrokeShape>
@@ -71,24 +56,23 @@
                     <Label Text="{Binding TotalItemsSold}"
                            FontSize="20" FontAttributes="Bold"
                            TextColor="#222222" HorizontalOptions="Center" />
-                    <Label Text="Items Sold"
-                           FontSize="11" TextColor="#666666"
+                    <Label Text="Items Sold" FontSize="11" TextColor="#666666"
                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
                     <Label Text="{Binding TotalProductTypes}"
                            FontSize="20" FontAttributes="Bold"
                            TextColor="#222222" HorizontalOptions="Center" />
-                    <Label Text="Products"
-                           FontSize="11" TextColor="#666666"
+                    <Label Text="Products" FontSize="11" TextColor="#666666"
                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="{Binding TotalRevenue, StringFormat='฿{0:N0}'}"
+                    <Label Text="{Binding TotalRevenue,
+                                  Converter={StaticResource PriceFormatConverter},
+                                  ConverterParameter=N0}"
                            FontSize="20" FontAttributes="Bold"
                            TextColor="#4ECDC4" HorizontalOptions="Center" />
-                    <Label Text="Revenue"
-                           FontSize="11" TextColor="#666666"
+                    <Label Text="Revenue" FontSize="11" TextColor="#666666"
                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
             </Grid>
@@ -98,14 +82,11 @@
         <RefreshView Grid.Row="4"
                      IsRefreshing="{Binding IsLoading}"
                      Command="{Binding LoadReportCommand}">
-            <CollectionView ItemsSource="{Binding ReportItems}"
-                            SelectionMode="None">
+            <CollectionView ItemsSource="{Binding ReportItems}" SelectionMode="None">
                 <CollectionView.EmptyView>
                     <Label Text="No sales data found"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"
-                           TextColor="#999999"
-                           Margin="0,40,0,0" />
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           TextColor="#999999" Margin="0,40,0,0" />
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:SalesReportItem">
@@ -135,8 +116,12 @@
                                            TextColor="#222222" />
                                     <Label Text="{Binding ProductCode, StringFormat='Code: {0}'}"
                                            FontSize="12" TextColor="#666666" />
-                                    <Label Text="{Binding TotalRevenue, StringFormat='Revenue: ฿{0:N2}'}"
-                                           FontSize="12" TextColor="#4ECDC4" />
+                                    <StackLayout Orientation="Horizontal" Spacing="2">
+                                        <Label Text="Revenue: "
+                                               FontSize="12" TextColor="#4ECDC4" />
+                                        <Label Text="{Binding TotalRevenue, Converter={StaticResource PriceFormatConverter}}"
+                                               FontSize="12" TextColor="#4ECDC4" />
+                                    </StackLayout>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="2"
                                                      VerticalOptions="Center"
@@ -144,8 +129,7 @@
                                     <Label Text="{Binding TotalQuantity}"
                                            FontSize="22" FontAttributes="Bold"
                                            TextColor="#222222" HorizontalOptions="End" />
-                                    <Label Text="Sold"
-                                           FontSize="11" TextColor="#666666"
+                                    <Label Text="Sold" FontSize="11" TextColor="#666666"
                                            HorizontalOptions="End" />
                                 </VerticalStackLayout>
                             </Grid>

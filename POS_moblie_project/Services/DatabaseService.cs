@@ -90,6 +90,8 @@ public class DatabaseService
                 new AppSetting("password_hash", string.Empty),
                 new AppSetting("vat_enabled", "false"),
                 new AppSetting("vat_rate", "7"),
+                new AppSetting("show_currency_symbol", "true"),   // เพิ่ม
+                new AppSetting("currency_symbol", "฿"),           // เพิ่ม
             };
             foreach (var s in defaults)
                 await _database.InsertAsync(s);

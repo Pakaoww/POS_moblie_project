@@ -37,32 +37,22 @@
                         BackgroundColor="#F5F5F7" />
         </Grid>
 
-        <!-- Search button -->
+        <!-- Buttons -->
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-            <Button Grid.Column="0"
-            Text="Search"
-            BackgroundColor="#4ECDC4"
-            TextColor="White"
-            FontAttributes="Bold"
-            HeightRequest="44"
-            CornerRadius="8"
-            Command="{Binding LoadTransactionsCommand}" />
-            <Button Grid.Column="1"
-            Text="📊 Export"
-            BackgroundColor="#2ECC71"
-            TextColor="White"
-            FontAttributes="Bold"
-            HeightRequest="44"
-            Padding="12,0"
-            CornerRadius="8"
-            Command="{Binding ExportExcelCommand}" />
+            <Button Grid.Column="0" Text="Search"
+                    BackgroundColor="#4ECDC4" TextColor="White"
+                    FontAttributes="Bold" HeightRequest="44" CornerRadius="8"
+                    Command="{Binding LoadTransactionsCommand}" />
+            <Button Grid.Column="1" Text="📊 Export"
+                    BackgroundColor="#2ECC71" TextColor="White"
+                    FontAttributes="Bold" HeightRequest="44"
+                    Padding="12,0" CornerRadius="8"
+                    Command="{Binding ExportExcelCommand}" />
         </Grid>
 
         <!-- Stats -->
-        <Border Grid.Row="3"
-                BackgroundColor="#F5F5F7"
-                Padding="16,12"
-                StrokeThickness="0">
+        <Border Grid.Row="3" BackgroundColor="#F5F5F7"
+                Padding="16,12" StrokeThickness="0">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="10" />
             </Border.StrokeShape>
@@ -76,7 +66,9 @@
                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="{Binding AverageRevenue, StringFormat='฿{0:N0}'}"
+                    <Label Text="{Binding AverageRevenue,
+                                  Converter={StaticResource PriceFormatConverter},
+                                  ConverterParameter=N0}"
                            FontSize="20" FontAttributes="Bold"
                            TextColor="#222222" HorizontalOptions="Center" />
                     <Label Text="Avg/Bill"
@@ -84,7 +76,9 @@
                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="{Binding TotalRevenue, StringFormat='฿{0:N0}'}"
+                    <Label Text="{Binding TotalRevenue,
+                                  Converter={StaticResource PriceFormatConverter},
+                                  ConverterParameter=N0}"
                            FontSize="20" FontAttributes="Bold"
                            TextColor="#4ECDC4" HorizontalOptions="Center" />
                     <Label Text="Total Revenue"
@@ -102,10 +96,8 @@
                             SelectionMode="None">
                 <CollectionView.EmptyView>
                     <Label Text="No transactions found"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"
-                           TextColor="#999999"
-                           Margin="0,40,0,0" />
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           TextColor="#999999" Margin="0,40,0,0" />
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Transaction">
@@ -128,10 +120,9 @@
                                            FontSize="12" TextColor="#666666" />
                                 </VerticalStackLayout>
                                 <Label Grid.Column="1"
-                                       Text="{Binding GrandTotal, StringFormat='฿{0:N2}'}"
+                                       Text="{Binding GrandTotal, Converter={StaticResource PriceFormatConverter}}"
                                        FontSize="16" FontAttributes="Bold"
-                                       TextColor="#4ECDC4"
-                                       VerticalOptions="Center" />
+                                       TextColor="#4ECDC4" VerticalOptions="Center" />
                             </Grid>
                         </Border>
                     </DataTemplate>

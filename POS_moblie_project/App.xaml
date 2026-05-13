@@ -12,6 +12,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:DiscountActiveColorConverter x:Key="DiscountActiveColorConverter" />
             <converters:CartStateConverter x:Key="CartStateConverter" />
             <converters:BoolToErrorColorConverter x:Key="BoolToErrorColorConverter" />
             <converters:PinDotConverter x:Key="PinDotConverter" />

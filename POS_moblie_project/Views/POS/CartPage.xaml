@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
              xmlns:models="clr-namespace:POS_moblie_project.Models"
+             xmlns:converters="clr-namespace:POS_moblie_project.Converters"
              x:Class="POS_moblie_project.Views.POS.CartPage"
              x:DataType="vm:CartViewModel"
              Title="Cart"
@@ -10,9 +11,7 @@
 
     <Grid>
 
-        <!-- ═══════════════════════════════════
-             STATE 1: CART
-        ═══════════════════════════════════ -->
+        <!-- STATE 1: CART -->
         <Grid RowDefinitions="*,Auto"
               Padding="16"
               IsVisible="{Binding CurrentState,
@@ -41,9 +40,9 @@
                                     <Label Text="{Binding ProductName}"
                                            FontSize="15" FontAttributes="Bold"
                                            TextColor="#222222" />
-                                    <Label Text="{Binding UnitPrice, StringFormat='฿{0:N2} each'}"
+                                    <Label Text="{Binding UnitPrice, StringFormat='{0:N2} each'}"
                                            FontSize="12" TextColor="#666666" />
-                                    <Label Text="{Binding Subtotal, StringFormat='Subtotal: ฿{0:N2}'}"
+                                    <Label Text="{Binding Subtotal, StringFormat='Subtotal: {0:N2}'}"
                                            FontSize="13" FontAttributes="Bold"
                                            TextColor="#4ECDC4" />
                                 </VerticalStackLayout>
@@ -81,26 +80,106 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto"
+            <Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                   RowSpacing="8" Padding="0,8,0,0">
-                <Label Grid.Row="0"
-                       Text="{Binding Subtotal, StringFormat='Subtotal: ฿{0:N2}'}"
-                       FontSize="15" TextColor="#666666" HorizontalOptions="End" />
+                <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
+                <!-- Subtotal -->
                 <Label Grid.Row="1"
-                       Text="{Binding VatAmount, StringFormat='VAT: ฿{0:N2}'}"
+                       Text="{Binding Subtotal, StringFormat='Subtotal: {0:N2}'}"
+                       FontSize="15" TextColor="#666666" HorizontalOptions="End" />
+
+                <!-- Discount indicator + toggle button -->
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
+                           FontSize="13" TextColor="#E6820E" VerticalOptions="Center"
+                           IsVisible="{Binding DiscountTypeIsPercent}" />
+                    <Label Grid.Column="0"
+                           Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
+                           FontSize="13" TextColor="#E6820E" VerticalOptions="Center"
+                           IsVisible="{Binding DiscountTypeIsAmount}" />
+                    <Button Grid.Column="1"
+                            BackgroundColor="Transparent" Padding="0"
+                            HorizontalOptions="End"
+                            FontSize="13" TextColor="#F4A620"
+                            Text="▼ Add Discount"
+                            Command="{Binding ToggleDiscountSectionCommand}" />
+                </Grid>
+
+                <!-- Discount input panel -->
+                <Border Grid.Row="3"
+                        IsVisible="{Binding IsDiscountSectionVisible}"
+                        BackgroundColor="#FFF8E7" StrokeThickness="0"
+                        Padding="12,10">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="8">
+
+                        <!-- % / ฿ toggle -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Button Grid.Column="0" Text="% Percent"
+                                    HeightRequest="36" CornerRadius="8" FontSize="13"
+                                    BackgroundColor="{Binding DiscountTypeIsPercent, Converter={StaticResource DiscountActiveColorConverter}, ConverterParameter=bg}"
+                                    TextColor="{Binding DiscountTypeIsPercent, Converter={StaticResource DiscountActiveColorConverter}}"
+                                    Command="{Binding SetDiscountTypeCommand}"
+                                    CommandParameter="percent" />
+                            <Button Grid.Column="1" Text="฿ Amount"
+                                    HeightRequest="36" CornerRadius="8" FontSize="13"
+                                    BackgroundColor="{Binding DiscountTypeIsAmount, Converter={StaticResource DiscountActiveColorConverter}, ConverterParameter=bg}"
+                                    TextColor="{Binding DiscountTypeIsAmount, Converter={StaticResource DiscountActiveColorConverter}}"
+                                    Command="{Binding SetDiscountTypeCommand}"
+                                    CommandParameter="amount" />
+                        </Grid>
+
+                        <!-- Input + Apply -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Border Grid.Column="0" BackgroundColor="White"
+                                    StrokeThickness="1" Stroke="#E0E0E0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8" />
+                                </Border.StrokeShape>
+                                <Entry Text="{Binding DiscountInput}"
+                                       Placeholder="0"
+                                       Keyboard="Numeric"
+                                       FontSize="15"
+                                       Margin="8,0"
+                                       ReturnCommand="{Binding ApplyDiscountCommand}" />
+                            </Border>
+                            <Button Grid.Column="1" Text="Apply"
+                                    HeightRequest="44" WidthRequest="70"
+                                    CornerRadius="8" FontSize="13"
+                                    BackgroundColor="#F4A620" TextColor="White"
+                                    Command="{Binding ApplyDiscountCommand}" />
+                        </Grid>
+
+                        <!-- Applied label -->
+                        <Label IsVisible="{Binding DiscountTypeIsPercent}"
+                               Text="{Binding DiscountValue, StringFormat='Applied: {0}% off'}"
+                               FontSize="12" TextColor="#E6820E" HorizontalOptions="End" />
+                        <Label IsVisible="{Binding DiscountTypeIsAmount}"
+                               Text="{Binding DiscountAmount, StringFormat='Applied: -{0:N2}'}"
+                               FontSize="12" TextColor="#E6820E" HorizontalOptions="End" />
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- VAT -->
+                <Label Grid.Row="4"
+                       Text="{Binding VatAmount, StringFormat='VAT: {0:N2}'}"
                        FontSize="13" TextColor="#666666" HorizontalOptions="End"
                        IsVisible="{Binding IsVatEnabled}" />
-                <Button Grid.Row="2"
-                        Text="{Binding GrandTotal, StringFormat='Checkout  ฿{0:N2}'}"
+
+                <!-- Checkout button -->
+                <Button Grid.Row="5"
+                        Text="{Binding GrandTotal, StringFormat='Checkout  {0:N2}'}"
                         BackgroundColor="#4ECDC4" TextColor="White"
                         FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
                         Command="{Binding CheckoutCommand}" />
             </Grid>
         </Grid>
 
-        <!-- ═══════════════════════════════════
-             STATE 2: CONFIRM ORDER
-        ═══════════════════════════════════ -->
+        <!-- STATE 2: CONFIRM ORDER -->
         <Grid RowDefinitions="Auto,*,Auto"
               Padding="16"
               IsVisible="{Binding CurrentState,
@@ -126,7 +205,7 @@
                                    FontSize="14" TextColor="#666666"
                                    VerticalOptions="Center" />
                             <Label Grid.Column="2"
-                                   Text="{Binding Subtotal, StringFormat='฿{0:N2}'}"
+                                   Text="{Binding Subtotal, StringFormat='{0:N2}'}"
                                    FontSize="14" FontAttributes="Bold"
                                    TextColor="#222222" VerticalOptions="Center" />
                         </Grid>
@@ -134,20 +213,36 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="6">
+            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="6">
                 <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
                 <Label Grid.Row="1"
-                       Text="{Binding Subtotal, StringFormat='Subtotal: ฿{0:N2}'}"
+                       Text="{Binding Subtotal, StringFormat='Subtotal: {0:N2}'}"
                        FontSize="14" TextColor="#666666" HorizontalOptions="End" />
+                <!-- Discount % -->
                 <Label Grid.Row="2"
-                       Text="{Binding VatAmount, StringFormat='VAT: ฿{0:N2}'}"
+                       IsVisible="{Binding DiscountTypeIsPercent}"
+                       FontSize="13" TextColor="#E6820E" HorizontalOptions="End">
+                    <Label.Text>
+                        <MultiBinding StringFormat="Discount ({0}%): -{1:N2}">
+                            <Binding Path="DiscountValue" />
+                            <Binding Path="DiscountAmount" />
+                        </MultiBinding>
+                    </Label.Text>
+                </Label>
+                <!-- Discount fixed amount -->
+                <Label Grid.Row="2"
+                       IsVisible="{Binding DiscountTypeIsAmount}"
+                       Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
+                       FontSize="13" TextColor="#E6820E" HorizontalOptions="End" />
+                <Label Grid.Row="3"
+                       Text="{Binding VatAmount, StringFormat='VAT: {0:N2}'}"
                        FontSize="13" TextColor="#666666" HorizontalOptions="End"
                        IsVisible="{Binding IsVatEnabled}" />
-                <Label Grid.Row="3"
-                       Text="{Binding GrandTotal, StringFormat='Total: ฿{0:N2}'}"
+                <Label Grid.Row="4"
+                       Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
                        FontSize="18" FontAttributes="Bold"
                        TextColor="#222222" HorizontalOptions="End" />
-                <Grid Grid.Row="4" ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Grid Grid.Row="5" ColumnDefinitions="*,*" ColumnSpacing="10">
                     <Button Grid.Column="0" Text="Back"
                             BackgroundColor="#E0E0E0" TextColor="#444444"
                             HeightRequest="46" CornerRadius="8"
@@ -160,9 +255,7 @@
             </Grid>
         </Grid>
 
-        <!-- ═══════════════════════════════════
-             STATE 3: CHARGE KEYPAD
-        ═══════════════════════════════════ -->
+        <!-- STATE 3: CHARGE KEYPAD (ไม่เปลี่ยน) -->
         <Grid RowDefinitions="Auto,*,Auto"
               Padding="24,40,24,32"
               IsVisible="{Binding CurrentState,
@@ -173,13 +266,13 @@
                 <Label Text="Charge"
                        FontSize="22" FontAttributes="Bold"
                        TextColor="#222222" HorizontalOptions="Center" />
-                <Label Text="{Binding GrandTotal, StringFormat='Total: ฿{0:N2}'}"
+                <Label Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
                        FontSize="16" TextColor="#666666"
                        HorizontalOptions="Center" />
-                <Label Text="{Binding MoneyReceivedInput, StringFormat='Received: ฿{0}'}"
+                <Label Text="{Binding MoneyReceivedInput, StringFormat='Received: {0}'}"
                        FontSize="28" FontAttributes="Bold"
                        TextColor="#222222" HorizontalOptions="Center" />
-                <Label Text="{Binding Change, StringFormat='Change: ฿{0:N2}'}"
+                <Label Text="{Binding Change, StringFormat='Change: {0:N2}'}"
                        FontSize="18" TextColor="#4ECDC4"
                        HorizontalOptions="Center" />
             </VerticalStackLayout>
@@ -213,9 +306,7 @@
                     Command="{Binding BackToConfirmCommand}" />
         </Grid>
 
-        <!-- ═══════════════════════════════════
-             STATE 4: RECEIPT
-        ═══════════════════════════════════ -->
+        <!-- STATE 4: RECEIPT -->
         <Grid RowDefinitions="Auto,*,Auto"
               Padding="20"
               IsVisible="{Binding CurrentState,
@@ -249,7 +340,7 @@
                                    FontSize="14" TextColor="#666666"
                                    VerticalOptions="Center" />
                             <Label Grid.Column="2"
-                                   Text="{Binding Subtotal, StringFormat='฿{0:N2}'}"
+                                   Text="{Binding Subtotal, StringFormat='{0:N2}'}"
                                    FontSize="14" FontAttributes="Bold"
                                    TextColor="#222222" VerticalOptions="Center" />
                         </Grid>
@@ -257,17 +348,33 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="8">
+            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
                 <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
+                <!-- Discount % -->
                 <Label Grid.Row="1"
-                       Text="{Binding VatAmount, StringFormat='VAT: ฿{0:N2}'}"
+                       IsVisible="{Binding DiscountTypeIsPercent}"
+                       FontSize="13" TextColor="#E6820E" HorizontalOptions="End">
+                    <Label.Text>
+                        <MultiBinding StringFormat="Discount ({0}%): -{1:N2}">
+                            <Binding Path="DiscountValue" />
+                            <Binding Path="DiscountAmount" />
+                        </MultiBinding>
+                    </Label.Text>
+                </Label>
+                <!-- Discount fixed amount -->
+                <Label Grid.Row="1"
+                       IsVisible="{Binding DiscountTypeIsAmount}"
+                       Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
+                       FontSize="13" TextColor="#E6820E" HorizontalOptions="End" />
+                <Label Grid.Row="2"
+                       Text="{Binding VatAmount, StringFormat='VAT: {0:N2}'}"
                        FontSize="13" TextColor="#666666" HorizontalOptions="End"
                        IsVisible="{Binding IsVatEnabled}" />
-                <Label Grid.Row="2"
-                       Text="{Binding GrandTotal, StringFormat='Total: ฿{0:N2}'}"
+                <Label Grid.Row="3"
+                       Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
                        FontSize="18" FontAttributes="Bold"
                        TextColor="#222222" HorizontalOptions="End" />
-                <Button Grid.Row="3"
+                <Button Grid.Row="4"
                         Text="🏠  Back to Home"
                         BackgroundColor="#4ECDC4" TextColor="White"
                         FontAttributes="Bold" HeightRequest="50" CornerRadius="10"

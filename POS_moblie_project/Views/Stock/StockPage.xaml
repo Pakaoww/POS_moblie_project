@@ -95,7 +95,7 @@
                                     <Label Text="{Binding Stock, StringFormat='Stock: {0}'}"
                                            FontSize="12"
                                            TextColor="#666666" />
-                                    <Label Text="{Binding Price, StringFormat='฿{0:N2}'}"
+                                    <Label Text="{Binding Price, Converter={StaticResource PriceFormatConverter}}"
                                            FontSize="13"
                                            FontAttributes="Bold"
                                            TextColor="#4ECDC4" />

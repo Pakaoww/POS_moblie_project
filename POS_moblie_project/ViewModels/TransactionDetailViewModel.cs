@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-using DocumentFormat.OpenXml.Spreadsheet;
 using POS_moblie_project.Models;
 using POS_moblie_project.Services;
 using System.Collections.ObjectModel;
@@ -40,6 +38,23 @@ public partial class TransactionDetailViewModel : ObservableObject
     [ObservableProperty]
     private bool isLoading;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasDiscount))]
+    [NotifyPropertyChangedFor(nameof(IsDiscountPercent))]
+    [NotifyPropertyChangedFor(nameof(IsDiscountAmount))]
+    private string discountType = "none";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasDiscount))]
+    private decimal discountAmount;
+
+    [ObservableProperty]
+    private decimal discountValue;
+
+    public bool HasDiscount => DiscountAmount > 0;
+    public bool IsDiscountPercent => DiscountType == "percent";
+    public bool IsDiscountAmount => DiscountType == "amount";
+
     public TransactionDetailViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
@@ -67,6 +82,9 @@ public partial class TransactionDetailViewModel : ObservableObject
             VatAmount = transaction.VatAmount;
             GrandTotal = transaction.GrandTotal;
             IsVatEnabled = transaction.VatRate > 0;
+            DiscountType = transaction.DiscountType ?? "none";
+            DiscountValue = transaction.DiscountValue;
+            DiscountAmount = transaction.DiscountAmount;
 
             Items.Clear();
             foreach (var item in transactionItems)

@@ -169,7 +169,8 @@
                                TextColor="#3c3d3c" />
 
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="{Binding TodaySales, StringFormat='฿{0:N2}'}"
+                            <!-- Today Sales Card — ส่วน HorizontalStackLayout ตรงกลาง แก้บรรทัดนี้ -->
+                            <Label Text="{Binding TodaySales, Converter={StaticResource PriceFormatConverter}}"
                                    FontSize="28" FontAttributes="Bold"
                                    TextColor="#4ECDC4"
                                    VerticalOptions="Center" />
