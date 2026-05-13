@@ -127,14 +127,33 @@ public partial class POSViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddToHold(ProductWithQuantity item)
+    private async Task AddToHoldAsync()
     {
-        var selectedProducts = Products.Where(p => p.Quantity > 0);
+        var selectedProducts = Products.Where(p => p.Quantity > 0).ToList();
 
-        foreach (var itemhold in selectedProducts)
+        if (!selectedProducts.Any())
         {
-            UpdateHoldFromProduct(itemhold);
+            await Application.Current.MainPage.DisplayAlert(
+                "No Items", "Please select items to hold.", "OK");
+            return;
         }
+
+        // สร้าง HoldItems จาก selected products
+        var holdItems = selectedProducts.Select(p =>
+            new HoldItem(p.Product, p.Quantity)).ToList();
+
+        // ส่งไปเพิ่ม session ใน HoldViewModel
+        var holdViewModel = ServiceHelper.GetService<HoldViewModel>();
+        holdViewModel.AddSession(holdItems);
+
+        // Reset quantities ใน POS list
+        foreach (var p in selectedProducts)
+            p.Quantity = 0;
+
+        CartItems.Clear();
+        CartCount = 0;
+
+        await Shell.Current.GoToAsync("HoldPage");
     }
 
     private void UpdateHoldFromProduct(ProductWithQuantity item)

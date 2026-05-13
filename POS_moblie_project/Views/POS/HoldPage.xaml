@@ -5,250 +5,241 @@
              xmlns:models="clr-namespace:POS_moblie_project.Models"
              x:Class="POS_moblie_project.Views.POS.HoldPage"
              x:DataType="vm:HoldViewModel"
-             Title="Hold"
+             Title="Hold Orders"
              BackgroundColor="White">
 
-    <Grid RowDefinitions="Auto,*,Auto"
-          Padding="16"
-          RowSpacing="12">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16" RowSpacing="12">
 
-        <!-- =========================
-             HEADER
-        ========================== -->
-
-        <Grid Grid.Row="0"
-              ColumnDefinitions="*,Auto"
-              VerticalOptions="Center">
-
+        <!-- ── Header ── -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalOptions="Center">
             <VerticalStackLayout Spacing="2">
-
-                <Label Text="Hold Order"
-                       FontSize="24"
-                       FontAttributes="Bold"
-                       TextColor="#222222"/>
-
-                <Label Text="{Binding HoldCount, StringFormat='{0} item(s)'}"
-                       FontSize="13"
-                       TextColor="#888888"/>
-
+                <Label Text="Hold Orders"
+                       FontSize="24" FontAttributes="Bold" TextColor="#222222"/>
+                <Label Text="{Binding SessionCount, StringFormat='{0} basket(s)'}"
+                       FontSize="13" TextColor="#888888"/>
             </VerticalStackLayout>
-
             <Button Grid.Column="1"
-                    Text="🗑 Clear"
+                    Text="🗑 Clear All"
                     BackgroundColor="#FFE0E0"
                     TextColor="#E53935"
                     FontAttributes="Bold"
                     HeightRequest="40"
                     CornerRadius="10"
                     Padding="14,0"
-                    Command="{Binding ClearHoldCommand}"/>
+                    Command="{Binding ClearAllSessionsCommand}"/>
+        </Grid>
+
+        <!-- ── Body: Session tabs (ซ้าย) + Items (ขวา) ── -->
+        <Grid Grid.Row="1" ColumnDefinitions="120,*" ColumnSpacing="12">
+
+            <!-- Session List (ซ้าย) -->
+            <Border Grid.Column="0"
+                    BackgroundColor="#F5F5F7"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 14"
+                    Padding="0">
+                <CollectionView ItemsSource="{Binding Sessions}"
+                                SelectionMode="None">
+
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center"
+                                             HorizontalOptions="Center"
+                                             Padding="8">
+                            <Label Text="🛒" FontSize="28"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="No baskets"
+                                   FontSize="11" TextColor="#AAAAAA"
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:HoldSession">
+                            <Border Margin="6,4"
+                                    Padding="8"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    BackgroundColor="#FFFFFF">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HoldViewModel}}, Path=SelectSessionCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding Label}"
+                                           FontSize="13" FontAttributes="Bold"
+                                           TextColor="#222222"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="{Binding TimeLabel}"
+                                           FontSize="10" TextColor="#888888"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="{Binding ItemCount, StringFormat='{0} items'}"
+                                           FontSize="10" TextColor="#AAAAAA"
+                                           HorizontalOptions="Center"/>
+                                    <Label Text="{Binding Total, StringFormat='฿{0:N0}'}"
+                                           FontSize="12" FontAttributes="Bold"
+                                           TextColor="#4ECDC4"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                </CollectionView>
+            </Border>
+
+            <!-- Items Panel (ขวา) -->
+            <Grid Grid.Column="1"
+                  RowDefinitions="*"
+                  IsVisible="{Binding HasSelectedSession}">
+
+                <CollectionView ItemsSource="{Binding SelectedItems}"
+                                SelectionMode="None">
+
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout VerticalOptions="Center"
+                                             HorizontalOptions="Center"
+                                             Spacing="8">
+                            <Label Text="🛒" FontSize="40"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Select a basket"
+                                   FontSize="15" FontAttributes="Bold"
+                                   TextColor="#999999"
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:HoldItem">
+                            <Border Margin="0,0,0,10"
+                                    Padding="14"
+                                    BackgroundColor="#F5F5F7"
+                                    StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="14"/>
+                                </Border.StrokeShape>
+
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+
+                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                        <Label Text="{Binding ProductName}"
+                                               FontSize="16" FontAttributes="Bold"
+                                               TextColor="#222222"/>
+                                        <Label Text="{Binding UnitPrice, StringFormat='฿{0:N2} each'}"
+                                               FontSize="13" TextColor="#777777"/>
+                                        <Label Text="{Binding Subtotal, StringFormat='Subtotal ฿{0:N2}'}"
+                                               FontSize="14" FontAttributes="Bold"
+                                               TextColor="#4ECDC4"/>
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Spacing="8"
+                                                         HorizontalOptions="End">
+                                        <Grid ColumnDefinitions="Auto,Auto,Auto"
+                                              ColumnSpacing="6">
+                                            <Button Grid.Column="0" Text="−"
+                                                    WidthRequest="34" HeightRequest="34"
+                                                    CornerRadius="17" Padding="0"
+                                                    FontSize="18"
+                                                    BackgroundColor="#E0E0E5"
+                                                    TextColor="#444444"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HoldViewModel}}, Path=DecreaseItemCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Quantity}"
+                                                   WidthRequest="28" FontSize="15"
+                                                   FontAttributes="Bold"
+                                                   HorizontalTextAlignment="Center"
+                                                   VerticalTextAlignment="Center"
+                                                   TextColor="#222222"/>
+                                            <Button Grid.Column="2" Text="+"
+                                                    WidthRequest="34" HeightRequest="34"
+                                                    CornerRadius="17" Padding="0"
+                                                    FontSize="18"
+                                                    BackgroundColor="#E0E0E5"
+                                                    TextColor="#444444"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HoldViewModel}}, Path=IncreaseItemCommand}"
+                                                    CommandParameter="{Binding .}"/>
+                                        </Grid>
+                                        <Button Text="Remove"
+                                                HeightRequest="34" CornerRadius="8"
+                                                FontSize="12"
+                                                BackgroundColor="#FFE0E0"
+                                                TextColor="#E53935"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HoldViewModel}}, Path=RemoveItemCommand}"
+                                                CommandParameter="{Binding .}"/>
+                                    </VerticalStackLayout>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                </CollectionView>
+            </Grid>
+
+            <!-- Placeholder ถ้าไม่มี session -->
+            <VerticalStackLayout Grid.Column="1"
+                                 IsVisible="{Binding IsEmpty}"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Center"
+                                 Spacing="10">
+                <Label Text="🛒" FontSize="50" HorizontalOptions="Center"/>
+                <Label Text="No hold baskets"
+                       FontSize="18" FontAttributes="Bold"
+                       TextColor="#999999" HorizontalOptions="Center"/>
+                <Label Text="Hold an order from POS to see it here"
+                       FontSize="13" TextColor="#BBBBBB"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
 
         </Grid>
 
-        <!-- =========================
-             HOLD LIST
-        ========================== -->
-
-        <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding HoldItems}"
-                        SelectionMode="None">
-
-            <CollectionView.EmptyView>
-
-                <VerticalStackLayout VerticalOptions="Center"
-                                     HorizontalOptions="Center"
-                                     Spacing="10">
-
-                    <Label Text="🛒"
-                           FontSize="50"
-                           HorizontalOptions="Center"/>
-
-                    <Label Text="No hold items"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           TextColor="#999999"
-                           HorizontalOptions="Center"/>
-
-                    <Label Text="Items you hold will appear here"
-                           FontSize="13"
-                           TextColor="#BBBBBB"
-                           HorizontalOptions="Center"/>
-
-                </VerticalStackLayout>
-
-            </CollectionView.EmptyView>
-
-            <CollectionView.ItemTemplate>
-
-                <DataTemplate x:DataType="models:HoldItem">
-
-                    <Border Margin="0,0,0,10"
-                            Padding="14"
-                            BackgroundColor="#F5F5F7"
-                            StrokeThickness="0">
-
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="14"/>
-                        </Border.StrokeShape>
-
-                        <Grid ColumnDefinitions="*,Auto"
-                              ColumnSpacing="12">
-
-                            <!-- Product detail -->
-                            <VerticalStackLayout Grid.Column="0"
-                                                 Spacing="4">
-
-                                <Label Text="{Binding ProductName}"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       TextColor="#222222"/>
-
-                                <Label FontSize="13" TextColor="#777777">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="{Binding UnitPrice, Converter={StaticResource PriceFormatConverter}}"/>
-                                            <Span Text=" each"/>
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-
-                                <Label FontSize="14" FontAttributes="Bold" TextColor="#4ECDC4">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="Subtotal "/>
-                                            <Span Text="{Binding Subtotal, Converter={StaticResource PriceFormatConverter}}"/>
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-
-                            </VerticalStackLayout>
-
-                            <!-- Quantity -->
-                            <VerticalStackLayout Grid.Column="1"
-                                                 Spacing="8"
-                                                 HorizontalOptions="End">
-
-                                <Grid ColumnDefinitions="Auto,Auto,Auto"
-                                      ColumnSpacing="6">
-
-                                    <Button Grid.Column="0"
-                                            Text="−"
-                                            WidthRequest="34"
-                                            HeightRequest="34"
-                                            CornerRadius="17"
-                                            Padding="0"
-                                            FontSize="18"
-                                            BackgroundColor="#E0E0E5"
-                                            TextColor="#444444"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HoldViewModel}}, Path=DecreaseItemCommand}"
-                                            CommandParameter="{Binding .}"/>
-
-                                    <Label Grid.Column="1"
-                                           Text="{Binding Quantity}"
-                                           WidthRequest="28"
-                                           FontSize="15"
-                                           FontAttributes="Bold"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Center"
-                                           TextColor="#222222"/>
-
-                                    <Button Grid.Column="2"
-                                            Text="+"
-                                            WidthRequest="34"
-                                            HeightRequest="34"
-                                            CornerRadius="17"
-                                            Padding="0"
-                                            FontSize="18"
-                                            BackgroundColor="#E0E0E5"
-                                            TextColor="#444444"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HoldViewModel}}, Path=IncreaseItemCommand}"
-                                            CommandParameter="{Binding .}"/>
-
-                                </Grid>
-
-                                <Button Text="Remove"
-                                        HeightRequest="34"
-                                        CornerRadius="8"
-                                        FontSize="12"
-                                        BackgroundColor="#FFE0E0"
-                                        TextColor="#E53935"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HoldViewModel}}, Path=RemoveItemCommand}"
-                                        CommandParameter="{Binding .}"/>
-
-                            </VerticalStackLayout>
-
-                        </Grid>
-
-                    </Border>
-
-                </DataTemplate>
-
-            </CollectionView.ItemTemplate>
-
-        </CollectionView>
-
-        <!-- =========================
-             BOTTOM SUMMARY
-        ========================== -->
-
+        <!-- ── Bottom Summary ── -->
         <Border Grid.Row="2"
                 BackgroundColor="#222222"
                 Padding="16"
-                StrokeThickness="0">
-
+                StrokeThickness="0"
+                IsVisible="{Binding HasSelectedSession}">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="16"/>
             </Border.StrokeShape>
 
             <VerticalStackLayout Spacing="10">
 
-                <!-- Total -->
                 <Grid ColumnDefinitions="*,Auto">
-
                     <Label Text="Total"
-                           FontSize="15"
-                           TextColor="#CCCCCC"/>
-
+                           FontSize="15" TextColor="#CCCCCC"/>
                     <Label Grid.Column="1"
-                           Text="{Binding GrandTotal, Converter={StaticResource PriceFormatConverter}}"
-                           FontSize="22"
-                           FontAttributes="Bold"
+                           Text="{Binding GrandTotal, StringFormat='฿{0:N2}'}"
+                           FontSize="22" FontAttributes="Bold"
                            TextColor="White"/>
-
                 </Grid>
 
-                <!-- VAT -->
-                <Grid ColumnDefinitions="*,Auto"
-                      IsVisible="{Binding IsVatEnabled}">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
 
-                    <Label Text="VAT"
-                           FontSize="13"
-                           TextColor="#AAAAAA"/>
-
-                    <Label Grid.Column="1"
-                           Text="{Binding VatAmount, Converter={StaticResource PriceFormatConverter}}"
-                           FontSize="13"
-                           TextColor="#AAAAAA"/>
-
-                </Grid>
-
-                <!-- Buttons -->
-                <Grid ColumnDefinitions="*,*"
-                      ColumnSpacing="10">
-
+                    <!-- Clear this basket -->
                     <Button Grid.Column="0"
+                            Text="🗑 Clear"
+                            HeightRequest="48" CornerRadius="12"
+                            BackgroundColor="#3A3A3A"
+                            TextColor="#FF6B6B"
+                            FontAttributes="Bold"
+                            Command="{Binding ClearHoldCommand}"/>
+
+                    <!-- Resume → กลับ POS พร้อม items -->
+                    <Button Grid.Column="1"
                             Text="Resume"
-                            HeightRequest="48"
-                            CornerRadius="12"
+                            HeightRequest="48" CornerRadius="12"
                             BackgroundColor="#3A3A3A"
                             TextColor="White"
                             FontAttributes="Bold"
                             Command="{Binding ResumeOrderCommand}"/>
 
-                    <Button Grid.Column="1"
+                    <!-- Checkout → ไป CartPage -->
+                    <Button Grid.Column="2"
                             Text="Checkout"
-                            HeightRequest="48"
-                            CornerRadius="12"
+                            HeightRequest="48" CornerRadius="12"
                             BackgroundColor="#4ECDC4"
                             TextColor="White"
                             FontAttributes="Bold"
@@ -257,7 +248,6 @@
                 </Grid>
 
             </VerticalStackLayout>
-
         </Border>
 
     </Grid>
