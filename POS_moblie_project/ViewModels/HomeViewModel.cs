@@ -46,6 +46,9 @@ public partial class HomeViewModel : ObservableObject
     {
         try
         {
+            // FIX: reset chart ก่อน เพื่อบังคับ View detach ของเก่า
+            WeeklyBarChart = null;
+
             // Stock
             var products = await _databaseService.GetAllProductsAsync();
             TotalProducts = products.Count;
@@ -93,6 +96,7 @@ public partial class HomeViewModel : ObservableObject
             decimal totalSales = salesByDate.Values.DefaultIfEmpty(0).Sum();
             if (totalSales == 0)
             {
+                WeeklyBarChart = null;
                 WeeklyBarChart = new LineChart
                 {
                     Entries = new[]
@@ -131,6 +135,7 @@ public partial class HomeViewModel : ObservableObject
                 });
             }
 
+            WeeklyBarChart = null;
             // ---- LineChart — smooth curve + จุดกลม ----
             WeeklyBarChart = new LineChart
             {

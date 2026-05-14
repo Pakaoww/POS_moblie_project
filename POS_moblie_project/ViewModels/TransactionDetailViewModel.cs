@@ -11,32 +11,15 @@ public partial class TransactionDetailViewModel : ObservableObject
 {
     private readonly DatabaseService _databaseService;
 
-    [ObservableProperty]
-    private string transactionId = string.Empty;
-
-    [ObservableProperty]
-    private DateTime timestamp;
-
-    [ObservableProperty]
-    private ObservableCollection<TransactionItem> items = new();
-
-    [ObservableProperty]
-    private decimal subtotal;
-
-    [ObservableProperty]
-    private decimal vatRate;
-
-    [ObservableProperty]
-    private decimal vatAmount;
-
-    [ObservableProperty]
-    private decimal grandTotal;
-
-    [ObservableProperty]
-    private bool isVatEnabled;
-
-    [ObservableProperty]
-    private bool isLoading;
+    [ObservableProperty] private string transactionId = string.Empty;
+    [ObservableProperty] private DateTime timestamp;
+    [ObservableProperty] private ObservableCollection<TransactionItem> items = new();
+    [ObservableProperty] private decimal subtotal;
+    [ObservableProperty] private decimal vatRate;
+    [ObservableProperty] private decimal vatAmount;
+    [ObservableProperty] private decimal grandTotal;
+    [ObservableProperty] private bool isVatEnabled;
+    [ObservableProperty] private bool isLoading;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasDiscount))]
@@ -48,12 +31,17 @@ public partial class TransactionDetailViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasDiscount))]
     private decimal discountAmount;
 
-    [ObservableProperty]
-    private decimal discountValue;
+    [ObservableProperty] private decimal discountValue;
+
+    [ObservableProperty] private bool isReceiptPrinted = false;
+
+    public Color ReprintButtonColor => IsReceiptPrinted ? Colors.Gray : Color.FromArgb("#FF6B6B");
 
     public bool HasDiscount => DiscountAmount > 0;
     public bool IsDiscountPercent => DiscountType == "percent";
     public bool IsDiscountAmount => DiscountType == "amount";
+
+    public event Func<Task<bool>>? PrintReceiptRequested;
 
     public TransactionDetailViewModel()
     {
@@ -64,6 +52,11 @@ public partial class TransactionDetailViewModel : ObservableObject
     {
         if (!string.IsNullOrEmpty(value))
             _ = LoadTransactionAsync(value);
+    }
+
+    partial void OnIsReceiptPrintedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ReprintButtonColor));
     }
 
     private async Task LoadTransactionAsync(string id)
@@ -92,12 +85,31 @@ public partial class TransactionDetailViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
         }
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ReprintReceiptAsync()
+    {
+        if (IsReceiptPrinted)
+        {
+            await Shell.Current.DisplayAlert(
+                "Already Printed",
+                "The receipt has already been printed to your gallery successfully.",
+                "OK");
+            return;
+        }
+
+        if (PrintReceiptRequested != null)
+        {
+            bool success = await PrintReceiptRequested.Invoke();
+            if (success)
+                IsReceiptPrinted = true;
         }
     }
 

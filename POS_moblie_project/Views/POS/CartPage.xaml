@@ -40,11 +40,22 @@
                                     <Label Text="{Binding ProductName}"
                                            FontSize="15" FontAttributes="Bold"
                                            TextColor="#222222" />
-                                    <Label Text="{Binding UnitPrice, StringFormat='{0:N2} each'}"
-                                           FontSize="12" TextColor="#666666" />
-                                    <Label Text="{Binding Subtotal, StringFormat='Subtotal: {0:N2}'}"
-                                           FontSize="13" FontAttributes="Bold"
-                                           TextColor="#4ECDC4" />
+                                    <Label FontSize="12" TextColor="#666666">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding UnitPrice, Converter={StaticResource PriceFormatConverter}}"/>
+                                                <Span Text=" each"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label FontSize="13" FontAttributes="Bold" TextColor="#4ECDC4">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Subtotal: "/>
+                                                <Span Text="{Binding Subtotal, Converter={StaticResource PriceFormatConverter}}"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
                                 </VerticalStackLayout>
                                 <Grid Grid.Column="1"
                                       ColumnDefinitions="Auto,Auto,Auto,Auto"
@@ -84,20 +95,27 @@
                   RowSpacing="8" Padding="0,8,0,0">
                 <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
                 <!-- Subtotal -->
-                <Label Grid.Row="1"
-                       Text="{Binding Subtotal, StringFormat='Subtotal: {0:N2}'}"
-                       FontSize="15" TextColor="#666666" HorizontalOptions="End" />
+                <Label Grid.Row="1" FontSize="15" TextColor="#666666" HorizontalOptions="End">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Subtotal: "/>
+                            <Span Text="{Binding Subtotal, Converter={StaticResource PriceFormatConverter}}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
+                <!-- VAT -->
+                <Label Grid.Row="2" FontSize="13" TextColor="#666666" IsVisible="{Binding IsVatEnabled}" HorizontalOptions="End">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="VAT: "/>
+                            <Span Text="{Binding VatAmount, Converter={StaticResource PriceFormatConverter}}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
 
                 <!-- Discount indicator + toggle button -->
-                <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
-                    <Label Grid.Column="0"
-                           Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
-                           FontSize="13" TextColor="#E6820E" VerticalOptions="Center"
-                           IsVisible="{Binding DiscountTypeIsPercent}" />
-                    <Label Grid.Column="0"
-                           Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
-                           FontSize="13" TextColor="#E6820E" VerticalOptions="Center"
-                           IsVisible="{Binding DiscountTypeIsAmount}" />
+                <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
                     <Button Grid.Column="1"
                             BackgroundColor="Transparent" Padding="0"
                             HorizontalOptions="End"
@@ -107,7 +125,7 @@
                 </Grid>
 
                 <!-- Discount input panel -->
-                <Border Grid.Row="3"
+                <Border Grid.Row="4"
                         IsVisible="{Binding IsDiscountSectionVisible}"
                         BackgroundColor="#FFF8E7" StrokeThickness="0"
                         Padding="12,10">
@@ -157,22 +175,21 @@
                         <Label IsVisible="{Binding DiscountTypeIsPercent}"
                                Text="{Binding DiscountValue, StringFormat='Applied: {0}% off'}"
                                FontSize="12" TextColor="#E6820E" HorizontalOptions="End" />
-                        <Label IsVisible="{Binding DiscountTypeIsAmount}"
-                               Text="{Binding DiscountAmount, StringFormat='Applied: -{0:N2}'}"
-                               FontSize="12" TextColor="#E6820E" HorizontalOptions="End" />
 
+                        <Label FontSize="12" TextColor="#E6820E" IsVisible="{Binding DiscountTypeIsAmount}" HorizontalOptions="End">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Applied: - "/>
+                                    <Span Text="{Binding DiscountAmount, Converter={StaticResource PriceFormatConverter}}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- VAT -->
-                <Label Grid.Row="4"
-                       Text="{Binding VatAmount, StringFormat='VAT: {0:N2}'}"
-                       FontSize="13" TextColor="#666666" HorizontalOptions="End"
-                       IsVisible="{Binding IsVatEnabled}" />
-
                 <!-- Checkout button -->
                 <Button Grid.Row="5"
-                        Text="{Binding GrandTotal, StringFormat='Checkout  {0:N2}'}"
+                        Text="{Binding CheckoutButtonText}"
                         BackgroundColor="#4ECDC4" TextColor="White"
                         FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
                         Command="{Binding CheckoutCommand}" />
@@ -205,7 +222,7 @@
                                    FontSize="14" TextColor="#666666"
                                    VerticalOptions="Center" />
                             <Label Grid.Column="2"
-                                   Text="{Binding Subtotal, StringFormat='{0:N2}'}"
+                                   Text="{Binding Subtotal, Converter={StaticResource PriceFormatConverter}}"
                                    FontSize="14" FontAttributes="Bold"
                                    TextColor="#222222" VerticalOptions="Center" />
                         </Grid>
@@ -215,9 +232,15 @@
 
             <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="6">
                 <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
-                <Label Grid.Row="1"
-                       Text="{Binding Subtotal, StringFormat='Subtotal: {0:N2}'}"
-                       FontSize="14" TextColor="#666666" HorizontalOptions="End" />
+                <Label Grid.Row="1" FontSize="14" TextColor="#666666" HorizontalOptions="End">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Subtotal: "/>
+                            <Span Text="{Binding Subtotal, Converter={StaticResource PriceFormatConverter}}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
                 <!-- Discount % -->
                 <Label Grid.Row="2"
                        IsVisible="{Binding DiscountTypeIsPercent}"
@@ -230,18 +253,33 @@
                     </Label.Text>
                 </Label>
                 <!-- Discount fixed amount -->
-                <Label Grid.Row="2"
-                       IsVisible="{Binding DiscountTypeIsAmount}"
-                       Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
-                       FontSize="13" TextColor="#E6820E" HorizontalOptions="End" />
-                <Label Grid.Row="3"
-                       Text="{Binding VatAmount, StringFormat='VAT: {0:N2}'}"
-                       FontSize="13" TextColor="#666666" HorizontalOptions="End"
-                       IsVisible="{Binding IsVatEnabled}" />
-                <Label Grid.Row="4"
-                       Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
-                       FontSize="18" FontAttributes="Bold"
-                       TextColor="#222222" HorizontalOptions="End" />
+                <Label Grid.Row="2" TextColor="#666666" HorizontalOptions="End" FontAttributes="Bold" FontSize="13" IsVisible="{Binding IsVatEnabled}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="VAT: "/>
+                            <Span Text="{Binding VatAmount, Converter={StaticResource PriceFormatConverter}}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
+                <Label Grid.Row="3" TextColor="#E6820E" HorizontalOptions="End" FontSize="13" IsVisible="{Binding DiscountTypeIsAmount}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Discount: "/>
+                            <Span Text="{Binding DiscountAmount, Converter={StaticResource PriceFormatConverter}}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+              
+                <Label Grid.Row="4" TextColor="#222222" HorizontalOptions="End" FontAttributes="Bold" FontSize="18">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Total: "/>
+                            <Span Text="{Binding GrandTotal, Converter={StaticResource PriceFormatConverter}}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
                 <Grid Grid.Row="5" ColumnDefinitions="*,*" ColumnSpacing="10">
                     <Button Grid.Column="0" Text="Back"
                             BackgroundColor="#E0E0E0" TextColor="#444444"
@@ -266,13 +304,13 @@
                 <Label Text="Charge"
                        FontSize="22" FontAttributes="Bold"
                        TextColor="#222222" HorizontalOptions="Center" />
-                <Label Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
+                <Label Text="{Binding GrandTotal, Converter={StaticResource PriceFormatConverter}}"
                        FontSize="16" TextColor="#666666"
                        HorizontalOptions="Center" />
                 <Label Text="{Binding MoneyReceivedInput, StringFormat='Received: {0}'}"
                        FontSize="28" FontAttributes="Bold"
                        TextColor="#222222" HorizontalOptions="Center" />
-                <Label Text="{Binding Change, StringFormat='Change: {0:N2}'}"
+                <Label Text="{Binding Change, Converter={StaticResource PriceFormatConverter}}"
                        FontSize="18" TextColor="#4ECDC4"
                        HorizontalOptions="Center" />
             </VerticalStackLayout>
@@ -349,7 +387,7 @@
                                FontSize="14" TextColor="#666666"
                                VerticalOptions="Center" />
                                     <Label Grid.Column="2"
-                               Text="{Binding Subtotal, StringFormat='{0:N2}'}"
+                               Text="{Binding Subtotal, Converter={StaticResource PriceFormatConverter}}"
                                FontSize="14" FontAttributes="Bold"
                                TextColor="#222222" VerticalOptions="Center" />
                                 </Grid>
@@ -360,26 +398,40 @@
                     <!-- Row 2: Summary (ติดล่าง ชิดปุ่ม) -->
                     <VerticalStackLayout Grid.Row="2" Spacing="4">
                         <BoxView HeightRequest="1" BackgroundColor="#E0E0E0" Margin="0,4" />
-                        <Label IsVisible="{Binding DiscountTypeIsPercent}"
-                   FontSize="13" TextColor="#E6820E" HorizontalOptions="End">
-                            <Label.Text>
-                                <MultiBinding StringFormat="Discount ({0}%): -{1:N2}">
-                                    <Binding Path="DiscountValue" />
-                                    <Binding Path="DiscountAmount" />
-                                </MultiBinding>
-                            </Label.Text>
-                        </Label>
-                        <Label IsVisible="{Binding DiscountTypeIsAmount}"
-                   Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
-                   FontSize="13" TextColor="#E6820E" HorizontalOptions="End" />
-                        <Label Text="{Binding VatAmount, StringFormat='VAT: {0:N2}'}"
-                   FontSize="13" TextColor="#666666" HorizontalOptions="End"
-                   IsVisible="{Binding IsVatEnabled}" />
-                        <Label Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
-                   FontSize="18" FontAttributes="Bold"
-                   TextColor="#222222" HorizontalOptions="End" />
-                        <Label Text="{Binding Change, StringFormat='Change: {0:N2}'}"
-                   FontSize="14" TextColor="#666666" HorizontalOptions="End" />
+                        <StackLayout IsVisible="{Binding DiscountTypeIsPercent}"
+                             Orientation="Horizontal" Spacing="0" HorizontalOptions="End">
+                            <Label FontSize="13" TextColor="#E6820E">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="Discount ({0}%): -">
+                                        <Binding Path="DiscountValue" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                            <Label Text="{Binding DiscountAmount, Converter={StaticResource PriceFormatConverter}}"
+                                   FontSize="13" TextColor="#E6820E" />
+                        </StackLayout>
+                        <StackLayout IsVisible="{Binding DiscountTypeIsAmount}"
+                             Orientation="Horizontal" Spacing="0" HorizontalOptions="End">
+                            <Label Text="Discount: -" FontSize="13" TextColor="#E6820E" />
+                            <Label Text="{Binding DiscountAmount, Converter={StaticResource PriceFormatConverter}}"
+                                   FontSize="13" TextColor="#E6820E" />
+                        </StackLayout>
+                        <StackLayout IsVisible="{Binding IsVatEnabled}"
+                             Orientation="Horizontal" Spacing="0" HorizontalOptions="End">
+                            <Label Text="VAT: " FontSize="13" TextColor="#666666" />
+                            <Label Text="{Binding VatAmount, Converter={StaticResource PriceFormatConverter}}"
+                                   FontSize="13" TextColor="#666666" />
+                        </StackLayout>
+                        <StackLayout Orientation="Horizontal" Spacing="0" HorizontalOptions="End">
+                            <Label Text="Total: " FontSize="18" FontAttributes="Bold" TextColor="#222222" />
+                            <Label Text="{Binding GrandTotal, Converter={StaticResource PriceFormatConverter}}"
+                                   FontSize="18" FontAttributes="Bold" TextColor="#222222" />
+                        </StackLayout>
+                        <StackLayout Orientation="Horizontal" Spacing="0" HorizontalOptions="End">
+                            <Label Text="Change: " FontSize="14" TextColor="#666666" />
+                            <Label Text="{Binding Change, Converter={StaticResource PriceFormatConverter}}"
+                                   FontSize="14" TextColor="#666666" />
+                        </StackLayout>
                     </VerticalStackLayout>
 
                 </Grid>

@@ -34,10 +34,14 @@ public partial class CartViewModel : ObservableObject
     private decimal vatAmount;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CheckoutButtonText))]
     private decimal grandTotal;
 
     [ObservableProperty]
     private bool isVatEnabled;
+
+    public string CheckoutButtonText =>
+        $"Checkout  {ServiceHelper.GetService<CurrencyService>().Format(GrandTotal)}";
 
     // ── Discount state ────────────────────────────────────
     [ObservableProperty]
@@ -52,10 +56,10 @@ public partial class CartViewModel : ObservableObject
     private string discountInput = string.Empty;
 
     [ObservableProperty]
-    private decimal discountValue;   // % or fixed value entered
+    private decimal discountValue;
 
     [ObservableProperty]
-    private decimal discountAmount;  // resolved baht amount
+    private decimal discountAmount;
 
     [ObservableProperty]
     private bool isDiscountSectionVisible = false;
@@ -101,8 +105,8 @@ public partial class CartViewModel : ObservableObject
         DiscountValue = 0;
         DiscountAmount = 0;
         IsDiscountSectionVisible = false;
-
         IsReceiptPrinted = false;
+
         IsVatEnabled = (await _databaseService.GetSettingAsync("vat_enabled")) == "true";
         var rateStr = await _databaseService.GetSettingAsync("vat_rate");
         VatRate = decimal.TryParse(rateStr, out var r) ? r : 0;
@@ -133,7 +137,6 @@ public partial class CartViewModel : ObservableObject
     {
         if (item == null) return;
 
-        // ดึง stock จริงจาก DB
         var product = await _databaseService.GetProductAsync(item.ProductId);
         if (product != null && item.Quantity >= product.Stock)
         {
@@ -318,7 +321,6 @@ public partial class CartViewModel : ObservableObject
 
             await _databaseService.CreateTransactionAsync(transaction, items);
 
-            // ── ลด stock และ auto-off ถ้า stock = 0 ──────────
             foreach (var cartItem in CartItems)
             {
                 var product = await _databaseService.GetProductAsync(cartItem.ProductId);
@@ -327,7 +329,6 @@ public partial class CartViewModel : ObservableObject
                 product.Stock -= cartItem.Quantity;
                 if (product.Stock < 0) product.Stock = 0;
 
-                // auto-off เมื่อ stock หมด
                 if (product.Stock == 0 && product.IsVisible)
                     product.IsVisible = false;
 
@@ -347,7 +348,6 @@ public partial class CartViewModel : ObservableObject
 
     // ── Receipt ────────────────────────────────────────────
 
-    // Event raised by the ViewModel so the View can do the actual screenshot capture
     public event Func<Task<bool>>? PrintReceiptRequested;
 
     [RelayCommand]
@@ -366,9 +366,7 @@ public partial class CartViewModel : ObservableObject
         {
             bool success = await PrintReceiptRequested.Invoke();
             if (success)
-            {
                 IsReceiptPrinted = true;
-            }
         }
     }
 
