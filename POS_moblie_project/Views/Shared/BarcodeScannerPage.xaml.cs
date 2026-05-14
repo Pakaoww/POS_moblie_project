@@ -7,21 +7,30 @@ namespace POS_moblie_project.Views.Shared;
 public partial class BarcodeScannerPage : ContentPage
 {
     private bool _hasScanned = false;
+    private bool _isAnimating = false;
+    private bool _isLeavingPage = false;
     private readonly Action<string> _onScanned;
 
     public BarcodeScannerPage(Action<string> onScanned)
     {
         InitializeComponent();
         _onScanned = onScanned;
-
         BarcodeReader.BarcodesDetected += OnBarcodesDetected;
-
         StartScanLineAnimation();
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        _isLeavingPage = false;
+        _hasScanned = false;
+
+        // ✅ รอให้ Window attach เสร็จก่อน
+        await Task.Delay(300);
+
+        // ถ้าออกจากหน้าไปแล้วระหว่าง delay ให้หยุด
+        if (_isLeavingPage) return;
 
         SetStatus("🔒 กำลังขอสิทธิ์กล้อง...", "White");
 
@@ -31,6 +40,7 @@ public partial class BarcodeScannerPage : ContentPage
             SetStatus("❌ ไม่ได้รับสิทธิ์กล้อง", "Red");
             await DisplayAlert("Permission Denied",
                 "Camera permission is required to scan barcodes.", "OK");
+            _isLeavingPage = true;
             await Navigation.PopModalAsync();
             return;
         }
@@ -48,17 +58,17 @@ public partial class BarcodeScannerPage : ContentPage
             TryHarder = true,
             AutoRotate = true,
             Formats = BarcodeFormat.Code128
-            | BarcodeFormat.Code39
-            | BarcodeFormat.Code93
-            | BarcodeFormat.Ean13
-            | BarcodeFormat.Ean8
-            | BarcodeFormat.UpcA
-            | BarcodeFormat.UpcE
-            | BarcodeFormat.Codabar
-            | BarcodeFormat.Pdf417
-            | BarcodeFormat.DataMatrix
-            | BarcodeFormat.QrCode
-            | BarcodeFormat.Aztec,
+                | BarcodeFormat.Code39
+                | BarcodeFormat.Code93
+                | BarcodeFormat.Ean13
+                | BarcodeFormat.Ean8
+                | BarcodeFormat.UpcA
+                | BarcodeFormat.UpcE
+                | BarcodeFormat.Codabar
+                | BarcodeFormat.Pdf417
+                | BarcodeFormat.DataMatrix
+                | BarcodeFormat.QrCode
+                | BarcodeFormat.Aztec,
             Multiple = false
         };
         BarcodeReader.CameraLocation = CameraLocation.Rear;
@@ -70,7 +80,9 @@ public partial class BarcodeScannerPage : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        DeinitializeCamera();
+        // ✅ ปิดกล้องเฉพาะตอนออกจากหน้าจริงๆ ไม่ใช่ตอน Dialog โผล่
+        if (_isLeavingPage)
+            DeinitializeCamera();
     }
 
     private void DeinitializeCamera()
@@ -78,6 +90,15 @@ public partial class BarcodeScannerPage : ContentPage
         BarcodeReader.IsEnabled = false;
         BarcodeReader.IsDetecting = false;
         BarcodeReader.IsVisible = false;
+    }
+
+    private void ResetForRescan()
+    {
+        _hasScanned = false;
+        _isLeavingPage = false; // ✅ Reset flag ด้วย
+        SetResult("");
+        InitializeCamera();
+        StartScanLineAnimation();
     }
 
     private void SetStatus(string message, string color = "White")
@@ -125,17 +146,13 @@ public partial class BarcodeScannerPage : ContentPage
 
             if (confirm)
             {
+                _isLeavingPage = true;
                 _onScanned?.Invoke(first.Value);
                 await Navigation.PopModalAsync();
             }
             else
             {
-                // สแกนใหม่
-                _hasScanned = false;
-                SetStatus("🔍 กำลังสแกน...", "White");
-                SetResult("");
-                await Task.Delay(1500);
-                BarcodeReader.IsDetecting = true;
+                ResetForRescan();
             }
         });
     }
@@ -151,8 +168,7 @@ public partial class BarcodeScannerPage : ContentPage
             var result = await MediaPicker.Default.PickPhotoAsync();
             if (result == null)
             {
-                SetStatus("🔍 กำลังสแกน...", "White");
-                BarcodeReader.IsDetecting = true;
+                ResetForRescan();
                 return;
             }
 
@@ -171,16 +187,14 @@ public partial class BarcodeScannerPage : ContentPage
 
                 if (confirm)
                 {
+                    _isLeavingPage = true;
                     _hasScanned = true;
                     _onScanned?.Invoke(scannedValue);
                     await Navigation.PopModalAsync();
                 }
                 else
                 {
-                    SetStatus("🔍 กำลังสแกน...", "White");
-                    SetResult("");
-                    await Task.Delay(1500);
-                    BarcodeReader.IsDetecting = true;
+                    ResetForRescan();
                 }
             }
             else
@@ -188,17 +202,14 @@ public partial class BarcodeScannerPage : ContentPage
                 SetStatus("❌ ไม่พบบาร์โค้ดในรูปภาพ", "Red");
                 await DisplayAlert("Not Found",
                     "No barcode found in the selected image.", "OK");
-                SetStatus("🔍 กำลังสแกน...", "White");
-                await Task.Delay(1500);
-                BarcodeReader.IsDetecting = true;
+                ResetForRescan();
             }
         }
         catch (Exception ex)
         {
             SetStatus($"❌ Error: {ex.Message}", "Red");
             await DisplayAlert("Error", $"Failed to read image: {ex.Message}", "OK");
-            await Task.Delay(1500);
-            BarcodeReader.IsDetecting = true;
+            ResetForRescan();
         }
     }
 
@@ -283,11 +294,14 @@ public partial class BarcodeScannerPage : ContentPage
 
     private async void OnCancelClicked(object sender, EventArgs e)
     {
+        _isLeavingPage = true;
         await Navigation.PopModalAsync();
     }
 
     private void StartScanLineAnimation()
     {
+        if (_isAnimating) return;
+        _isAnimating = true;
         _ = AnimateScanLine();
     }
 
@@ -298,5 +312,6 @@ public partial class BarcodeScannerPage : ContentPage
             await ScanLine.TranslateTo(0, -100, 1000, Easing.SinInOut);
             await ScanLine.TranslateTo(0, 100, 1000, Easing.SinInOut);
         }
+        _isAnimating = false;
     }
 }

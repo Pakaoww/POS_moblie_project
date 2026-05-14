@@ -276,6 +276,12 @@ public partial class ProductDetailViewModel : ObservableObject
             tcs.TrySetResult(result);
         });
 
+        // ✅ Set cancel (empty string) เมื่อ page ถูก pop ไม่ว่าจะกด Cancel หรือ confirm
+        scannerPage.Disappearing += (s, e) =>
+        {
+            tcs.TrySetResult(string.Empty); // จะ ignore ถ้า set result ไปแล้ว
+        };
+
         await Application.Current.MainPage.Navigation.PushModalAsync(scannerPage);
 
         var scannedValue = await tcs.Task;
