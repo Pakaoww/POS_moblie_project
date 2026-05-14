@@ -313,7 +313,8 @@
                           Converter={StaticResource CartStateConverter},
                           ConverterParameter=Receipt}">
 
-            <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,16">
+            <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,16"
+                                 x:Name="ReceiptArea">
                 <Label Text="✓ Payment Complete"
                        FontSize="20" FontAttributes="Bold"
                        TextColor="#4ECDC4" HorizontalOptions="Center" />
@@ -348,7 +349,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
+            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
                 <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
                 <!-- Discount % -->
                 <Label Grid.Row="1"
@@ -374,11 +375,25 @@
                        Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
                        FontSize="18" FontAttributes="Bold"
                        TextColor="#222222" HorizontalOptions="End" />
-                <Button Grid.Row="4"
-                        Text="🏠  Back to Home"
-                        BackgroundColor="#4ECDC4" TextColor="White"
-                        FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
-                        Command="{Binding GoHomeCommand}" />
+                <!-- Receipt Change row -->
+                <Label Grid.Row="4"
+                       Text="{Binding Change, StringFormat='Change: {0:N2}'}"
+                       FontSize="14" TextColor="#666666" HorizontalOptions="End" />
+                <!-- Action buttons -->
+                <Grid Grid.Row="5" ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Grid.Column="0"
+                            Text="{Binding PrintButtonText}"
+                            BackgroundColor="{Binding PrintButtonColor}"
+                            TextColor="White"
+                            FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
+                            x:Name="PrintReceiptButton"
+                            Command="{Binding PrintReceiptCommand}" />
+                    <Button Grid.Column="1"
+                            Text="🏠  Back to Home"
+                            BackgroundColor="#4ECDC4" TextColor="White"
+                            FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
+                            Command="{Binding GoHomeCommand}" />
+                </Grid>
             </Grid>
         </Grid>
 

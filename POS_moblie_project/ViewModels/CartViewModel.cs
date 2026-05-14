@@ -75,6 +75,14 @@ public partial class CartViewModel : ObservableObject
     [ObservableProperty]
     private DateTime receiptTimestamp;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PrintButtonText))]
+    [NotifyPropertyChangedFor(nameof(PrintButtonColor))]
+    private bool isReceiptPrinted = false;
+
+    public string PrintButtonText => IsReceiptPrinted ? "Receipt Printed" : "🖨️  Print Receipt";
+    public Color PrintButtonColor => IsReceiptPrinted ? Color.FromArgb("#AAAAAA") : Color.FromArgb("#FF6B6B");
+
     public CartViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
@@ -94,6 +102,7 @@ public partial class CartViewModel : ObservableObject
         DiscountAmount = 0;
         IsDiscountSectionVisible = false;
 
+        IsReceiptPrinted = false;
         IsVatEnabled = (await _databaseService.GetSettingAsync("vat_enabled")) == "true";
         var rateStr = await _databaseService.GetSettingAsync("vat_rate");
         VatRate = decimal.TryParse(rateStr, out var r) ? r : 0;
@@ -337,6 +346,31 @@ public partial class CartViewModel : ObservableObject
     }
 
     // ── Receipt ────────────────────────────────────────────
+
+    // Event raised by the ViewModel so the View can do the actual screenshot capture
+    public event Func<Task<bool>>? PrintReceiptRequested;
+
+    [RelayCommand]
+    private async Task PrintReceiptAsync()
+    {
+        if (IsReceiptPrinted)
+        {
+            await Shell.Current.DisplayAlert(
+                "Already Printed",
+                "The receipt has already been printed to your gallery successfully.",
+                "OK");
+            return;
+        }
+
+        if (PrintReceiptRequested != null)
+        {
+            bool success = await PrintReceiptRequested.Invoke();
+            if (success)
+            {
+                IsReceiptPrinted = true;
+            }
+        }
+    }
 
     [RelayCommand]
     private async Task GoHomeAsync()
