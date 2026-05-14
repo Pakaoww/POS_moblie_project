@@ -307,79 +307,100 @@
         </Grid>
 
         <!-- STATE 4: RECEIPT -->
-        <Grid RowDefinitions="Auto,*,Auto"
-              Padding="20"
-              IsVisible="{Binding CurrentState,
-                          Converter={StaticResource CartStateConverter},
-                          ConverterParameter=Receipt}">
+        <Grid RowDefinitions="*,Auto"
+      Padding="20"
+      IsVisible="{Binding CurrentState,
+                  Converter={StaticResource CartStateConverter},
+                  ConverterParameter=Receipt}">
 
-            <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,16">
-                <Label Text="✓ Payment Complete"
-                       FontSize="20" FontAttributes="Bold"
-                       TextColor="#4ECDC4" HorizontalOptions="Center" />
-                <Label Text="{Binding ReceiptTransactionId, StringFormat='Transaction ID: {0}'}"
-                       FontSize="12" TextColor="#666666"
-                       HorizontalOptions="Center" />
-                <Label Text="{Binding ReceiptTimestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
-                       FontSize="12" TextColor="#666666"
-                       HorizontalOptions="Center" />
-            </VerticalStackLayout>
+            <Border x:Name="ReceiptContainer"
+                    Grid.Row="0"
+                    BackgroundColor="White"
+                    StrokeThickness="0"
+                    Padding="10">
 
-            <CollectionView Grid.Row="1"
-                            ItemsSource="{Binding CartItems}"
-                            SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:CartItem">
-                        <Grid ColumnDefinitions="*,Auto,Auto"
-                              Padding="4,6" ColumnSpacing="8">
-                            <Label Grid.Column="0" Text="{Binding ProductName}"
-                                   FontSize="14" TextColor="#222222"
-                                   VerticalOptions="Center" />
-                            <Label Grid.Column="1"
-                                   Text="{Binding Quantity, StringFormat='x{0}'}"
-                                   FontSize="14" TextColor="#666666"
-                                   VerticalOptions="Center" />
-                            <Label Grid.Column="2"
-                                   Text="{Binding Subtotal, StringFormat='{0:N2}'}"
-                                   FontSize="14" FontAttributes="Bold"
-                                   TextColor="#222222" VerticalOptions="Center" />
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                <!-- ✅ ใช้ Grid แทน VerticalStackLayout เพื่อดัน Summary ลงล่าง -->
+                <Grid RowDefinitions="Auto,*,Auto">
 
-            <Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
-                <BoxView Grid.Row="0" HeightRequest="1" BackgroundColor="#E0E0E0" />
-                <!-- Discount % -->
-                <Label Grid.Row="1"
-                       IsVisible="{Binding DiscountTypeIsPercent}"
-                       FontSize="13" TextColor="#E6820E" HorizontalOptions="End">
-                    <Label.Text>
-                        <MultiBinding StringFormat="Discount ({0}%): -{1:N2}">
-                            <Binding Path="DiscountValue" />
-                            <Binding Path="DiscountAmount" />
-                        </MultiBinding>
-                    </Label.Text>
-                </Label>
-                <!-- Discount fixed amount -->
-                <Label Grid.Row="1"
-                       IsVisible="{Binding DiscountTypeIsAmount}"
-                       Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
-                       FontSize="13" TextColor="#E6820E" HorizontalOptions="End" />
-                <Label Grid.Row="2"
-                       Text="{Binding VatAmount, StringFormat='VAT: {0:N2}'}"
-                       FontSize="13" TextColor="#666666" HorizontalOptions="End"
-                       IsVisible="{Binding IsVatEnabled}" />
-                <Label Grid.Row="3"
-                       Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
-                       FontSize="18" FontAttributes="Bold"
-                       TextColor="#222222" HorizontalOptions="End" />
-                <Button Grid.Row="4"
-                        Text="🏠  Back to Home"
-                        BackgroundColor="#4ECDC4" TextColor="White"
-                        FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
-                        Command="{Binding GoHomeCommand}" />
+                    <!-- Row 0: Header -->
+                    <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,16">
+                        <Label Text="✓ Payment Complete"
+                   FontSize="20" FontAttributes="Bold"
+                   TextColor="#4ECDC4" HorizontalOptions="Center" />
+                        <Label Text="{Binding ReceiptTransactionId, StringFormat='Transaction ID: {0}'}"
+                   FontSize="12" TextColor="#666666" HorizontalOptions="Center" />
+                        <Label Text="{Binding ReceiptTimestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                   FontSize="12" TextColor="#666666" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Row 1: Items (ขยายเต็มพื้นที่ที่เหลือ) -->
+                    <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding CartItems}"
+                        SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:CartItem">
+                                <Grid ColumnDefinitions="*,Auto,Auto"
+                          Padding="4,6" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Text="{Binding ProductName}"
+                               FontSize="14" TextColor="#222222"
+                               VerticalOptions="Center" />
+                                    <Label Grid.Column="1"
+                               Text="{Binding Quantity, StringFormat='x{0}'}"
+                               FontSize="14" TextColor="#666666"
+                               VerticalOptions="Center" />
+                                    <Label Grid.Column="2"
+                               Text="{Binding Subtotal, StringFormat='{0:N2}'}"
+                               FontSize="14" FontAttributes="Bold"
+                               TextColor="#222222" VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Row 2: Summary (ติดล่าง ชิดปุ่ม) -->
+                    <VerticalStackLayout Grid.Row="2" Spacing="4">
+                        <BoxView HeightRequest="1" BackgroundColor="#E0E0E0" Margin="0,4" />
+                        <Label IsVisible="{Binding DiscountTypeIsPercent}"
+                   FontSize="13" TextColor="#E6820E" HorizontalOptions="End">
+                            <Label.Text>
+                                <MultiBinding StringFormat="Discount ({0}%): -{1:N2}">
+                                    <Binding Path="DiscountValue" />
+                                    <Binding Path="DiscountAmount" />
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+                        <Label IsVisible="{Binding DiscountTypeIsAmount}"
+                   Text="{Binding DiscountAmount, StringFormat='Discount: -{0:N2}'}"
+                   FontSize="13" TextColor="#E6820E" HorizontalOptions="End" />
+                        <Label Text="{Binding VatAmount, StringFormat='VAT: {0:N2}'}"
+                   FontSize="13" TextColor="#666666" HorizontalOptions="End"
+                   IsVisible="{Binding IsVatEnabled}" />
+                        <Label Text="{Binding GrandTotal, StringFormat='Total: {0:N2}'}"
+                   FontSize="18" FontAttributes="Bold"
+                   TextColor="#222222" HorizontalOptions="End" />
+                        <Label Text="{Binding Change, StringFormat='Change: {0:N2}'}"
+                   FontSize="14" TextColor="#666666" HorizontalOptions="End" />
+                    </VerticalStackLayout>
+
+                </Grid>
+            </Border>
+
+            <!-- ✅ Buttons อยู่นอก ReceiptContainer จะไม่ถูก Capture -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,0">
+                <Button Grid.Column="0"
+                Text="{Binding PrintButtonText}"
+                BackgroundColor="{Binding PrintButtonColor}"
+                TextColor="White"
+                FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
+                x:Name="PrintReceiptButton"
+                Command="{Binding PrintReceiptCommand}" />
+                <Button Grid.Column="1"
+                Text="🏠  Back to Home"
+                BackgroundColor="#4ECDC4" TextColor="White"
+                FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
+                Command="{Binding GoHomeCommand}" />
             </Grid>
+
         </Grid>
 
     </Grid>
