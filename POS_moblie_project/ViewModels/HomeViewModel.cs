@@ -77,34 +77,32 @@ public partial class HomeViewModel : ObservableObject
         try
         {
             var today = DateTime.Now.Date;
-            var from = today.AddDays(-6); // 7 วัน รวมวันนี้
-            var to = today.AddDays(1);  // exclusive upper bound
+            var from = today.AddDays(-6);
+            var to = today.AddDays(1);
 
             var transactions = await _databaseService.GetTransactionsAsync(from, to);
 
-            // จัดกลุ่มยอดขายตามวัน
             var salesByDate = transactions
                 .GroupBy(t => t.Timestamp.Date)
                 .ToDictionary(g => g.Key, g => g.Sum(t => t.GrandTotal));
 
-            // สี palette เดียวกับ Family Co Finance + theme แอป
-            var barColor = SKColor.Parse("#76c8f3"); // เขียวอ่อน (theme แอป)
-            var todayColor = SKColor.Parse("#a9d888"); // ฟ้า-เขียว สำหรับวันนี้
+            var lineColor = SKColor.Parse("#76c8f3");
+            var todayColor = SKColor.Parse("#a9d888");
 
             // ---- Empty state ----
             decimal totalSales = salesByDate.Values.DefaultIfEmpty(0).Sum();
             if (totalSales == 0)
             {
-                WeeklyBarChart = new BarChart
+                WeeklyBarChart = new LineChart
                 {
                     Entries = new[]
                     {
-                        new ChartEntry(1)
-                        {
-                            Label = "No data",
-                            Color = SKColor.Parse("#CCCCCC")
-                        }
-                    },
+                    new ChartEntry(0)
+                    {
+                        Label    = "No data",
+                        Color    = SKColor.Parse("#CCCCCC"),
+                    }
+                },
                     BackgroundColor = SKColors.Transparent,
                     LabelTextSize = 30f,
                     ValueLabelTextSize = 28f,
@@ -120,29 +118,38 @@ public partial class HomeViewModel : ObservableObject
                 var amount = salesByDate.TryGetValue(date, out var v) ? v : 0m;
 
                 string label = i == 0 ? "Today" : date.ToString("ddd");
-                var color = i == 0 ? todayColor : barColor;
+                var color = i == 0 ? todayColor : lineColor;
                 string valueLabel = amount == 0 ? "" : FormatAmount(amount);
 
                 entries.Add(new ChartEntry((float)amount)
                 {
                     Label = label,
                     ValueLabel = valueLabel,
-                    Color = color,
+                    Color = color,              // สีจุดแต่ละวัน
                     TextColor = SKColor.Parse("#3c3d3c"),
                     ValueLabelColor = SKColor.Parse("#3c3d3c"),
                 });
             }
 
-            // ---- สร้าง BarChart (pattern ตาม Family Co Finance) ----
-            WeeklyBarChart = new BarChart
+            // ---- LineChart — smooth curve + จุดกลม ----
+            WeeklyBarChart = new LineChart
             {
                 Entries = entries,
                 BackgroundColor = SKColors.Transparent,
+
+                LineMode = LineMode.Spline,
+                LineSize = 3f,
+                LineAreaAlpha = 40,
+
+                PointMode = PointMode.Circle,
+                PointSize = 14f,
+
                 LabelTextSize = 30f,
                 ValueLabelTextSize = 28f,
                 LabelOrientation = Orientation.Horizontal,
                 ValueLabelOrientation = Orientation.Horizontal,
-                IsAnimated = true,
+
+                IsAnimated = false,   // ← ปิด animation แก้ปัญหาเส้นซ้อน
             };
         }
         catch (Exception ex)
