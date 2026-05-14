@@ -7,175 +7,114 @@
              x:DataType="vm:StockViewModel"
              Title="Stock"
              BackgroundColor="White">
-
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="16" RowSpacing="10">
-
-        <!-- Search bar -->
-        <Border Grid.Row="0"
-                BackgroundColor="#F5F5F7"
-                Padding="12,4"
-                StrokeThickness="0">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="20" />
-            </Border.StrokeShape>
-            <Entry Placeholder="Search by name or code..."
-                   Text="{Binding SearchText}"
-                   BackgroundColor="Transparent" />
-        </Border>
-
-        <!-- Category filter -->
-        <Picker Grid.Row="1"
-                Title="Filter by category"
-                ItemsSource="{Binding CategoryFilters}"
-                ItemDisplayBinding="{Binding Name}"
-                SelectedItem="{Binding SelectedCategory}"
-                BackgroundColor="#F5F5F7" />
-
-        <!-- Add button -->
-        <Button Grid.Row="2"
-                Text="+ Add Product"
-                BackgroundColor="#4ECDC4"
-                TextColor="White"
-                FontAttributes="Bold"
-                HeightRequest="44"
-                CornerRadius="8"
-                Command="{Binding AddProductCommand}" />
-
-        <!-- Product list -->
-        <RefreshView Grid.Row="3"
-                     IsRefreshing="{Binding IsLoading}"
-                     Command="{Binding LoadStockCommand}">
+    
+    <Grid RowDefinitions="*,Auto" RowSpacing="0" BackgroundColor="White"
+          Padding="0,0,0,0">
+        <RefreshView IsRefreshing="{Binding IsLoading}"
+                 BackgroundColor="White"
+                 Command="{Binding LoadStockCommand}">
             <CollectionView ItemsSource="{Binding Products}"
-                            SelectionMode="None">
+                        SelectionMode="None"
+                        BackgroundColor="White">
+
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.Header>
+                    <VerticalStackLayout Spacing="8" Padding="16,16,16,0"
+                                     BackgroundColor="White">
+
+                        <Border BackgroundColor="#F5F5F7" Padding="12,4" StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20"/>
+                            </Border.StrokeShape>
+                            <Entry Placeholder="Search by name or code..."
+                               Text="{Binding SearchText}"
+                               BackgroundColor="Transparent"/>
+                        </Border>
+
+                        <Picker Title="Filter by category"
+                            ItemsSource="{Binding CategoryFilters}"
+                            ItemDisplayBinding="{Binding Name}"
+                            SelectedItem="{Binding SelectedCategory}"
+                            BackgroundColor="#F5F5F7"/>
+
+                        <Button Text="+ Add Product"
+                            BackgroundColor="#4ECDC4" TextColor="White"
+                            FontAttributes="Bold" HeightRequest="44" CornerRadius="8"
+                            Command="{Binding AddProductCommand}"/>
+
+                    </VerticalStackLayout>
+                </CollectionView.Header>
 
                 <CollectionView.EmptyView>
                     <Label Text="No products found"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"
-                           TextColor="#999999"
-                           Margin="0,40,0,0" />
+                       HorizontalOptions="Center" VerticalOptions="Center"
+                       TextColor="#999999" Margin="16,40"/>
                 </CollectionView.EmptyView>
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Product">
-                        <Border Margin="0,0,0,8"
-                                Padding="12"
-                                BackgroundColor="#F5F5F7"
-                                StrokeThickness="0">
+                        <Border Margin="16,0" Padding="12"
+                            BackgroundColor="#F5F5F7" StrokeThickness="0">
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10" />
+                                <RoundRectangle CornerRadius="10"/>
                             </Border.StrokeShape>
-
                             <Grid ColumnDefinitions="60,*,Auto" ColumnSpacing="12">
 
-                                <!-- Product image -->
                                 <Border Grid.Column="0"
-                                        WidthRequest="50"
-                                        HeightRequest="50"
-                                        BackgroundColor="#E0E0E5"
-                                        StrokeThickness="0"
-                                        VerticalOptions="Center">
+                                    WidthRequest="50" HeightRequest="50"
+                                    BackgroundColor="#E0E0E5" StrokeThickness="0"
+                                    VerticalOptions="Center">
                                     <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="6" />
+                                        <RoundRectangle CornerRadius="6"/>
                                     </Border.StrokeShape>
-                                    <Image Source="{Binding ImagePath}"
-                                           Aspect="AspectFill" />
+                                    <Image Source="{Binding ImagePath}" Aspect="AspectFill"/>
                                 </Border>
 
-                                <!--
-                                    Product info — tappable area → triggers EditProductCommand
-                                    ใช้ TapGestureRecognizer ตาม Task 2 & 3
-                                -->
-                                <VerticalStackLayout Grid.Column="1"
-                                                     VerticalOptions="Center"
-                                                     Spacing="2">
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                                     <VerticalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StockViewModel}}, Path=EditProductCommand}"
-                                            CommandParameter="{Binding .}" />
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StockViewModel}}, Path=EditProductCommand}"
+                                        CommandParameter="{Binding .}"/>
                                     </VerticalStackLayout.GestureRecognizers>
-
-                                    <Label Text="{Binding Name}"
-                                           FontSize="15"
-                                           FontAttributes="Bold"
-                                           TextColor="#222222" />
-                                    <Label Text="{Binding ProductCode, StringFormat='Code: {0}'}"
-                                           FontSize="12"
-                                           TextColor="#666666" />
-                                    <Label Text="{Binding Stock, StringFormat='Stock: {0}'}"
-                                           FontSize="12"
-                                           TextColor="#666666" />
+                                    <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="#222222"/>
+                                    <Label Text="{Binding ProductCode, StringFormat='Code: {0}'}" FontSize="12" TextColor="#666666"/>
+                                    <Label Text="{Binding Stock, StringFormat='Stock: {0}'}" FontSize="12" TextColor="#666666"/>
                                     <Label Text="{Binding Price, Converter={StaticResource PriceFormatConverter}}"
-                                           FontSize="13"
-                                           FontAttributes="Bold"
-                                           TextColor="#4ECDC4" />
+                                       FontSize="13" FontAttributes="Bold" TextColor="#4ECDC4"/>
                                 </VerticalStackLayout>
 
-                                <!-- Actions — Toggle only (Edit/Del buttons removed) -->
-                                <VerticalStackLayout Grid.Column="2"
-                                                     VerticalOptions="Center"
-                                                     HorizontalOptions="Center">
-
-                                    <!--
-                                        Toggle redesign ตามภาพ ON/OFF:
-                                        - พื้นหลัง: เขียว (#5CB85C) เมื่อ IsVisible=true, เทา (#CCCCCC) เมื่อ false
-                                        - วงกลม (thumb): ขาว ขนาด 22×22
-                                          → ชิดขวาเมื่อ ON  (HorizontalOptions="End")
-                                          → ชิดซ้ายเมื่อ OFF (HorizontalOptions="Start")
-                                        - ข้อความ ON/OFF อยู่ด้านตรงข้ามของ thumb
-                                    -->
-                                    <Border WidthRequest="62"
-                                            HeightRequest="30"
-                                            StrokeThickness="0"
-                                            BackgroundColor="{Binding IsVisible, Converter={StaticResource BoolToColorConverter}}"
-                                            HorizontalOptions="Center">
+                                <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="Center">
+                                    <Border WidthRequest="62" HeightRequest="30" StrokeThickness="0"
+                                        BackgroundColor="{Binding IsVisible, Converter={StaticResource BoolToColorConverter}}"
+                                        HorizontalOptions="Center">
                                         <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="15" />
+                                            <RoundRectangle CornerRadius="15"/>
                                         </Border.StrokeShape>
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StockViewModel}}, Path=ToggleVisibilityCommand}"
-                                                CommandParameter="{Binding .}" />
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StockViewModel}}, Path=ToggleVisibilityCommand}"
+                                            CommandParameter="{Binding .}"/>
                                         </Border.GestureRecognizers>
-
-                                        <!--
-                                            Grid 2 คอลัมน์: [ข้อความ | thumb] หรือ [thumb | ข้อความ]
-                                            เมื่อ ON  → thumb ขวา: Column="1", ข้อความ Column="0"
-                                            เมื่อ OFF → thumb ซ้าย: Column="0", ข้อความ Column="1"
-                                            ใช้ Converter ชี้ Column index ของ thumb และ label
-                                        -->
-                                        <Grid ColumnDefinitions="*,*"
-                                              Padding="3,0"
-                                              ColumnSpacing="0">
-
-                                            <!-- Label ON / OFF (อยู่ฝั่งตรงข้าม thumb) -->
+                                        <Grid ColumnDefinitions="*,*" Padding="3,0" ColumnSpacing="0">
                                             <Label Text="{Binding IsVisible, Converter={StaticResource BoolToVisibleTextConverter}}"
-                                                   FontSize="10"
-                                                   FontAttributes="Bold"
-                                                   TextColor="White"
-                                                   HorizontalOptions="{Binding IsVisible, Converter={StaticResource BoolToLabelAlignConverter}}"
-                                                   VerticalOptions="Center"
-                                                   Grid.Column="{Binding IsVisible, Converter={StaticResource BoolToLabelColumnConverter}}" />
-
-                                            <!-- Thumb (วงกลมขาว) -->
-                                            <Border WidthRequest="22"
-                                                    HeightRequest="22"
-                                                    BackgroundColor="White"
-                                                    StrokeThickness="0"
-                                                    HorizontalOptions="Center"
-                                                    VerticalOptions="Center"
-                                                    Grid.Column="{Binding IsVisible, Converter={StaticResource BoolToThumbColumnConverter}}">
+                                               FontSize="10" FontAttributes="Bold" TextColor="White"
+                                               HorizontalOptions="{Binding IsVisible, Converter={StaticResource BoolToLabelAlignConverter}}"
+                                               VerticalOptions="Center"
+                                               Grid.Column="{Binding IsVisible, Converter={StaticResource BoolToLabelColumnConverter}}"/>
+                                            <Border WidthRequest="22" HeightRequest="22"
+                                                BackgroundColor="White" StrokeThickness="0"
+                                                HorizontalOptions="Center" VerticalOptions="Center"
+                                                Grid.Column="{Binding IsVisible, Converter={StaticResource BoolToThumbColumnConverter}}">
                                                 <Border.StrokeShape>
-                                                    <RoundRectangle CornerRadius="11" />
+                                                    <RoundRectangle CornerRadius="11"/>
                                                 </Border.StrokeShape>
                                                 <Border.Shadow>
-                                                    <Shadow Brush="#00000040"
-                                                            Offset="0,2"
-                                                            Radius="4"
-                                                            Opacity="0.3" />
+                                                    <Shadow Brush="#00000040" Offset="0,2" Radius="4" Opacity="0.3"/>
                                                 </Border.Shadow>
                                             </Border>
-
                                         </Grid>
                                     </Border>
                                 </VerticalStackLayout>
@@ -184,8 +123,8 @@
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+
             </CollectionView>
         </RefreshView>
-
     </Grid>
 </ContentPage>

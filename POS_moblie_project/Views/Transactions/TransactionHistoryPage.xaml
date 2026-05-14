@@ -8,127 +8,135 @@
              Title="Transaction History"
              BackgroundColor="White">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="16" RowSpacing="10">
-
-        <!-- Search -->
-        <Border Grid.Row="0" BackgroundColor="#F5F5F7"
-                Padding="12,4" StrokeThickness="0">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="20" />
-            </Border.StrokeShape>
-            <Entry Placeholder="Search by Transaction ID..."
-                   Text="{Binding SearchText}"
-                   BackgroundColor="Transparent" />
-        </Border>
-
-        <!-- Date range -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
-            <DatePicker Grid.Column="0"
-                        Date="{Binding FromDate}"
-                        Format="dd/MM/yyyy"
-                        BackgroundColor="#F5F5F7" />
-            <Label Grid.Column="1" Text="to"
-                   VerticalOptions="Center"
-                   HorizontalOptions="Center"
-                   TextColor="#666666" />
-            <DatePicker Grid.Column="2"
-                        Date="{Binding ToDate}"
-                        Format="dd/MM/yyyy"
-                        BackgroundColor="#F5F5F7" />
-        </Grid>
-
-        <!-- Buttons -->
-        <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="10">
-            <Button Grid.Column="0" Text="Search"
-                    BackgroundColor="#4ECDC4" TextColor="White"
-                    FontAttributes="Bold" HeightRequest="44" CornerRadius="8"
-                    Command="{Binding LoadTransactionsCommand}" />
-            <Button Grid.Column="1" Text="📊 Export"
-                    BackgroundColor="#2ECC71" TextColor="White"
-                    FontAttributes="Bold" HeightRequest="44"
-                    Padding="12,0" CornerRadius="8"
-                    Command="{Binding ExportExcelCommand}" />
-        </Grid>
-
-        <!-- Stats -->
-        <Border Grid.Row="3" BackgroundColor="#F5F5F7"
-                Padding="16,12" StrokeThickness="0">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="10" />
-            </Border.StrokeShape>
-            <Grid ColumnDefinitions="*,*,*">
-                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="{Binding TotalTransactions}"
-                           FontSize="20" FontAttributes="Bold"
-                           TextColor="#222222" HorizontalOptions="Center" />
-                    <Label Text="Transactions"
-                           FontSize="11" TextColor="#666666"
-                           HorizontalOptions="Center" />
-                </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="{Binding AverageRevenue,
-                                  Converter={StaticResource PriceFormatConverter},
-                                  ConverterParameter=N0}"
-                           FontSize="20" FontAttributes="Bold"
-                           TextColor="#222222" HorizontalOptions="Center" />
-                    <Label Text="Avg/Bill"
-                           FontSize="11" TextColor="#666666"
-                           HorizontalOptions="Center" />
-                </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="{Binding TotalRevenue,
-                                  Converter={StaticResource PriceFormatConverter},
-                                  ConverterParameter=N0}"
-                           FontSize="20" FontAttributes="Bold"
-                           TextColor="#4ECDC4" HorizontalOptions="Center" />
-                    <Label Text="Total Revenue"
-                           FontSize="11" TextColor="#666666"
-                           HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </Grid>
-        </Border>
-
-        <!-- Transaction list -->
-        <RefreshView Grid.Row="4"
-                     IsRefreshing="{Binding IsLoading}"
-                     Command="{Binding LoadTransactionsCommand}">
+    <Grid RowDefinitions="*,Auto" RowSpacing="0" BackgroundColor="White"
+      Padding="0,0,0,0">
+        <RefreshView IsRefreshing="{Binding IsLoading}"
+                 Command="{Binding LoadTransactionsCommand}">
             <CollectionView ItemsSource="{Binding Transactions}"
-                            SelectionMode="None">
+                        SelectionMode="None">
+
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.Header>
+                    <VerticalStackLayout Spacing="8" Padding="16,0,16,0">
+
+                        <Border BackgroundColor="#F5F5F7" Padding="12,4" StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20"/>
+                            </Border.StrokeShape>
+                            <Entry Placeholder="Search by Transaction ID..."
+                               Text="{Binding SearchText}"
+                               BackgroundColor="Transparent"/>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,30,*" ColumnSpacing="8">
+                            <Border Grid.Column="0" BackgroundColor="#F5F5F7"
+                                Padding="12,4" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <DatePicker Date="{Binding FromDate}" Format="dd/MM/yyyy"
+                                        BackgroundColor="Transparent" HorizontalOptions="Fill"/>
+                            </Border>
+                            <Label Grid.Column="1" Text="to"
+                               VerticalOptions="Center" HorizontalOptions="Center"
+                               TextColor="#666666"/>
+                            <Border Grid.Column="2" BackgroundColor="#F5F5F7"
+                                Padding="12,4" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <DatePicker Date="{Binding ToDate}" Format="dd/MM/yyyy"
+                                        BackgroundColor="Transparent" HorizontalOptions="Fill"/>
+                            </Border>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Button Grid.Column="0" Text="Search"
+                                BackgroundColor="#4ECDC4" TextColor="White"
+                                FontAttributes="Bold" HeightRequest="44" CornerRadius="8"
+                                Command="{Binding LoadTransactionsCommand}"/>
+                            <Button Grid.Column="1" Text="📊 Export"
+                                BackgroundColor="#2ECC71" TextColor="White"
+                                FontAttributes="Bold" HeightRequest="44"
+                                Padding="12,0" CornerRadius="8"
+                                Command="{Binding ExportExcelCommand}"/>
+                        </Grid>
+
+                        <Border BackgroundColor="#F5F5F7" Padding="16,12" StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,*,*">
+                                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding TotalTransactions}"
+                                       FontSize="20" FontAttributes="Bold"
+                                       TextColor="#222222" HorizontalOptions="Center"/>
+                                    <Label Text="Transactions" FontSize="11" TextColor="#666666"
+                                       HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding AverageRevenue,
+                                              Converter={StaticResource PriceFormatConverter},
+                                              ConverterParameter=N0}"
+                                       FontSize="20" FontAttributes="Bold"
+                                       TextColor="#222222" HorizontalOptions="Center"/>
+                                    <Label Text="Avg/Bill" FontSize="11" TextColor="#666666"
+                                       HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding TotalRevenue,
+                                              Converter={StaticResource PriceFormatConverter},
+                                              ConverterParameter=N0}"
+                                       FontSize="20" FontAttributes="Bold"
+                                       TextColor="#4ECDC4" HorizontalOptions="Center"/>
+                                    <Label Text="Total Revenue" FontSize="11" TextColor="#666666"
+                                       HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+
+
+                    </VerticalStackLayout>
+                </CollectionView.Header>
+
                 <CollectionView.EmptyView>
                     <Label Text="No transactions found"
-                           HorizontalOptions="Center" VerticalOptions="Center"
-                           TextColor="#999999" Margin="0,40,0,0" />
+                       HorizontalOptions="Center" VerticalOptions="Center"
+                       TextColor="#999999" Margin="16,40"/>
                 </CollectionView.EmptyView>
+
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Transaction">
-                        <Border Margin="0,0,0,8" Padding="14,12"
-                                BackgroundColor="#F5F5F7" StrokeThickness="0">
+                        <Border Margin="16,0" Padding="14,12"
+                            BackgroundColor="#F5F5F7" StrokeThickness="0">
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10" />
+                                <RoundRectangle CornerRadius="10"/>
                             </Border.StrokeShape>
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionHistoryViewModel}}, Path=ViewDetailCommand}"
-                                    CommandParameter="{Binding .}" />
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TransactionHistoryViewModel}}, Path=ViewDetailCommand}"
+                                CommandParameter="{Binding .}"/>
                             </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="*,Auto">
                                 <VerticalStackLayout Grid.Column="0" Spacing="3">
                                     <Label Text="{Binding TransactionId}"
-                                           FontSize="14" FontAttributes="Bold"
-                                           TextColor="#222222" />
+                                       FontSize="14" FontAttributes="Bold" TextColor="#222222"/>
                                     <Label Text="{Binding Timestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
-                                           FontSize="12" TextColor="#666666" />
+                                       FontSize="12" TextColor="#666666"/>
                                 </VerticalStackLayout>
                                 <Label Grid.Column="1"
-                                       Text="{Binding GrandTotal, Converter={StaticResource PriceFormatConverter}}"
-                                       FontSize="16" FontAttributes="Bold"
-                                       TextColor="#4ECDC4" VerticalOptions="Center" />
+                                   Text="{Binding GrandTotal, Converter={StaticResource PriceFormatConverter}}"
+                                   FontSize="16" FontAttributes="Bold"
+                                   TextColor="#4ECDC4" VerticalOptions="Center"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+
             </CollectionView>
         </RefreshView>
-
     </Grid>
 </ContentPage>
