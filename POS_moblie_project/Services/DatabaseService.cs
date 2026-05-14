@@ -90,8 +90,8 @@ public class DatabaseService
                 new AppSetting("password_hash", string.Empty),
                 new AppSetting("vat_enabled", "false"),
                 new AppSetting("vat_rate", "7"),
-                new AppSetting("show_currency_symbol", "true"),   // เพิ่ม
-                new AppSetting("currency_symbol", "฿"),           // เพิ่ม
+                new AppSetting("show_currency_symbol", "true"),
+                new AppSetting("currency_symbol", "฿"),
             };
             foreach (var s in defaults)
                 await _database.InsertAsync(s);
@@ -232,7 +232,7 @@ public class DatabaseService
     // Transaction methods
     // ============================================
     public async Task<int> CreateTransactionAsync(
-    Transaction transaction, List<TransactionItem> items)
+        Transaction transaction, List<TransactionItem> items)
     {
         await EnsureInitializedAsync();
 
@@ -271,7 +271,6 @@ public class DatabaseService
         var today = DateTime.Now;
         var datePrefix = today.ToString("yyyyMMdd");
 
-        // นับจำนวน transaction ของวันนี้
         var startOfDay = today.Date;
         var endOfDay = today.Date.AddDays(1);
 
@@ -280,7 +279,6 @@ public class DatabaseService
                                                    && t.Timestamp < endOfDay)
                                           .CountAsync();
 
-        // เลขที่คำสั่งซื้อเริ่มที่ 0001
         var orderNumber = (countToday + 1).ToString("D4");
 
         return $"{datePrefix}{orderNumber}";
@@ -293,9 +291,13 @@ public class DatabaseService
         DateTime from, DateTime to)
     {
         await EnsureInitializedAsync();
+
+        var fromDate = from.Date;
+        var toDate = to.Date.AddDays(1).AddTicks(-1); // ✅ ครอบคลุมถึง 23:59:59.999
+
         return await _database!.Table<Transaction>()
-                               .Where(t => t.Timestamp >= from
-                                        && t.Timestamp <= to)
+                               .Where(t => t.Timestamp >= fromDate
+                                        && t.Timestamp <= toDate)
                                .OrderByDescending(t => t.Timestamp)
                                .ToListAsync();
     }
@@ -318,14 +320,15 @@ public class DatabaseService
     {
         await EnsureInitializedAsync();
 
-        // Get transaction IDs within date range first
+        var fromDate = from.Date;
+        var toDate = to.Date.AddDays(1).AddTicks(-1); // ✅ ครอบคลุมถึง 23:59:59.999
+
         var transactions = await _database!.Table<Transaction>()
-                                           .Where(t => t.Timestamp >= from
-                                                    && t.Timestamp <= to)
+                                           .Where(t => t.Timestamp >= fromDate
+                                                    && t.Timestamp <= toDate)
                                            .ToListAsync();
         var transactionIds = transactions.Select(t => t.Id).ToList();
 
-        // Get items for this product within those transactions
         var allItems = await _database!.Table<TransactionItem>()
                                        .Where(i => i.ProductId == productId)
                                        .ToListAsync();
@@ -338,9 +341,12 @@ public class DatabaseService
     {
         await EnsureInitializedAsync();
 
+        var fromDate = from.Date;
+        var toDate = to.Date.AddDays(1).AddTicks(-1); // ✅ ครอบคลุมถึง 23:59:59.999
+
         var transactions = await _database!.Table<Transaction>()
-                                           .Where(t => t.Timestamp >= from
-                                                    && t.Timestamp <= to)
+                                           .Where(t => t.Timestamp >= fromDate
+                                                    && t.Timestamp <= toDate)
                                            .ToListAsync();
         var transactionIds = transactions.Select(t => t.Id).ToList();
 
