@@ -32,12 +32,12 @@ public partial class BarcodeScannerPage : ContentPage
         // ถ้าออกจากหน้าไปแล้วระหว่าง delay ให้หยุด
         if (_isLeavingPage) return;
 
-        SetStatus("🔒 กำลังขอสิทธิ์กล้อง...", "White");
+        SetStatus("🔒 Requesting camera permission...", "White");
 
         var status = await Permissions.RequestAsync<Permissions.Camera>();
         if (status != PermissionStatus.Granted)
         {
-            SetStatus("❌ ไม่ได้รับสิทธิ์กล้อง", "Red");
+            SetStatus("❌ Camera permission denied", "Red");
             await DisplayAlert("Permission Denied",
                 "Camera permission is required to scan barcodes.", "OK");
             _isLeavingPage = true;
@@ -45,7 +45,7 @@ public partial class BarcodeScannerPage : ContentPage
             return;
         }
 
-        SetStatus("📷 กล้องพร้อม — เล็งไปที่บาร์โค้ด", "White");
+        SetStatus("📷 Camera ready — Point at the barcode", "White");
         InitializeCamera();
     }
 
@@ -74,7 +74,7 @@ public partial class BarcodeScannerPage : ContentPage
         BarcodeReader.CameraLocation = CameraLocation.Rear;
         BarcodeReader.IsEnabled = true;
         BarcodeReader.IsDetecting = true;
-        SetStatus("🔍 กำลังสแกน...", "White");
+        SetStatus("🔍 Scanning...", "White");
     }
 
     protected override void OnDisappearing()
@@ -119,7 +119,14 @@ public partial class BarcodeScannerPage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            ResultLabel.Text = $"อ่านได้: {value}";
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ResultLabel.Text = string.Empty;
+            }
+            else
+            {
+                ResultLabel.Text = $"Scanned successfully: {value}";
+            }
         });
     }
 
@@ -134,15 +141,15 @@ public partial class BarcodeScannerPage : ContentPage
         _hasScanned = true;
         BarcodeReader.IsDetecting = false;
 
-        SetStatus("✅ อ่านได้แล้ว — กรุณายืนยัน", "Green");
+        SetStatus("✅ Barcode detected successfully — Please confirm", "Green");
         SetResult(first.Value);
 
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             var confirm = await DisplayAlert(
-                "ยืนยันบาร์โค้ด",
-                $"อ่านได้: {first.Value}\nใช้ค่านี้หรือไม่?",
-                "ยืนยัน", "สแกนใหม่");
+                "Confirm barcode",
+                $"Read successfully: {first.Value}\nUse this value?",
+                "Confirm", "Scan again");
 
             if (confirm)
             {
@@ -163,7 +170,7 @@ public partial class BarcodeScannerPage : ContentPage
         try
         {
             BarcodeReader.IsDetecting = false;
-            SetStatus("🖼 กำลังเปิดรูปภาพ...", "White");
+            SetStatus("🖼 Opening image...", "White");
 
             var result = await MediaPicker.Default.PickPhotoAsync();
             if (result == null)
@@ -172,18 +179,18 @@ public partial class BarcodeScannerPage : ContentPage
                 return;
             }
 
-            SetStatus("🔎 กำลังอ่านบาร์โค้ดจากรูป...", "White");
+            SetStatus("🔎 Reading barcode from image...", "White");
             var scannedValue = await DecodeImageAsync(result);
 
             if (!string.IsNullOrWhiteSpace(scannedValue))
             {
-                SetStatus("✅ อ่านได้แล้ว — กรุณายืนยัน", "Green");
+                SetStatus("✅ Barcode read successfully — Please confirm", "Green");
                 SetResult(scannedValue);
 
                 var confirm = await DisplayAlert(
-                    "ยืนยันบาร์โค้ด",
-                    $"อ่านได้: {scannedValue}\nใช้ค่านี้หรือไม่?",
-                    "ยืนยัน", "สแกนใหม่");
+                    "Confirm barcode",
+                    $"Read successfully: {scannedValue}\nUse this value?",
+                    "Confirm", "Scan again");
 
                 if (confirm)
                 {
@@ -199,7 +206,7 @@ public partial class BarcodeScannerPage : ContentPage
             }
             else
             {
-                SetStatus("❌ ไม่พบบาร์โค้ดในรูปภาพ", "Red");
+                SetStatus("❌ No barcode found in the image", "Red");
                 await DisplayAlert("Not Found",
                     "No barcode found in the selected image.", "OK");
                 ResetForRescan();

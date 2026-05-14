@@ -47,7 +47,7 @@
             <!-- Status label บนกรอบ -->
             <Label x:Name="StatusLabel"
                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-                   Text="🔍 กำลังเปิดกล้อง..."
+                   Text="🔍 Opening camera..."
                    TextColor="White"
                    FontSize="14"
                    HorizontalOptions="Center"
