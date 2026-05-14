@@ -36,6 +36,12 @@ public partial class TransactionHistoryViewModel : ObservableObject
     [ObservableProperty]
     private decimal totalRevenue;
 
+    [ObservableProperty] private string _activePeriod = string.Empty;
+
+    public bool IsTodayActive => ActivePeriod == "Today";
+    public bool IsThisWeekActive => ActivePeriod == "ThisWeek";
+    public bool IsThisMonthActive => ActivePeriod == "ThisMonth";
+
     public TransactionHistoryViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
@@ -126,5 +132,36 @@ public partial class TransactionHistoryViewModel : ObservableObject
             await Application.Current.MainPage.DisplayAlert(
                 "Export Failed", ex.Message, "OK");
         }
+    }
+
+    [RelayCommand]
+    private async Task SetPeriod(string period)
+    {
+        var today = DateTime.Today;
+
+        switch (period)
+        {
+            case "Today":
+                FromDate = today;
+                ToDate = today;
+                break;
+            case "ThisWeek":
+                int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+                FromDate = today.AddDays(-diff);
+                ToDate = FromDate.AddDays(6);
+                break;
+            case "ThisMonth":
+                FromDate = new DateTime(today.Year, today.Month, 1);
+                ToDate = FromDate.AddMonths(1).AddDays(-1);
+                break;
+        }
+
+        ActivePeriod = ActivePeriod == period ? string.Empty : period;
+
+        OnPropertyChanged(nameof(IsTodayActive));
+        OnPropertyChanged(nameof(IsThisWeekActive));
+        OnPropertyChanged(nameof(IsThisMonthActive));
+
+        await LoadTransactionsCommand.ExecuteAsync(null);
     }
 }

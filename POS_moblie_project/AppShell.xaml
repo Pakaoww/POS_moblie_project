@@ -77,7 +77,16 @@
                       ContentTemplate="{DataTemplate pos:POSPage}"/>
     </FlyoutItem>
 
-    <FlyoutItem Title="Transactions" Route="transactions">
+    <FlyoutItem Title="Stock" Route="stock">
+        <FlyoutItem.Icon>
+            <FontImageSource Glyph="&#xf1b2;" FontFamily="FontAwesome"
+                         Color="{StaticResource NavIcon}" Size="18"/>
+        </FlyoutItem.Icon>
+        <ShellContent Route="StockPage"
+                  ContentTemplate="{DataTemplate stock:StockPage}"/>
+    </FlyoutItem>
+    
+    <FlyoutItem Title="Transactions History" Route="transactions">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf362;" FontFamily="FontAwesome"
                              Color="{StaticResource NavIcon}" Size="18"/>
@@ -86,16 +95,7 @@
                       ContentTemplate="{DataTemplate transactions:TransactionHistoryPage}"/>
     </FlyoutItem>
 
-    <FlyoutItem Title="Stock" Route="stock">
-        <FlyoutItem.Icon>
-            <FontImageSource Glyph="&#xf1b2;" FontFamily="FontAwesome"
-                             Color="{StaticResource NavIcon}" Size="18"/>
-        </FlyoutItem.Icon>
-        <ShellContent Route="StockPage"
-                      ContentTemplate="{DataTemplate stock:StockPage}"/>
-    </FlyoutItem>
-
-    <FlyoutItem Title="Reports" Route="reports">
+    <FlyoutItem Title="Sales Reports" Route="reports">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="&#xf080;" FontFamily="FontAwesome"
                              Color="{StaticResource NavIcon}" Size="18"/>
