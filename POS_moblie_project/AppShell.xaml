@@ -127,7 +127,7 @@
     <!-- ===================== -->
     <Shell.ItemTemplate>
         <DataTemplate>
-            <Grid BackgroundColor="Transparent"
+            <Grid BackgroundColor="{StaticResource BorderColor}"
                   HeightRequest="56" Padding="12,4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="46"/>

@@ -4,7 +4,7 @@
              x:Class="POS_moblie_project.Views.Splash.SplashPage"
              Shell.NavBarIsVisible="False"
              NavigationPage.HasNavigationBar="False"
-             BackgroundColor="#12121A">
+             BackgroundColor="#bbdc8c">
 
     <Grid RowDefinitions="*,Auto,*" Padding="40">
 
@@ -14,14 +14,14 @@
                     HeightRequest="100"
                     Padding="0"
                     StrokeThickness="0"
-                    BackgroundColor="#1C1C28"
+                    BackgroundColor="#bbdc8c"
                     HorizontalOptions="Center">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="24" />
                 </Border.StrokeShape>
                 <Image Source="logo.png"
-                       WidthRequest="60"
-                       HeightRequest="60"
+                       WidthRequest="200"
+                       HeightRequest="200"
                        Aspect="AspectFit"
                        HorizontalOptions="Center"
                        VerticalOptions="Center" />
@@ -36,12 +36,12 @@
 
             <Label Text="Management System"
                    FontSize="13"
-                   TextColor="#5A5A70"
+                   TextColor="{StaticResource BlackColor}"
                    CharacterSpacing="1"
                    HorizontalOptions="Center" />
 
             <ActivityIndicator IsRunning="True"
-                               Color="#4ECDC4"
+                               Color="{StaticResource BorderColor}"
                                Margin="0,30,0,0"
                                HorizontalOptions="Center" />
 
