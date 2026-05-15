@@ -227,7 +227,7 @@ public partial class ProductDetailViewModel : ObservableObject
 
         var confirm = await Application.Current!.MainPage!.DisplayAlert(
             "Delete Product",
-            $"Permanently delete \"{ProductName}\" and all its lots?",
+            $"Delete \"{ProductName}\" and all its lots?",
             "Delete", "Cancel");
         if (!confirm) return;
 

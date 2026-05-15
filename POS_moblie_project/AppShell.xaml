@@ -104,6 +104,15 @@
                       ContentTemplate="{DataTemplate reports:SalesReportPage}"/>
     </FlyoutItem>
 
+    <FlyoutItem Title="Profit Report" Route="profitreport">
+        <FlyoutItem.Icon>
+            <FontImageSource Glyph="📊" FontFamily="FontAwesome"
+                             Color="{StaticResource NavIcon}" Size="18"/>
+        </FlyoutItem.Icon>
+        <ShellContent Route="ProfitReportPage"
+                      ContentTemplate="{DataTemplate reports:ProfitReportPage}"/>
+    </FlyoutItem>
+
     <FlyoutItem Title="Settings" Route="settings">
         <FlyoutItem.Icon>
             <FontImageSource Glyph="⚙️" FontFamily="FontAwesome"

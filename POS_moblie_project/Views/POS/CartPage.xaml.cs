@@ -73,7 +73,7 @@ public partial class CartPage : ContentPage
         using var output = context.ContentResolver.OpenOutputStream(uri)!;
         await imageStream.CopyToAsync(output);
 
-        await Shell.Current.DisplayAlert("Saved ✓", $"บันทึกใน Pictures/POS\n{fileName}", "OK");
+        await Shell.Current.DisplayAlert("Saved ✓", $"Saved in Pictures/POS\n{fileName}", "OK");
         return true;
     }
 #endif

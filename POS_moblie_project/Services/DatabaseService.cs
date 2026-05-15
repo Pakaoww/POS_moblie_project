@@ -84,6 +84,7 @@ public class DatabaseService
                 new AppSetting("vat_rate", "7"),
                 new AppSetting("show_currency_symbol", "true"),
                 new AppSetting("currency_symbol", "฿"),
+                new AppSetting("dashboard_timeframe", "weekly"),
             };
             foreach (var s in defaults)
                 await _database.InsertAsync(s);
@@ -216,7 +217,14 @@ public class DatabaseService
     public async Task<int> DeleteProductAsync(int id)
     {
         await EnsureInitializedAsync();
-        return await _database!.DeleteAsync<Product>(id);
+        var product = await _database!.GetAsync<Product>(id);
+        if (product != null)
+        {
+            product.IsDeleted = true;
+            product.UpdatedAt = DateTime.Now;
+            return await _database.UpdateAsync(product);
+        }
+        return 0;
     }
 
     public async Task ToggleProductVisibilityAsync(int id)
@@ -318,7 +326,13 @@ public class DatabaseService
     public async Task<int> DeleteLotAsync(int id)
     {
         await EnsureInitializedAsync();
-        return await _database!.DeleteAsync<ProductLot>(id);
+        var lot = await _database!.GetAsync<ProductLot>(id);
+        if (lot != null)
+        {
+            lot.IsDeleted = true;
+            return await _database.UpdateAsync(lot);
+        }
+        return 0;
     }
 
     // ============================================

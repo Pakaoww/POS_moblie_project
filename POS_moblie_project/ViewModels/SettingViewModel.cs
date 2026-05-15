@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.Input;
 using POS_moblie_project.Services;
 
+using System.Collections.ObjectModel;
+
 namespace POS_moblie_project.ViewModels.Settings;
 
 public partial class SettingsViewModel : ObservableObject
@@ -51,6 +53,9 @@ public partial class SettingsViewModel : ObservableObject
         ShowCurrencySymbol = (await _databaseService.GetSettingAsync("show_currency_symbol")) != "false";
         var sym = await _databaseService.GetSettingAsync("currency_symbol");
         CurrencySymbol = string.IsNullOrWhiteSpace(sym) ? "฿" : sym;
+
+        var tf = await _databaseService.GetSettingAsync("dashboard_timeframe");
+        SelectedTimeframe = TimeframeOptions.FirstOrDefault(o => o.Key == tf) ?? TimeframeOptions[0];
     }
 
     partial void OnVatEnabledChanged(bool value)
@@ -64,6 +69,27 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnCurrencySymbolChanged(string value)
         => _ = _currencyService.SetSymbolAsync(value);
+
+    // ════════════════════════════════════════════════════════
+    //  DASHBOARD TIMEFRAME
+    // ════════════════════════════════════════════════════════
+
+    public ObservableCollection<TimeframeOption> TimeframeOptions { get; } = new()
+    {
+        new("weekly", "Weekly (7 days)"),
+        new("monthly", "Monthly (30 days)"),
+        new("quarterly", "Quarterly (90 days)"),
+        new("yearly", "Yearly (365 days)"),
+    };
+
+    [ObservableProperty]
+    private TimeframeOption? _selectedTimeframe;
+
+    partial void OnSelectedTimeframeChanged(TimeframeOption? value)
+    {
+        if (value != null)
+            _ = _databaseService.SetSettingAsync("dashboard_timeframe", value.Key);
+    }
 
     [RelayCommand]
     private void IncreaseVat()
@@ -182,3 +208,5 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void ToggleShowCurrencySymbol() => ShowCurrencySymbol = !ShowCurrencySymbol;
 }
+
+public record TimeframeOption(string Key, string DisplayName);

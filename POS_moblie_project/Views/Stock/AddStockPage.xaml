@@ -5,14 +5,14 @@
              xmlns:models="clr-namespace:POS_moblie_project.Models"
              x:Class="POS_moblie_project.Views.Stock.AddStockPage"
              x:DataType="vm:AddStockViewModel"
-             Title="เพิ่มสต็อคสินค้าเดิม"
+             Title="Add Stock"
              BackgroundColor="White">
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="14">
 
             <!-- Search section -->
-            <Label Text="ค้นหาสินค้า" FontSize="15" FontAttributes="Bold"
+            <Label Text="Search Products" FontSize="15" FontAttributes="Bold"
                    TextColor="#222222"/>
 
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
@@ -21,7 +21,7 @@
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="20"/>
                     </Border.StrokeShape>
-                    <Entry Placeholder="ชื่อสินค้า หรือ Product Code..."
+                    <Entry Placeholder="Product name or code..."
                            Text="{Binding SearchText}"
                            BackgroundColor="Transparent"/>
                 </Border>
@@ -32,15 +32,27 @@
                         Command="{Binding ScanBarcodeCommand}"/>
             </Grid>
 
-            <!-- Search results -->
-            <CollectionView ItemsSource="{Binding SearchResults}"
+            <!-- Category filter -->
+            <Picker Title="Filter by category"
+                    ItemsSource="{Binding CategoryFilters}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedCategory}"
+                    BackgroundColor="#F5F5F7"/>
+
+            <!-- Full product list -->
+            <CollectionView ItemsSource="{Binding AllProducts}"
                             SelectionMode="None"
-                            MaximumHeightRequest="200"
-                            IsVisible="{Binding SearchResults.Count, Converter={StaticResource NullToVisibilityConverter}}">
+                            MaximumHeightRequest="240"
+                            IsVisible="{Binding HasSelectedProduct, Converter={StaticResource InverseBoolConverter}}">
+                <CollectionView.EmptyView>
+                    <Label Text="No products found"
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           TextColor="#999999" Margin="0,20"/>
+                </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Product">
                         <Border Margin="0,0,0,4" Padding="12,10"
-                                BackgroundColor="#EEF9EE" StrokeThickness="0">
+                                BackgroundColor="#F5F5F7" StrokeThickness="0">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="8"/>
                             </Border.StrokeShape>
@@ -118,12 +130,12 @@
                      Margin="0,4"
                      IsVisible="{Binding HasSelectedProduct}"/>
 
-            <Label Text="— รายละเอียด Lot ใหม่ —"
+            <Label Text="— New Lot Details —"
                    FontSize="13" FontAttributes="Bold" TextColor="#4ECDC4"
                    HorizontalOptions="Center"
                    IsVisible="{Binding HasSelectedProduct}"/>
 
-            <Label Text="Cost Price (ต้นทุน)" FontSize="13" TextColor="#666666"
+            <Label Text="Cost Price" FontSize="13" TextColor="#666666"
                    IsVisible="{Binding HasSelectedProduct}"/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0"
                     IsVisible="{Binding HasSelectedProduct}">
@@ -134,8 +146,9 @@
                        BackgroundColor="Transparent"/>
             </Border>
 
-            <Label Text="Quantity (จำนวน)" FontSize="13" TextColor="#666666"
-                   IsVisible="{Binding HasSelectedProduct}"/>
+            <Label Text="Quantity" FontSize="13" TextColor="#666666"
+                   IsVisible="{Binding HasSelectedProduct}"
+/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0"
                     IsVisible="{Binding HasSelectedProduct}">
                 <Border.StrokeShape>

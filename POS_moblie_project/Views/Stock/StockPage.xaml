@@ -196,13 +196,13 @@
         <Grid Grid.Row="4" ColumnDefinitions="*,*"
               ColumnSpacing="10" Padding="0,10,0,16">
             <Button Grid.Column="0"
-                    Text="+ เพิ่มสต็อคสินค้าเดิม"
+                    Text="+ Add Stock"
                     BackgroundColor="#4ECDC4" TextColor="White"
                     FontSize="13" FontAttributes="Bold"
                     HeightRequest="46" CornerRadius="8"
                     Command="{Binding AddStockCommand}"/>
             <Button Grid.Column="1"
-                    Text="+ เพิ่มสินค้าใหม่"
+                    Text="+ New Product"
                     BackgroundColor="#a9d888" TextColor="White"
                     FontSize="13" FontAttributes="Bold"
                     HeightRequest="46" CornerRadius="8"

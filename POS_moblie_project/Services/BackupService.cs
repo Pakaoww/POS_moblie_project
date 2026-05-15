@@ -257,6 +257,61 @@ public class BackupService
         }
     }
 
+    public async Task<string> ExportProfitReportAsync(
+        List<ProfitReportEntry> entries,
+        decimal totalIncome, decimal totalExpense, decimal totalProfit,
+        DateTime from, DateTime to)
+    {
+        using var workbook = new XLWorkbook();
+        var sheet = workbook.Worksheets.Add("Profit Report");
+
+        sheet.Cell(1, 1).Value = $"Profit Report: {from:dd/MM/yyyy} - {to:dd/MM/yyyy}";
+        sheet.Cell(1, 1).Style.Font.Bold = true;
+
+        sheet.Cell(3, 1).Value = "ID";
+        sheet.Cell(3, 2).Value = "Description";
+        sheet.Cell(3, 3).Value = "Date";
+        sheet.Cell(3, 4).Value = "Type";
+        sheet.Cell(3, 5).Value = "Income";
+        sheet.Cell(3, 6).Value = "Expense";
+        sheet.Row(3).Style.Font.Bold = true;
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            var e = entries[i];
+            sheet.Cell(i + 4, 1).Value = e.Id;
+            sheet.Cell(i + 4, 2).Value = e.Description;
+            sheet.Cell(i + 4, 3).Value = e.Timestamp.ToString("dd/MM/yyyy HH:mm");
+            sheet.Cell(i + 4, 4).Value = e.EntryType;
+            sheet.Cell(i + 4, 5).Value = (double)e.IncomeAmount;
+            sheet.Cell(i + 4, 6).Value = (double)e.ExpenseAmount;
+        }
+
+        var lastRow = entries.Count + 5;
+        sheet.Cell(lastRow, 1).Value = "TOTAL INCOME";
+        sheet.Cell(lastRow, 5).Value = (double)totalIncome;
+        sheet.Row(lastRow).Style.Font.Bold = true;
+
+        var profitRow = lastRow + 1;
+        sheet.Cell(profitRow, 1).Value = "TOTAL EXPENSE";
+        sheet.Cell(profitRow, 6).Value = (double)totalExpense;
+        sheet.Row(profitRow).Style.Font.Bold = true;
+
+        var netRow = profitRow + 1;
+        sheet.Cell(netRow, 1).Value = "NET PROFIT";
+        sheet.Cell(netRow, 5).Value = (double)totalProfit;
+        sheet.Row(netRow).Style.Font.Bold = true;
+
+        sheet.Columns().AdjustToContents();
+
+        var fileName = $"ProfitReport_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+        var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+        using var stream = File.Create(filePath);
+        workbook.SaveAs(stream);
+
+        return filePath;
+    }
+
     private async Task<List<TransactionItem>> GetAllTransactionItemsAsync()
         => await _databaseService.GetAllTransactionItemsAsync();
 }

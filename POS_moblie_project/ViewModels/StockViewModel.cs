@@ -54,7 +54,8 @@ public partial class StockViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            var rawProducts = await _databaseService.GetAllProductsAsync();
+            var rawProducts = (await _databaseService.GetAllProductsAsync())
+                .Where(p => !p.IsDeleted).ToList();
             _allCategories = await _databaseService.GetAllCategoriesAsync();
             _allLots = await _databaseService.GetAllLotsAsync();
 
@@ -149,7 +150,18 @@ public partial class StockViewModel : ObservableObject
 
     [RelayCommand]
     private async Task AddStockAsync()
-        => await Shell.Current.GoToAsync("AddStockPage");
+    {
+        var products = await _databaseService.GetAllProductsAsync();
+        if (products.Count == 0)
+        {
+            await Application.Current!.MainPage!.DisplayAlert(
+                "No Products",
+                "There are no existing products, please add new products first.",
+                "OK");
+            return;
+        }
+        await Shell.Current.GoToAsync("AddStockPage");
+    }
 
     [RelayCommand]
     private async Task EditProductAsync(ProductWithStock item)
@@ -198,7 +210,7 @@ public partial class StockViewModel : ObservableObject
 
         var confirm = await Application.Current!.MainPage!.DisplayAlert(
             "Delete Product",
-            $"Permanently delete \"{item.Name}\" and all its lots?",
+            $"Delete \"{item.Name}\" and all its lots?",
             "Delete", "Cancel");
         if (!confirm) return;
 

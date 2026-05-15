@@ -69,7 +69,7 @@
             </Border>
 
             <!-- Sale Price -->
-            <Label Text="Sale Price (ราคาขาย)" FontSize="13" TextColor="#666666"/>
+            <Label Text="Sale Price" FontSize="13" TextColor="#666666"/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="8"/>
@@ -83,12 +83,12 @@
                      Margin="0,10"
                      IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"/>
 
-            <Label Text="— รายละเอียด Lot แรก —"
+            <Label Text="— First Lot Details —"
                    FontSize="13" FontAttributes="Bold" TextColor="#4ECDC4"
                    HorizontalOptions="Center"
                    IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"/>
 
-            <Label Text="Cost Price (ต้นทุน)" FontSize="13" TextColor="#666666"
+            <Label Text="Cost Price" FontSize="13" TextColor="#666666"
                    IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0"
                     IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}">
@@ -99,7 +99,7 @@
                        BackgroundColor="Transparent"/>
             </Border>
 
-            <Label Text="Initial Quantity (จำนวน)" FontSize="13" TextColor="#666666"
+            <Label Text="Initial Quantity" FontSize="13" TextColor="#666666"
                    IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0"
                     IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}">

@@ -222,6 +222,43 @@
                 </StackLayout>
             </Border>
 
+            <!-- DASHBOARD -->
+            <Label Text="Dashboard"
+                   TextColor="#222222" FontAttributes="Bold"
+                   Margin="0,0,0,8"/>
+
+            <Border StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0"
+                    BackgroundColor="White"
+                    Margin="0,0,0,16">
+                <Border.Shadow>
+                    <Shadow Brush="#e3e3e3" Offset="0,4" Radius="12" Opacity="0.6"/>
+                </Border.Shadow>
+                <StackLayout Spacing="0" Padding="16,14">
+
+                    <StackLayout Orientation="Horizontal" Spacing="12">
+                        <Label Text="📊" FontSize="20" VerticalOptions="Center"/>
+                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Graph Time Frame" TextColor="#222222" FontSize="14"/>
+                            <Label Text="Select the sales chart time range" TextColor="#888888" FontSize="12"/>
+                        </StackLayout>
+                    </StackLayout>
+
+                    <Border BackgroundColor="#F5F5F7"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="12,4"
+                            Margin="0,10,0,0">
+                        <Picker ItemsSource="{Binding TimeframeOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding SelectedTimeframe}"
+                                BackgroundColor="Transparent"
+                                FontSize="14"/>
+                    </Border>
+
+                </StackLayout>
+            </Border>
+
             <!-- DATA MANAGEMENT -->
             <Label Text="Data Management"
                    TextColor="#222222" FontAttributes="Bold"

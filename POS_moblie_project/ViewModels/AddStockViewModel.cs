@@ -10,13 +10,23 @@ public partial class AddStockViewModel : ObservableObject
 {
     private readonly DatabaseService _databaseService;
     private Product? _selectedProduct;
+    private List<Product> _allProducts = new();
 
-    // ── Search state ─────────────────────────────────────
+    // ── Search & filter ──────────────────────────────────
     [ObservableProperty]
     private string searchText = string.Empty;
 
     [ObservableProperty]
     private ObservableCollection<Product> searchResults = new();
+
+    [ObservableProperty]
+    private ObservableCollection<Product> allProducts = new();
+
+    [ObservableProperty]
+    private ObservableCollection<Category> categoryFilters = new();
+
+    [ObservableProperty]
+    private Category? selectedCategory;
 
     [ObservableProperty]
     private bool isSearching;
@@ -52,30 +62,43 @@ public partial class AddStockViewModel : ObservableObject
         _databaseService = ServiceHelper.GetService<DatabaseService>();
     }
 
-    partial void OnSearchTextChanged(string value)
+    [RelayCommand]
+    public async Task InitializeAsync()
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            SearchResults.Clear();
-            return;
-        }
-        _ = SearchProductsAsync(value);
+        _allProducts = (await _databaseService.GetAllProductsAsync())
+            .Where(p => !p.IsDeleted).ToList();
+
+        var cats = await _databaseService.GetAllCategoriesAsync();
+        CategoryFilters.Clear();
+        CategoryFilters.Add(new Category("All", -1));
+        foreach (var c in cats)
+            CategoryFilters.Add(c);
+
+        ApplyFilters();
     }
 
-    private async Task SearchProductsAsync(string query)
+    partial void OnSearchTextChanged(string value) => ApplyFilters();
+
+    partial void OnSelectedCategoryChanged(Category? value) => ApplyFilters();
+
+    private void ApplyFilters()
     {
-        IsSearching = true;
-        try
+        var filtered = _allProducts.AsEnumerable();
+
+        if (SelectedCategory != null && SelectedCategory.SortOrder != -1)
+            filtered = filtered.Where(p => p.CategoryId == SelectedCategory.Id);
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
         {
-            var results = await _databaseService.SearchProductsAsync(query);
-            SearchResults.Clear();
-            foreach (var p in results)
-                SearchResults.Add(p);
+            var s = SearchText.Trim().ToLowerInvariant();
+            filtered = filtered.Where(p =>
+                p.Name.ToLowerInvariant().Contains(s) ||
+                p.ProductCode.ToLowerInvariant().Contains(s));
         }
-        finally
-        {
-            IsSearching = false;
-        }
+
+        AllProducts.Clear();
+        foreach (var p in filtered)
+            AllProducts.Add(p);
     }
 
     [RelayCommand]
@@ -107,10 +130,6 @@ public partial class AddStockViewModel : ObservableObject
         // Reset quantity
         Quantity = 0;
 
-        // Clear search
-        SearchText = string.Empty;
-        SearchResults.Clear();
-
         HasSelectedProduct = true;
     }
 
@@ -131,7 +150,6 @@ public partial class AddStockViewModel : ObservableObject
         var scannedValue = await tcs.Task;
         if (!string.IsNullOrWhiteSpace(scannedValue))
         {
-            // Auto-search with scanned barcode
             var product = await _databaseService.GetProductByCodeAsync(scannedValue);
             if (product != null)
                 await SelectProductAsync(product);
@@ -152,8 +170,6 @@ public partial class AddStockViewModel : ObservableObject
         ImagePath = string.Empty;
         CostPrice = 0;
         Quantity = 0;
-        SearchText = string.Empty;
-        SearchResults.Clear();
     }
 
     [RelayCommand]
@@ -184,7 +200,6 @@ public partial class AddStockViewModel : ObservableObject
             var lot = new ProductLot(lotId, _selectedProduct.Id, CostPrice, Quantity);
             await _databaseService.CreateLotAsync(lot);
 
-            // เปิด IsVisible ถ้าปิดอยู่
             if (!_selectedProduct.IsVisible)
             {
                 _selectedProduct.IsVisible = true;

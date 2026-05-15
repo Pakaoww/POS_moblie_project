@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:POS_moblie_project.ViewModels"
+             xmlns:models="clr-namespace:POS_moblie_project.Models"
+             xmlns:microcharts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+             x:Class="POS_moblie_project.Views.Reports.ProfitReportPage"
+             x:DataType="vm:ProfitReportViewModel"
+             Title="Profit Report"
+             BackgroundColor="White">
+    <Grid RowDefinitions="*,Auto" RowSpacing="0" BackgroundColor="White"
+        Padding="0,0,0,0">
+        <RefreshView IsRefreshing="{Binding IsLoading}"
+                     BackgroundColor="White"
+                     Command="{Binding LoadReportCommand}">
+            <CollectionView ItemsSource="{Binding ReportEntries}"
+                            SelectionMode="None"
+                            BackgroundColor="White">
+
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.Header>
+                    <VerticalStackLayout Spacing="8" Padding="16,16,16,0"
+                                         BackgroundColor="White">
+
+                        <!-- Search -->
+                        <Border BackgroundColor="#F5F5F7" Padding="12,4" StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="20"/>
+                            </Border.StrokeShape>
+                            <Entry Placeholder="Search by ID or description..."
+                                   Text="{Binding SearchText}"
+                                   BackgroundColor="Transparent"/>
+                        </Border>
+
+                        <!-- Presets: This Week, This Month, This Year -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Border Grid.Column="0" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+            BackgroundColor="{Binding IsThisWeekActive, Converter={StaticResource BoolToColorConverter}}"
+            Stroke="{Binding IsThisWeekActive, Converter={StaticResource BoolToColorConverter}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetPeriodCommand}" CommandParameter="ThisWeek"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="This Week" HorizontalOptions="Center" VerticalOptions="Center"
+               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                            </Border>
+
+                            <Border Grid.Column="1" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+            BackgroundColor="{Binding IsThisMonthActive, Converter={StaticResource BoolToColorConverter}}"
+            Stroke="{Binding IsThisMonthActive, Converter={StaticResource BoolToColorConverter}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetPeriodCommand}" CommandParameter="ThisMonth"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="This Month" HorizontalOptions="Center" VerticalOptions="Center"
+               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                            </Border>
+
+                            <Border Grid.Column="2" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+            BackgroundColor="{Binding IsThisYearActive, Converter={StaticResource BoolToColorConverter}}"
+            Stroke="{Binding IsThisYearActive, Converter={StaticResource BoolToColorConverter}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetPeriodCommand}" CommandParameter="ThisYear"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="This Year" HorizontalOptions="Center" VerticalOptions="Center"
+               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- Date pickers -->
+                        <Grid ColumnDefinitions="*,30,*" ColumnSpacing="8">
+                            <Border Grid.Column="0" BackgroundColor="#F5F5F7"
+                                    Padding="12,4" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <DatePicker Date="{Binding FromDate}" Format="dd/MM/yyyy"
+                                            BackgroundColor="Transparent" HorizontalOptions="Fill"/>
+                            </Border>
+                            <Label Grid.Column="1" Text="to"
+                                   VerticalOptions="Center" HorizontalOptions="Center"
+                                   TextColor="#666666"/>
+                            <Border Grid.Column="2" BackgroundColor="#F5F5F7"
+                                    Padding="12,4" StrokeThickness="0">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <DatePicker Date="{Binding ToDate}" Format="dd/MM/yyyy"
+                                            BackgroundColor="Transparent" HorizontalOptions="Fill"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- Search & Export buttons -->
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Button Grid.Column="0" Text="Search"
+                                    BackgroundColor="#a9d888" TextColor="White"
+                                    FontAttributes="Bold" HeightRequest="44" CornerRadius="8"
+                                    Command="{Binding LoadReportCommand}"/>
+                            <Button Grid.Column="1" Text="📊 Export"
+                                    BackgroundColor="#2ECC71" TextColor="White"
+                                    FontAttributes="Bold" HeightRequest="44"
+                                    Padding="12,0" CornerRadius="8"
+                                    Command="{Binding ExportExcelCommand}"/>
+                        </Grid>
+
+                        <!-- Stats card: Income, Expense, Profit -->
+                        <Border BackgroundColor="#F5F5F7" Padding="16,12" StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,*,*">
+                                <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding TotalIncome,
+                                                   Converter={StaticResource PriceFormatConverter},
+                                                   ConverterParameter=N0}"
+                                           FontSize="20" FontAttributes="Bold"
+                                           TextColor="#4ECDC4" HorizontalOptions="Center"/>
+                                    <Label Text="Income" FontSize="11" TextColor="#666666"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding TotalExpense,
+                                                   Converter={StaticResource PriceFormatConverter},
+                                                   ConverterParameter=N0}"
+                                           FontSize="20" FontAttributes="Bold"
+                                           TextColor="#E74C3C" HorizontalOptions="Center"/>
+                                    <Label Text="Expense" FontSize="11" TextColor="#666666"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding TotalProfit,
+                                                   Converter={StaticResource PriceFormatConverter},
+                                                   ConverterParameter=N0}"
+                                           FontSize="20" FontAttributes="Bold"
+                                           TextColor="#222222" HorizontalOptions="Center"/>
+                                    <Label Text="Profit" FontSize="11" TextColor="#666666"
+                                           HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+
+                        <!-- Chart section -->
+                        <Border BackgroundColor="#F5F5F7" Padding="16,12" StrokeThickness="0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="Income vs Expense Trend"
+                                       FontSize="14" FontAttributes="Bold"
+                                       TextColor="#222222"/>
+                                <Grid HeightRequest="220">
+                                    <microcharts:ChartView Chart="{Binding ExpenseChart}"
+                                                           HeightRequest="220"
+                                                           HorizontalOptions="Fill"
+                                                           VerticalOptions="Fill"/>
+                                    <microcharts:ChartView Chart="{Binding IncomeChart}"
+                                                           HeightRequest="220"
+                                                           HorizontalOptions="Fill"
+                                                           VerticalOptions="Fill"/>
+                                </Grid>
+                                <HorizontalStackLayout Spacing="16" HorizontalOptions="Center">
+                                    <HorizontalStackLayout Spacing="4">
+                                        <Border WidthRequest="10" HeightRequest="10"
+                                                BackgroundColor="#4ECDC4" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 5"
+                                                VerticalOptions="Center"/>
+                                        <Label Text="Income" FontSize="11" TextColor="#888888" VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="4">
+                                        <Border WidthRequest="10" HeightRequest="10"
+                                                BackgroundColor="#E74C3C" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 5"
+                                                VerticalOptions="Center"/>
+                                        <Label Text="Expense" FontSize="11" TextColor="#888888" VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Filter toggles -->
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,4,0,0">
+                            <Border Grid.Column="0" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+            BackgroundColor="{Binding IsAllFilterActive, Converter={StaticResource BoolToColorConverter}}"
+            Stroke="{Binding IsAllFilterActive, Converter={StaticResource BoolToColorConverter}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="ALL"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="ALL" HorizontalOptions="Center" VerticalOptions="Center"
+               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                            </Border>
+
+                            <Border Grid.Column="1" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+            BackgroundColor="{Binding IsIncomeFilterActive, Converter={StaticResource BoolToColorConverter}}"
+            Stroke="{Binding IsIncomeFilterActive, Converter={StaticResource BoolToColorConverter}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="Income"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Income" HorizontalOptions="Center" VerticalOptions="Center"
+               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                            </Border>
+
+                            <Border Grid.Column="2" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+            BackgroundColor="{Binding IsExpenseFilterActive, Converter={StaticResource BoolToColorConverter}}"
+            Stroke="{Binding IsExpenseFilterActive, Converter={StaticResource BoolToColorConverter}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="Expense"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Expense" HorizontalOptions="Center" VerticalOptions="Center"
+               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                            </Border>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </CollectionView.Header>
+
+                <CollectionView.EmptyView>
+                    <Label Text="No profit data found"
+                           HorizontalOptions="Center" VerticalOptions="Center"
+                           TextColor="#999999" Margin="16,40"/>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ProfitReportEntry">
+                        <Border Margin="16,0" Padding="14,12"
+                                BackgroundColor="#F5F5F7" StrokeThickness="0"
+                                Opacity="{Binding DisplayOpacity}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                    <Label Text="{Binding DisplayDescription}"
+                                           FontSize="14" FontAttributes="Bold"
+                                           TextColor="#222222"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="1"/>
+                                    <Label Text="{Binding Timestamp, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                           FontSize="12" TextColor="#666666"/>
+                                    <Label Text="{Binding EntryType}"
+                                           FontSize="11" FontAttributes="Bold"
+                                           TextColor="{Binding DisplayTypeColor}"/>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1"
+                                       Text="{Binding DisplayAmount, Converter={StaticResource PriceFormatConverter}}"
+                                       TextColor="{Binding DisplayAmountColor}"
+                                       FontSize="16" FontAttributes="Bold"
+                                       VerticalOptions="Center"
+                                       HorizontalOptions="End"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

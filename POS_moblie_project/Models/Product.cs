@@ -21,6 +21,8 @@ public class Product
 
     public bool IsVisible { get; set; } = true;
 
+    public bool IsDeleted { get; set; } = false;
+
     public string ImagePath { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;

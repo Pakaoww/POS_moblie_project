@@ -449,7 +449,7 @@
                 x:Name="PrintReceiptButton"
                 Command="{Binding PrintReceiptCommand}" />
                 <Button Grid.Column="1"
-                Text="🏠  Back to Home"
+                Text="🏠  Back to POS"
                 BackgroundColor="#4ECDC4" TextColor="White"
                 FontAttributes="Bold" HeightRequest="50" CornerRadius="10"
                 Command="{Binding GoHomeCommand}" />

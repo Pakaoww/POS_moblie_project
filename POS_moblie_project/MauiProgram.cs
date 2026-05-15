@@ -72,6 +72,7 @@ namespace POS_moblie_project
             builder.Services.AddTransient<TransactionDetailViewModel>();
             builder.Services.AddSingleton<SalesReportViewModel>();
             builder.Services.AddTransient<ProductSalesDetailViewModel>();
+            builder.Services.AddSingleton<ProfitReportViewModel>();
 
             // ============================================
             // DI - Pages
@@ -93,6 +94,7 @@ namespace POS_moblie_project
             builder.Services.AddTransient<TransactionDetailPage>();
             builder.Services.AddSingleton<SalesReportPage>();
             builder.Services.AddTransient<ProductSalesDetailPage>();
+            builder.Services.AddSingleton<ProfitReportPage>();
 
             builder.UseMicrocharts();
 
