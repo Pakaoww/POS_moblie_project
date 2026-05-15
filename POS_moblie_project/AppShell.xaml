@@ -61,7 +61,7 @@
 
     <FlyoutItem Title="Dashboard" Route="home" >
         <FlyoutItem.Icon>
-            <FontImageSource Glyph="&#xf015;" FontFamily="FontAwesome"
+            <FontImageSource Glyph="📈" FontFamily="FontAwesome"
                              Color="{StaticResource NavIcon}" Size="18"/>
         </FlyoutItem.Icon>
         <ShellContent Route="HomePage"
@@ -70,7 +70,7 @@
 
     <FlyoutItem Title="POS" Route="pos">
         <FlyoutItem.Icon>
-            <FontImageSource Glyph="&#xf109;" FontFamily="FontAwesome"
+            <FontImageSource Glyph="📠" FontFamily="FontAwesome"
                              Color="{StaticResource NavIcon}" Size="18"/>
         </FlyoutItem.Icon>
         <ShellContent Route="POSPage"
@@ -79,7 +79,7 @@
 
     <FlyoutItem Title="Stock" Route="stock">
         <FlyoutItem.Icon>
-            <FontImageSource Glyph="&#xf1b2;" FontFamily="FontAwesome"
+            <FontImageSource Glyph="📦" FontFamily="FontAwesome"
                          Color="{StaticResource NavIcon}" Size="18"/>
         </FlyoutItem.Icon>
         <ShellContent Route="StockPage"
@@ -88,7 +88,7 @@
     
     <FlyoutItem Title="Transactions History" Route="transactions">
         <FlyoutItem.Icon>
-            <FontImageSource Glyph="&#xf362;" FontFamily="FontAwesome"
+            <FontImageSource Glyph="📜" FontFamily="FontAwesome"
                              Color="{StaticResource NavIcon}" Size="18"/>
         </FlyoutItem.Icon>
         <ShellContent Route="TransactionHistoryPage"
@@ -97,7 +97,7 @@
 
     <FlyoutItem Title="Sales Reports" Route="reports">
         <FlyoutItem.Icon>
-            <FontImageSource Glyph="&#xf080;" FontFamily="FontAwesome"
+            <FontImageSource Glyph="📄" FontFamily="FontAwesome"
                              Color="{StaticResource NavIcon}" Size="18"/>
         </FlyoutItem.Icon>
         <ShellContent Route="SalesReportPage"
@@ -106,7 +106,7 @@
 
     <FlyoutItem Title="Settings" Route="settings">
         <FlyoutItem.Icon>
-            <FontImageSource Glyph="&#xf013;" FontFamily="FontAwesome"
+            <FontImageSource Glyph="⚙️" FontFamily="FontAwesome"
                              Color="{StaticResource NavIcon}" Size="18"/>
         </FlyoutItem.Icon>
         <ShellContent Route="SettingsPage"

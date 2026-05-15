@@ -121,7 +121,7 @@ public partial class HomeViewModel : ObservableObject
                 var date = today.AddDays(-i);
                 var amount = salesByDate.TryGetValue(date, out var v) ? v : 0m;
 
-                string label = i == 0 ? "Today" : date.ToString("ddd");
+                string label = i == 0 ? "Today" : date.ToString("dd");
                 var color = i == 0 ? todayColor : lineColor;
                 string valueLabel = amount == 0 ? "" : FormatAmount(amount);
 
