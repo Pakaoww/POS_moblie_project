@@ -108,7 +108,7 @@
                                     FontAttributes="Bold" HeightRequest="44"
                                     Padding="12,0" CornerRadius="8"
                                     Command="{Binding ExportExcelCommand}"/>
-                        </Grid>
+                        </Grid> 
 
                         <Border BackgroundColor="#F5F5F7" Padding="16,12" StrokeThickness="0">
                             <Border.StrokeShape>

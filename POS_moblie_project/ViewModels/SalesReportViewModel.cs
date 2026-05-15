@@ -73,7 +73,7 @@ public partial class SalesReportViewModel : ObservableObject
             await Application.Current.MainPage.DisplayAlert(
                 "Error", ex.Message, "OK");
         }
-        finally
+        finally 
         {
             IsLoading = false;
         }
