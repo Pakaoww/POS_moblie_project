@@ -97,7 +97,7 @@ Stroke="{Binding IsThisMonthActive, Converter={StaticResource BoolToColorConvert
 
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                             <Button Grid.Column="0" Text="Search"
-                                BackgroundColor="#4ECDC4" TextColor="White"
+                                BackgroundColor="#a9d888" TextColor="White"
                                 FontAttributes="Bold" HeightRequest="44" CornerRadius="8"
                                 Command="{Binding LoadTransactionsCommand}"/>
                             <Button Grid.Column="1" Text="📊 Export"

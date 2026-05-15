@@ -39,7 +39,7 @@
                             </Border>
                             <Button Grid.Column="1" Text="📷" FontSize="18"
                                     WidthRequest="48" HeightRequest="48"
-                                    CornerRadius="24" BackgroundColor="#4ECDC4"
+                                    CornerRadius="24" BackgroundColor="#a9d888"
                                     TextColor="White" Padding="0"
                                     Command="{Binding ScanBarcodeCommand}"/>
                         </Grid>
@@ -58,7 +58,7 @@
                             </Border>
                             <Button Text="On Hold" FontSize="10" VerticalOptions="Center"
                                     Grid.Column="1"
-                                    BackgroundColor="#4ECDC4" TextColor="Black"
+                                    BackgroundColor="#a9d888" TextColor="Black"
                                     Command="{Binding GoToHoldCommand}"/>
                         </Grid>
                         
@@ -109,7 +109,7 @@
                                     <Button Grid.Column="3" Text="Add"
                                             WidthRequest="52" HeightRequest="36"
                                             CornerRadius="8" Padding="0" FontSize="13"
-                                            BackgroundColor="#4ECDC4" TextColor="White"
+                                            BackgroundColor="#a9d888" TextColor="White"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:POSViewModel}}, Path=AddToCartCommand}"
                                             CommandParameter="{Binding .}"/>
                                 </Grid>
@@ -122,21 +122,21 @@
         </RefreshView>
 
         <!-- Bottom cart bar — ติดด้านล่างเสมอ ไม่ scroll -->
-        <Border Grid.Row="1" BackgroundColor="#222222"
+        <Border Grid.Row="1" BackgroundColor="#a9d888"
                 Padding="16,12" StrokeThickness="0" Margin="16,8,16,16">
             <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
             <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
                 <Label Grid.Column="0" Text="🛒" FontSize="20" VerticalOptions="Center"/>
                 <Label Grid.Column="1"
                        Text="{Binding CartCount, StringFormat='{0} item(s)'}"
-                       FontSize="15" TextColor="White" VerticalOptions="Center" Margin="8,0,0,0"/>
+                       FontSize="15" TextColor="Black" VerticalOptions="Center" Margin="8,0,0,0"/>
                 <Button Grid.Column="2" Text="Hold"
-                        BackgroundColor="#4ECDC4" TextColor="White"
+                        BackgroundColor="White" TextColor="Black"
                         FontAttributes="Bold" HeightRequest="38"
                         Padding="10,0" CornerRadius="8"
                         Command="{Binding AddToHoldCommand}"/>
                 <Button Grid.Column="3" Text="Go to cart"
-                        BackgroundColor="#4ECDC4" TextColor="White"
+                        BackgroundColor="White" TextColor="Black"
                         FontAttributes="Bold" HeightRequest="38"
                         Padding="14,0" CornerRadius="8"
                         Command="{Binding GoToCartCommand}"/>

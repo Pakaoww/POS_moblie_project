@@ -28,7 +28,7 @@
                             <RoundRectangle CornerRadius="12"/>
                         </Border.StrokeShape>
                         <Image Source="logo.png"
-                               WidthRequest="32" HeightRequest="32"
+                               WidthRequest="52" HeightRequest="52"
                                Aspect="AspectFit"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"/>

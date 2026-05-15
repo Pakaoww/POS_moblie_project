@@ -247,7 +247,7 @@
                     <Button Grid.Column="2"
                             Text="Checkout"
                             HeightRequest="48" CornerRadius="12"
-                            BackgroundColor="#4ECDC4"
+                            BackgroundColor="#a9d888"
                             TextColor="White"
                             FontAttributes="Bold"
                             Command="{Binding CheckoutCommand}"/>

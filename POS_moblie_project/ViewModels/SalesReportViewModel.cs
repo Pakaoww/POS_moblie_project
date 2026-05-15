@@ -45,6 +45,11 @@ public partial class SalesReportViewModel : ObservableObject
     public SalesReportViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
+
+        var today = DateTime.Today;
+        FromDate = today;
+        ToDate = today;
+        ActivePeriod = "Today";
     }
 
     partial void OnSearchTextChanged(string value) => ApplySearch();
@@ -55,6 +60,8 @@ public partial class SalesReportViewModel : ObservableObject
         IsLoading = true;
         try
         {
+            ClearPeriodIfNotMatching();
+
             _allItems = await _databaseService
                 .GetSalesReportAsync(FromDate, ToDate);
 
@@ -69,6 +76,30 @@ public partial class SalesReportViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    private void ClearPeriodIfNotMatching()
+    {
+        if (string.IsNullOrEmpty(ActivePeriod)) return;
+
+        var today = DateTime.Today;
+        bool stillMatches = ActivePeriod switch
+        {
+            "Today" => FromDate.Date == today && ToDate.Date == today,
+            "ThisWeek" => FromDate.Date == today.AddDays(-((7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7))
+                       && ToDate.Date == FromDate.Date.AddDays(6),
+            "ThisMonth" => FromDate.Date == new DateTime(today.Year, today.Month, 1)
+                        && ToDate.Date == new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1),
+            _ => false
+        };
+
+        if (!stillMatches)
+        {
+            ActivePeriod = string.Empty;
+            OnPropertyChanged(nameof(IsTodayActive));
+            OnPropertyChanged(nameof(IsThisWeekActive));
+            OnPropertyChanged(nameof(IsThisMonthActive));
         }
     }
 
@@ -135,6 +166,15 @@ public partial class SalesReportViewModel : ObservableObject
     [RelayCommand]
     private async Task SetPeriod(string period)
     {
+        if (ActivePeriod == period)
+        {
+            ActivePeriod = string.Empty;
+            OnPropertyChanged(nameof(IsTodayActive));
+            OnPropertyChanged(nameof(IsThisWeekActive));
+            OnPropertyChanged(nameof(IsThisMonthActive));
+            return;
+        }
+
         var today = DateTime.Today;
 
         switch (period)
