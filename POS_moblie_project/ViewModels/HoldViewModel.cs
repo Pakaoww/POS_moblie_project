@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using POS_moblie_project.Models;
+using POS_moblie_project.Services;
 using System.Collections.ObjectModel;
 
 namespace POS_moblie_project.ViewModels;
@@ -8,6 +9,7 @@ namespace POS_moblie_project.ViewModels;
 public partial class HoldViewModel : ObservableObject
 {
     private readonly POSViewModel _posViewModel;
+    private readonly DatabaseService _databaseService;
 
     public ObservableCollection<HoldSession> Sessions { get; } = new();
 
@@ -24,7 +26,6 @@ public partial class HoldViewModel : ObservableObject
     public bool IsEmpty => !Sessions.Any();
     public int SessionCount => Sessions.Count;
 
-    // คืนจำนวนรวมของ productId ที่ hold ไว้ทุก session
     public int TotalReserved(int productId)
         => Sessions.SelectMany(s => s.Items)
                    .Where(i => i.ProductId == productId)
@@ -33,6 +34,7 @@ public partial class HoldViewModel : ObservableObject
     public HoldViewModel()
     {
         _posViewModel = ServiceHelper.GetService<POSViewModel>();
+        _databaseService = ServiceHelper.GetService<DatabaseService>();
         Sessions.CollectionChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(SessionCount));
@@ -113,12 +115,17 @@ public partial class HoldViewModel : ObservableObject
         if (SelectedSession is null) return;
         foreach (var item in SelectedSession.Items)
         {
+            // ดึง FIFO lot ก่อนสร้าง CartItem
+            var lot = await _databaseService.GetFifoLotAsync(item.ProductId);
+            if (lot == null) continue;
+
             var existing = _posViewModel.CartItems
                 .FirstOrDefault(c => c.ProductId == item.ProductId);
             if (existing != null)
                 existing.Quantity += item.Quantity;
             else
-                _posViewModel.CartItems.Add(new CartItem(item.Product, item.Quantity));
+                _posViewModel.CartItems.Add(
+                    new CartItem(item.Product, lot, item.Quantity));
 
             var posItem = _posViewModel.Products
                 .FirstOrDefault(p => p.ProductId == item.ProductId);
@@ -135,18 +142,23 @@ public partial class HoldViewModel : ObservableObject
     {
         if (SelectedSession is null || !SelectedSession.Items.Any())
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Empty", "No items in this session.", "OK");
             return;
         }
         foreach (var item in SelectedSession.Items)
         {
+            // ดึง FIFO lot ก่อนสร้าง CartItem
+            var lot = await _databaseService.GetFifoLotAsync(item.ProductId);
+            if (lot == null) continue;
+
             var existing = _posViewModel.CartItems
                 .FirstOrDefault(c => c.ProductId == item.ProductId);
             if (existing != null)
                 existing.Quantity += item.Quantity;
             else
-                _posViewModel.CartItems.Add(new CartItem(item.Product, item.Quantity));
+                _posViewModel.CartItems.Add(
+                    new CartItem(item.Product, lot, item.Quantity));
         }
         _posViewModel.CartCount = _posViewModel.CartItems.Sum(x => x.Quantity);
         RemoveSelectedSession();

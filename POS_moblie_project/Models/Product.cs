@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SQLite;
+﻿using SQLite;
 
 namespace POS_moblie_project.Models;
 
@@ -12,41 +9,33 @@ public class Product
     public int Id { get; set; }
 
     [Unique, NotNull]
-    public string ProductCode { get; set; }
+    public string ProductCode { get; set; } = string.Empty;
 
     [NotNull]
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
-    // Foreign key to Categories table
     public int CategoryId { get; set; }
 
     [NotNull]
-    public decimal Price { get; set; }
+    public decimal SalePrice { get; set; }
 
-    public int Stock { get; set; } = 0;
-
-    // Controls whether product appears on POS page
     public bool IsVisible { get; set; } = true;
 
-    // Stores local file path to product image
     public string ImagePath { get; set; } = string.Empty;
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
-    // Default constructor required by SQLite-net-pcl
     public Product()
     {
-
     }
 
-    public Product(string productCode, string name, int categoryId, decimal price, int stock = 0)
+    public Product(string productCode, string name, int categoryId, decimal salePrice)
     {
         ProductCode = productCode;
         Name = name;
         CategoryId = categoryId;
-        Price = price;
-        Stock = stock;
+        SalePrice = salePrice;
         IsVisible = true;
         ImagePath = string.Empty;
         CreatedAt = DateTime.Now;

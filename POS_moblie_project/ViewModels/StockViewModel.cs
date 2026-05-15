@@ -9,20 +9,33 @@ namespace POS_moblie_project.ViewModels;
 public partial class StockViewModel : ObservableObject
 {
     private readonly DatabaseService _databaseService;
-    private List<Product> _allProducts = new();
+    private List<ProductWithStock> _allProductsWithStock = new();
+    private List<ProductLot> _allLots = new();
     private List<Category> _allCategories = new();
+    private List<InventoryLogItem> _allInventoryLogItems = new();
 
     [ObservableProperty]
-    private ObservableCollection<Product> products = new();
+    [NotifyPropertyChangedFor(nameof(IsStockTab))]
+    [NotifyPropertyChangedFor(nameof(IsInventoryTab))]
+    private int selectedTabIndex = 0;
+
+    public bool IsStockTab => SelectedTabIndex == 0;
+    public bool IsInventoryTab => SelectedTabIndex == 1;
+
+    [ObservableProperty]
+    private ObservableCollection<ProductWithStock> products = new();
 
     [ObservableProperty]
     private ObservableCollection<Category> categoryFilters = new();
 
     [ObservableProperty]
-    private Category selectedCategory;
+    private Category? selectedCategory;
 
     [ObservableProperty]
     private string searchText = string.Empty;
+
+    [ObservableProperty]
+    private ObservableCollection<InventoryLogItem> inventoryLogs = new();
 
     [ObservableProperty]
     private bool isLoading;
@@ -33,7 +46,7 @@ public partial class StockViewModel : ObservableObject
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();
-    partial void OnSelectedCategoryChanged(Category value) => ApplyFilters();
+    partial void OnSelectedCategoryChanged(Category? value) => ApplyFilters();
 
     [RelayCommand]
     public async Task LoadStockAsync()
@@ -41,8 +54,42 @@ public partial class StockViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            _allProducts = await _databaseService.GetAllProductsAsync();
+            var rawProducts = await _databaseService.GetAllProductsAsync();
             _allCategories = await _databaseService.GetAllCategoriesAsync();
+            _allLots = await _databaseService.GetAllLotsAsync();
+
+            _allProductsWithStock = new List<ProductWithStock>();
+            foreach (var p in rawProducts)
+            {
+                var lots = _allLots.Where(l => l.ProductId == p.Id).ToList();
+                var latestLot = lots.OrderByDescending(l => l.ReceivedAt).FirstOrDefault();
+                _allProductsWithStock.Add(new ProductWithStock
+                {
+                    Product = p,
+                    TotalStock = lots.Sum(l => l.Remaining),
+                    LotCount = lots.Count,
+                    LatestCostPrice = latestLot?.CostPrice ?? 0
+                });
+            }
+
+            _allInventoryLogItems = new List<InventoryLogItem>();
+            foreach (var lot in _allLots)
+            {
+                var product = rawProducts.FirstOrDefault(p => p.Id == lot.ProductId);
+                if (product == null) continue;
+                _allInventoryLogItems.Add(new InventoryLogItem
+                {
+                    LotId = lot.LotId,
+                    ProductName = product.Name,
+                    ProductCode = product.ProductCode,
+                    CategoryId = product.CategoryId,
+                    CostPrice = lot.CostPrice,
+                    Quantity = lot.Quantity,
+                    Remaining = lot.Remaining,
+                    ReceivedAt = lot.ReceivedAt,
+                    IsActive = lot.IsActive
+                });
+            }
 
             CategoryFilters.Clear();
             CategoryFilters.Add(new Category("All", -1));
@@ -53,8 +100,8 @@ public partial class StockViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to load stock: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
         finally
         {
@@ -64,46 +111,61 @@ public partial class StockViewModel : ObservableObject
 
     private void ApplyFilters()
     {
-        var filtered = _allProducts.AsEnumerable();
+        // Filter products (Stock tab)
+        var filteredProducts = _allProductsWithStock.AsEnumerable();
+
+        // Filter inventory logs
+        var filteredLogs = _allInventoryLogItems.AsEnumerable();
 
         if (SelectedCategory != null && SelectedCategory.SortOrder != -1)
-            filtered = filtered.Where(p => p.CategoryId == SelectedCategory.Id);
+        {
+            filteredProducts = filteredProducts.Where(p => p.CategoryId == SelectedCategory.Id);
+            filteredLogs = filteredLogs.Where(l => l.CategoryId == SelectedCategory.Id);
+        }
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
             var search = SearchText.Trim().ToLowerInvariant();
-            filtered = filtered.Where(p =>
+            filteredProducts = filteredProducts.Where(p =>
                 p.Name.ToLowerInvariant().Contains(search) ||
                 p.ProductCode.ToLowerInvariant().Contains(search));
+            filteredLogs = filteredLogs.Where(l =>
+                l.ProductName.ToLowerInvariant().Contains(search) ||
+                l.ProductCode.ToLowerInvariant().Contains(search));
         }
 
         Products.Clear();
-        foreach (var p in filtered)
+        foreach (var p in filteredProducts)
             Products.Add(p);
+
+        InventoryLogs.Clear();
+        foreach (var log in filteredLogs.OrderByDescending(l => l.ReceivedAt))
+            InventoryLogs.Add(log);
     }
 
     [RelayCommand]
-    private async Task AddProductAsync()
+    private async Task AddNewProductAsync()
+        => await Shell.Current.GoToAsync("ProductDetailPage");
+
+    [RelayCommand]
+    private async Task AddStockAsync()
+        => await Shell.Current.GoToAsync("AddStockPage");
+
+    [RelayCommand]
+    private async Task EditProductAsync(ProductWithStock item)
     {
-        await Shell.Current.GoToAsync("ProductDetailPage");
+        if (item == null) return;
+        await Shell.Current.GoToAsync($"ProductDetailPage?id={item.ProductId}");
     }
 
     [RelayCommand]
-    private async Task EditProductAsync(Product product)
+    private async Task ToggleVisibilityAsync(ProductWithStock item)
     {
-        if (product == null) return;
-        await Shell.Current.GoToAsync($"ProductDetailPage?id={product.Id}");
-    }
+        if (item == null) return;
 
-    [RelayCommand]
-    private async Task ToggleVisibilityAsync(Product product)
-    {
-        if (product == null) return;
-
-        // ถ้า stock = 0 และพยายามเปิด → แจ้งเตือนและไม่ทำอะไร
-        if (!product.IsVisible == true && product.Stock <= 0)
+        if (!item.IsVisible && item.TotalStock <= 0)
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Out of Stock",
                 "The product is out of stock, unable to be sold.",
                 "OK");
@@ -112,45 +174,54 @@ public partial class StockViewModel : ObservableObject
 
         try
         {
-            await _databaseService.ToggleProductVisibilityAsync(product.Id);
-            product.IsVisible = !product.IsVisible;
+            await _databaseService.ToggleProductVisibilityAsync(item.ProductId);
+            item.Product.IsVisible = !item.Product.IsVisible;
 
-            var index = Products.IndexOf(product);
+            var index = Products.IndexOf(item);
             if (index >= 0)
             {
                 Products.RemoveAt(index);
-                Products.Insert(index, product);
+                Products.Insert(index, item);
             }
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to toggle: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
     }
 
     [RelayCommand]
-    private async Task DeleteProductAsync(Product product)
+    private async Task DeleteProductAsync(ProductWithStock item)
     {
-        if (product == null) return;
+        if (item == null) return;
 
-        var confirm = await Application.Current.MainPage.DisplayAlert(
+        var confirm = await Application.Current!.MainPage!.DisplayAlert(
             "Delete Product",
-            $"Permanently delete \"{product.Name}\"?",
+            $"Permanently delete \"{item.Name}\" and all its lots?",
             "Delete", "Cancel");
-
         if (!confirm) return;
 
         try
         {
-            await _databaseService.DeleteProductAsync(product.Id);
-            Products.Remove(product);
-            _allProducts.Remove(product);
+            var lots = await _databaseService.GetLotsByProductAsync(item.ProductId);
+            foreach (var lot in lots)
+                await _databaseService.DeleteLotAsync(lot.Id);
+            await _databaseService.DeleteProductAsync(item.ProductId);
+            Products.Remove(item);
+            _allProductsWithStock.Remove(item);
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to delete: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
     }
+
+    [RelayCommand]
+    private void SwitchToStockTab() => SelectedTabIndex = 0;
+
+    [RelayCommand]
+    private void SwitchToInventoryLogTab() => SelectedTabIndex = 1;
 }
+// InventoryLogItem ย้ายไป Models/InventoryLogItem.cs แล้ว

@@ -8,13 +8,14 @@ public class TransactionItem
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
-    public int TransactionId { get; set; }   // FK to Transactions.Id (the int PK)
+    public int TransactionId { get; set; }
+    public int ProductId { get; set; }
+    public int LotId { get; set; }
 
-    public int ProductId { get; set; }       // FK to Products.Id
-
-    // Snapshot fields — historical receipts stay accurate even if product is later edited
     [NotNull]
-    public string ProductName { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+
+    public decimal UnitCost { get; set; }
 
     [NotNull]
     public decimal UnitPrice { get; set; }
@@ -22,18 +23,21 @@ public class TransactionItem
     public int Quantity { get; set; }
 
     [NotNull]
-    public decimal Subtotal { get; set; }    // UnitPrice * Quantity
+    public decimal Subtotal { get; set; }
 
     public TransactionItem()
     {
     }
 
-    public TransactionItem(int transactionId, int productId, string productName,
+    public TransactionItem(int transactionId, int productId, int lotId,
+                           string productName, decimal unitCost,
                            decimal unitPrice, int quantity)
     {
         TransactionId = transactionId;
         ProductId = productId;
+        LotId = lotId;
         ProductName = productName;
+        UnitCost = unitCost;
         UnitPrice = unitPrice;
         Quantity = quantity;
         Subtotal = unitPrice * quantity;

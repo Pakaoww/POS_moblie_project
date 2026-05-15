@@ -11,6 +11,7 @@ public partial class POSViewModel : ObservableObject
     private readonly DatabaseService _databaseService;
     private List<Product> _allProducts = new();
     private List<Category> _allCategories = new();
+    private Dictionary<int, int> _stockCache = new();
 
     [ObservableProperty]
     private ObservableCollection<ProductWithQuantity> products = new();
@@ -19,7 +20,7 @@ public partial class POSViewModel : ObservableObject
     private ObservableCollection<Category> categoryFilters = new();
 
     [ObservableProperty]
-    private Category selectedCategory;
+    private Category? selectedCategory;
 
     [ObservableProperty]
     private string searchText = string.Empty;
@@ -42,7 +43,7 @@ public partial class POSViewModel : ObservableObject
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();
-    partial void OnSelectedCategoryChanged(Category value) => ApplyFilters();
+    partial void OnSelectedCategoryChanged(Category? value) => ApplyFilters();
 
     [RelayCommand]
     public async Task LoadProductsAsync()
@@ -53,6 +54,14 @@ public partial class POSViewModel : ObservableObject
             _allProducts = await _databaseService.GetVisibleProductsAsync();
             _allCategories = await _databaseService.GetAllCategoriesAsync();
 
+            // Build stock cache จาก lots
+            _stockCache.Clear();
+            foreach (var p in _allProducts)
+            {
+                var stock = await _databaseService.GetTotalStockAsync(p.Id);
+                _stockCache[p.Id] = stock;
+            }
+
             CategoryFilters.Clear();
             CategoryFilters.Add(new Category("All", -1));
             foreach (var c in _allCategories)
@@ -62,7 +71,8 @@ public partial class POSViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
         finally
         {
@@ -87,17 +97,19 @@ public partial class POSViewModel : ObservableObject
 
         Products.Clear();
         foreach (var p in filtered)
-            Products.Add(new ProductWithQuantity(p, 0));
+        {
+            var stock = _stockCache.TryGetValue(p.Id, out var s) ? s : 0;
+            Products.Add(new ProductWithQuantity(p, 0) { TotalStock = stock });
+        }
     }
 
-    // stock จริง - ที่อยู่ใน cart - ที่ hold ไว้ทุก session
     private int GetAvailableStock(ProductWithQuantity item)
     {
         var inCart = CartItems
             .FirstOrDefault(c => c.ProductId == item.ProductId)?.Quantity ?? 0;
         var holdVm = ServiceHelper.GetService<HoldViewModel>();
         var inHold = holdVm.TotalReserved(item.ProductId);
-        return item.Stock - inCart - inHold;
+        return item.TotalStock - inCart - inHold;
     }
 
     [RelayCommand]
@@ -105,11 +117,10 @@ public partial class POSViewModel : ObservableObject
     {
         if (item == null) return;
 
-        // หัก staging quantity ด้วย
         var available = GetAvailableStock(item) - item.Quantity;
         if (available <= 0)
         {
-            Application.Current.MainPage.DisplayAlert(
+            Application.Current!.MainPage!.DisplayAlert(
                 "Stock Limit",
                 $"No more stock available for \"{item.Name}\".",
                 "OK");
@@ -126,7 +137,7 @@ public partial class POSViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddToCart(ProductWithQuantity item)
+    private async Task AddToCartAsync(ProductWithQuantity item)
     {
         if (item == null || item.Quantity <= 0) return;
 
@@ -134,11 +145,21 @@ public partial class POSViewModel : ObservableObject
         var addQty = Math.Min(item.Quantity, available);
         if (addQty <= 0) return;
 
+        // FIFO — หา lot เก่าสุดที่ยังมีของ
+        var fifoLot = await _databaseService.GetFifoLotAsync(item.ProductId);
+        if (fifoLot == null)
+        {
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Out of Stock",
+                $"\"{item.Name}\" has no stock available.", "OK");
+            return;
+        }
+
         var existing = CartItems.FirstOrDefault(c => c.ProductId == item.ProductId);
         if (existing != null)
             existing.Quantity += addQty;
         else
-            CartItems.Add(new CartItem(item.Product, addQty));
+            CartItems.Add(new CartItem(item.Product, fifoLot, addQty));
 
         CartCount = CartItems.Sum(c => c.Quantity);
         item.Quantity = 0;
@@ -147,24 +168,24 @@ public partial class POSViewModel : ObservableObject
     [RelayCommand]
     private async Task AddToHoldAsync()
     {
-        // Hold จาก CartItems ที่มีอยู่ ไม่ใช่ staging
         if (CartItems.Count == 0)
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "No Items", "Please add items to cart before holding.", "OK");
             return;
         }
 
         var holdItems = CartItems
-            .Select(c => new HoldItem(
-                _allProducts.First(p => p.Id == c.ProductId),
-                c.Quantity))
+            .Select(c =>
+            {
+                var p = _allProducts.First(p => p.Id == c.ProductId);
+                return new HoldItem(p, c.Quantity);
+            })
             .ToList();
 
         var holdViewModel = ServiceHelper.GetService<HoldViewModel>();
         holdViewModel.AddSession(holdItems);
 
-        // เคลียร์ Cart หลัง hold
         CartItems.Clear();
         CartCount = 0;
 
@@ -176,7 +197,7 @@ public partial class POSViewModel : ObservableObject
     {
         if (CartItems.Count == 0)
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Cart Empty", "Please add items to cart first.", "OK");
             return;
         }
@@ -192,10 +213,8 @@ public partial class POSViewModel : ObservableObject
     {
         var tcs = new TaskCompletionSource<string>();
         var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
-        {
-            tcs.SetResult(result);
-        });
-        await Application.Current.MainPage.Navigation.PushModalAsync(scannerPage);
+            tcs.SetResult(result));
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(scannerPage);
         var scannedValue = await tcs.Task;
         if (!string.IsNullOrWhiteSpace(scannedValue))
             SearchText = scannedValue;
@@ -216,9 +235,9 @@ public partial class ProductWithQuantity : ObservableObject
     public int ProductId => Product.Id;
     public string Name => Product.Name;
     public string ProductCode => Product.ProductCode;
-    public decimal Price => Product.Price;
-    public int Stock => Product.Stock;
+    public decimal Price => Product.SalePrice;
     public string ImagePath => Product.ImagePath;
+    public int TotalStock { get; set; }
 
     [ObservableProperty]
     private int quantity;

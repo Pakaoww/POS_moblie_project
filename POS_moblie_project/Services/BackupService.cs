@@ -1,7 +1,6 @@
 ﻿using ClosedXML.Excel;
 using POS_moblie_project.Models;
 using POS_moblie_project.ViewModels;
-using SQLite;
 
 namespace POS_moblie_project.Services;
 
@@ -14,13 +13,11 @@ public class BackupService
         _databaseService = ServiceHelper.GetService<DatabaseService>();
     }
 
-    // ============================================
-    // EXPORT — สร้างไฟล์ Excel จากข้อมูลทั้งหมด
-    // ============================================
     public async Task<string> ExportToExcelAsync()
     {
         var products = await _databaseService.GetAllProductsAsync();
         var categories = await _databaseService.GetAllCategoriesAsync();
+        var lots = await _databaseService.GetAllLotsAsync();
         var transactions = await _databaseService.GetTransactionsAsync(
             DateTime.MinValue, DateTime.MaxValue);
         var transactionItems = await GetAllTransactionItemsAsync();
@@ -33,7 +30,6 @@ public class BackupService
         catSheet.Cell(1, 2).Value = "Name";
         catSheet.Cell(1, 3).Value = "SortOrder";
         catSheet.Cell(1, 4).Value = "CreatedAt";
-
         for (int i = 0; i < categories.Count; i++)
         {
             var c = categories[i];
@@ -51,13 +47,11 @@ public class BackupService
         prodSheet.Cell(1, 2).Value = "ProductCode";
         prodSheet.Cell(1, 3).Value = "Name";
         prodSheet.Cell(1, 4).Value = "CategoryId";
-        prodSheet.Cell(1, 5).Value = "Price";
-        prodSheet.Cell(1, 6).Value = "Stock";
-        prodSheet.Cell(1, 7).Value = "IsVisible";
-        prodSheet.Cell(1, 8).Value = "ImagePath";
-        prodSheet.Cell(1, 9).Value = "CreatedAt";
-        prodSheet.Cell(1, 10).Value = "UpdatedAt";
-
+        prodSheet.Cell(1, 5).Value = "SalePrice";     // ← เปลี่ยนจาก Price
+        prodSheet.Cell(1, 6).Value = "IsVisible";     // ← ลบ Stock ออก
+        prodSheet.Cell(1, 7).Value = "ImagePath";
+        prodSheet.Cell(1, 8).Value = "CreatedAt";
+        prodSheet.Cell(1, 9).Value = "UpdatedAt";
         for (int i = 0; i < products.Count; i++)
         {
             var p = products[i];
@@ -65,17 +59,41 @@ public class BackupService
             prodSheet.Cell(i + 2, 2).Value = p.ProductCode;
             prodSheet.Cell(i + 2, 3).Value = p.Name;
             prodSheet.Cell(i + 2, 4).Value = p.CategoryId;
-            prodSheet.Cell(i + 2, 5).Value = (double)p.Price;
-            prodSheet.Cell(i + 2, 6).Value = p.Stock;
-            prodSheet.Cell(i + 2, 7).Value = p.IsVisible;
-            prodSheet.Cell(i + 2, 8).Value = p.ImagePath;
-            prodSheet.Cell(i + 2, 9).Value = p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss");
-            prodSheet.Cell(i + 2, 10).Value = p.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss");
+            prodSheet.Cell(i + 2, 5).Value = (double)p.SalePrice; // ← เปลี่ยนจาก p.Price
+            prodSheet.Cell(i + 2, 6).Value = p.IsVisible;         // ← ลบ p.Stock
+            prodSheet.Cell(i + 2, 7).Value = p.ImagePath;
+            prodSheet.Cell(i + 2, 8).Value = p.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss");
+            prodSheet.Cell(i + 2, 9).Value = p.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss");
         }
         prodSheet.Row(1).Style.Font.Bold = true;
         prodSheet.Columns().AdjustToContents();
 
-        // ── Sheet 3: Transactions ──
+        // ── Sheet 3: ProductLots ── (ใหม่)
+        var lotSheet = workbook.Worksheets.Add("ProductLots");
+        lotSheet.Cell(1, 1).Value = "Id";
+        lotSheet.Cell(1, 2).Value = "LotId";
+        lotSheet.Cell(1, 3).Value = "ProductId";
+        lotSheet.Cell(1, 4).Value = "CostPrice";
+        lotSheet.Cell(1, 5).Value = "Quantity";
+        lotSheet.Cell(1, 6).Value = "Remaining";
+        lotSheet.Cell(1, 7).Value = "ReceivedAt";
+        lotSheet.Cell(1, 8).Value = "IsActive";
+        for (int i = 0; i < lots.Count; i++)
+        {
+            var l = lots[i];
+            lotSheet.Cell(i + 2, 1).Value = l.Id;
+            lotSheet.Cell(i + 2, 2).Value = l.LotId;
+            lotSheet.Cell(i + 2, 3).Value = l.ProductId;
+            lotSheet.Cell(i + 2, 4).Value = (double)l.CostPrice;
+            lotSheet.Cell(i + 2, 5).Value = l.Quantity;
+            lotSheet.Cell(i + 2, 6).Value = l.Remaining;
+            lotSheet.Cell(i + 2, 7).Value = l.ReceivedAt.ToString("yyyy-MM-dd HH:mm:ss");
+            lotSheet.Cell(i + 2, 8).Value = l.IsActive;
+        }
+        lotSheet.Row(1).Style.Font.Bold = true;
+        lotSheet.Columns().AdjustToContents();
+
+        // ── Sheet 4: Transactions ──
         var txSheet = workbook.Worksheets.Add("Transactions");
         txSheet.Cell(1, 1).Value = "Id";
         txSheet.Cell(1, 2).Value = "TransactionId";
@@ -86,7 +104,6 @@ public class BackupService
         txSheet.Cell(1, 7).Value = "GrandTotal";
         txSheet.Cell(1, 8).Value = "MoneyReceived";
         txSheet.Cell(1, 9).Value = "Change";
-
         for (int i = 0; i < transactions.Count; i++)
         {
             var t = transactions[i];
@@ -103,49 +120,47 @@ public class BackupService
         txSheet.Row(1).Style.Font.Bold = true;
         txSheet.Columns().AdjustToContents();
 
-        // ── Sheet 4: TransactionItems ──
+        // ── Sheet 5: TransactionItems ──
         var itemSheet = workbook.Worksheets.Add("TransactionItems");
         itemSheet.Cell(1, 1).Value = "Id";
         itemSheet.Cell(1, 2).Value = "TransactionId";
         itemSheet.Cell(1, 3).Value = "ProductId";
-        itemSheet.Cell(1, 4).Value = "ProductName";
-        itemSheet.Cell(1, 5).Value = "UnitPrice";
-        itemSheet.Cell(1, 6).Value = "Quantity";
-        itemSheet.Cell(1, 7).Value = "Subtotal";
-
+        itemSheet.Cell(1, 4).Value = "LotId";
+        itemSheet.Cell(1, 5).Value = "ProductName";
+        itemSheet.Cell(1, 6).Value = "UnitCost";
+        itemSheet.Cell(1, 7).Value = "UnitPrice";
+        itemSheet.Cell(1, 8).Value = "Quantity";
+        itemSheet.Cell(1, 9).Value = "Subtotal";
         for (int i = 0; i < transactionItems.Count; i++)
         {
             var item = transactionItems[i];
             itemSheet.Cell(i + 2, 1).Value = item.Id;
             itemSheet.Cell(i + 2, 2).Value = item.TransactionId;
             itemSheet.Cell(i + 2, 3).Value = item.ProductId;
-            itemSheet.Cell(i + 2, 4).Value = item.ProductName;
-            itemSheet.Cell(i + 2, 5).Value = (double)item.UnitPrice;
-            itemSheet.Cell(i + 2, 6).Value = item.Quantity;
-            itemSheet.Cell(i + 2, 7).Value = (double)item.Subtotal;
+            itemSheet.Cell(i + 2, 4).Value = item.LotId;
+            itemSheet.Cell(i + 2, 5).Value = item.ProductName;
+            itemSheet.Cell(i + 2, 6).Value = (double)item.UnitCost;
+            itemSheet.Cell(i + 2, 7).Value = (double)item.UnitPrice;
+            itemSheet.Cell(i + 2, 8).Value = item.Quantity;
+            itemSheet.Cell(i + 2, 9).Value = (double)item.Subtotal;
         }
         itemSheet.Row(1).Style.Font.Bold = true;
         itemSheet.Columns().AdjustToContents();
 
-        // ── บันทึกไฟล์ ──
         var fileName = $"POS_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-        var filePath = Path.Combine(
-            FileSystem.Current.CacheDirectory, fileName);
-
+        var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
         using var stream = File.Create(filePath);
         workbook.SaveAs(stream);
 
         return filePath;
     }
 
-    // Export เฉพาะ Transaction History ที่กำลังแสดง
     public async Task<string> ExportTransactionHistoryAsync(
         List<Transaction> transactions)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add("Transaction History");
 
-        // Header
         sheet.Cell(1, 1).Value = "Transaction ID";
         sheet.Cell(1, 2).Value = "Date";
         sheet.Cell(1, 3).Value = "Time";
@@ -179,19 +194,15 @@ public class BackupService
         return filePath;
     }
 
-    // Export เฉพาะ Sales Report ที่กำลังแสดง
     public async Task<string> ExportSalesReportAsync(
-        List<SalesReportItem> reportItems,
-        DateTime from, DateTime to)
+        List<SalesReportItem> reportItems, DateTime from, DateTime to)
     {
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add("Sales Report");
 
-        // Date range info
         sheet.Cell(1, 1).Value = $"Sales Report: {from:dd/MM/yyyy} - {to:dd/MM/yyyy}";
         sheet.Cell(1, 1).Style.Font.Bold = true;
 
-        // Header
         sheet.Cell(3, 1).Value = "Product Code";
         sheet.Cell(3, 2).Value = "Product Name";
         sheet.Cell(3, 3).Value = "Total Qty Sold";
@@ -207,7 +218,6 @@ public class BackupService
             sheet.Cell(i + 4, 4).Value = (double)item.TotalRevenue;
         }
 
-        // Summary row
         var lastRow = reportItems.Count + 5;
         sheet.Cell(lastRow, 2).Value = "TOTAL";
         sheet.Cell(lastRow, 3).Value = reportItems.Sum(i => i.TotalQuantity);
@@ -224,36 +234,21 @@ public class BackupService
         return filePath;
     }
 
-
-    // ============================================
-    // BACKUP — คัดลอกไฟล์ .db3 ทั้งหมด
-    // ============================================
     public async Task<string> BackupDatabaseAsync()
     {
-        var dbPath = Path.Combine(
-            FileSystem.AppDataDirectory, "mobilepos.db3");
-
+        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "mobilepos.db3");
         var backupName = $"POS_DB_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.db3";
-        var backupPath = Path.Combine(
-            FileSystem.Current.CacheDirectory, backupName);
-
+        var backupPath = Path.Combine(FileSystem.Current.CacheDirectory, backupName);
         await Task.Run(() => File.Copy(dbPath, backupPath, overwrite: true));
-
         return backupPath;
     }
 
-    // ============================================
-    // IMPORT — restore จากไฟล์ .db3
-    // ============================================
     public async Task<bool> ImportDatabaseAsync(string sourceFilePath)
     {
         try
         {
-            var dbPath = Path.Combine(
-                FileSystem.AppDataDirectory, "mobilepos.db3");
-
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "mobilepos.db3");
             await Task.Run(() => File.Copy(sourceFilePath, dbPath, overwrite: true));
-
             return true;
         }
         catch
@@ -263,8 +258,5 @@ public class BackupService
     }
 
     private async Task<List<TransactionItem>> GetAllTransactionItemsAsync()
-    => await _databaseService.GetAllTransactionItemsAsync();
-
-    
-
+        => await _databaseService.GetAllTransactionItemsAsync();
 }

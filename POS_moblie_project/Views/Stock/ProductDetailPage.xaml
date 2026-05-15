@@ -11,141 +11,120 @@
         <VerticalStackLayout Padding="20" Spacing="14">
 
             <!-- Image preview -->
-            <Border WidthRequest="160"
-                    HeightRequest="160"
-                    BackgroundColor="#F0F0F2"
-                    StrokeThickness="0"
+            <Border WidthRequest="160" HeightRequest="160"
+                    BackgroundColor="#F0F0F2" StrokeThickness="0"
                     HorizontalOptions="Center">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12" />
+                    <RoundRectangle CornerRadius="12"/>
                 </Border.StrokeShape>
-                <Image Source="{Binding ImagePath}"
-                       Aspect="AspectFill" />
+                <Image Source="{Binding ImagePath}" Aspect="AspectFill"/>
             </Border>
 
             <!-- Photo buttons -->
             <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                <Button Text="Take Photo"
-                        BackgroundColor="#E8E8EA"
-                        TextColor="#222222"
-                        FontSize="13"
-                        Padding="14,8"
-                        CornerRadius="8"
-                        Command="{Binding TakePhotoCommand}" />
-                <Button Text="Import"
-                        BackgroundColor="#E8E8EA"
-                        TextColor="#222222"
-                        FontSize="13"
-                        Padding="14,8"
-                        CornerRadius="8"
-                        Command="{Binding PickPhotoCommand}" />
+                <Button Text="Take Photo" BackgroundColor="#E8E8EA"
+                        TextColor="#222222" FontSize="13" Padding="14,8"
+                        CornerRadius="8" Command="{Binding TakePhotoCommand}"/>
+                <Button Text="Import" BackgroundColor="#E8E8EA"
+                        TextColor="#222222" FontSize="13" Padding="14,8"
+                        CornerRadius="8" Command="{Binding PickPhotoCommand}"/>
             </HorizontalStackLayout>
 
-            <!-- Fields -->
-            <Label Text="Product Code"
-       FontSize="13"
-       TextColor="#666666"
-       Margin="0,10,0,0" />
-
-            <!-- แทนที่ Border + Entry เดิมของ ProductCode -->
+            <!-- Product Code -->
+            <Label Text="Product Code" FontSize="13" TextColor="#666666" Margin="0,10,0,0"/>
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <Border Grid.Column="0"
-            BackgroundColor="#F5F5F7"
-            Padding="4,0"
-            StrokeThickness="0">
+                <Border Grid.Column="0" BackgroundColor="#F5F5F7"
+                        Padding="4,0" StrokeThickness="0">
                     <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="8" />
+                        <RoundRectangle CornerRadius="8"/>
                     </Border.StrokeShape>
-                    <Entry Text="{Binding ProductCode}"
-               BackgroundColor="Transparent" />
+                    <Entry Text="{Binding ProductCode}" BackgroundColor="Transparent"/>
                 </Border>
-
-                <Button Grid.Column="1"
-            Text="📷"
-            FontSize="18"
-            WidthRequest="48"
-            HeightRequest="48"
-            CornerRadius="8"
-            BackgroundColor="#a9d888"
-            TextColor="White"
-            Padding="0"
-            Command="{Binding ScanBarcodeCommand}" />
+                <Button Grid.Column="1" Text="📷"
+                        FontSize="18" WidthRequest="48" HeightRequest="48"
+                        CornerRadius="8" BackgroundColor="#a9d888"
+                        TextColor="White" Padding="0"
+                        Command="{Binding ScanBarcodeCommand}"/>
             </Grid>
 
-            <Label Text="Product Name"
-                   FontSize="13"
-                   TextColor="#666666" />
+            <!-- Product Name -->
+            <Label Text="Product Name" FontSize="13" TextColor="#666666"/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8" />
+                    <RoundRectangle CornerRadius="8"/>
                 </Border.StrokeShape>
-                <Entry Text="{Binding ProductName}"
-                       BackgroundColor="Transparent" />
+                <Entry Text="{Binding ProductName}" BackgroundColor="Transparent"/>
             </Border>
 
-            <Label Text="Category"
-                   FontSize="13"
-                   TextColor="#666666" />
+            <!-- Category -->
+            <Label Text="Category" FontSize="13" TextColor="#666666"/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8" />
+                    <RoundRectangle CornerRadius="8"/>
                 </Border.StrokeShape>
                 <Picker ItemsSource="{Binding Categories}"
                         ItemDisplayBinding="{Binding Name}"
                         SelectedItem="{Binding SelectedCategory}"
-                        BackgroundColor="Transparent" />
+                        BackgroundColor="Transparent"/>
             </Border>
 
-            <Label Text="Price"
-                   FontSize="13"
-                   TextColor="#666666" />
+            <!-- Sale Price -->
+            <Label Text="Sale Price (ราคาขาย)" FontSize="13" TextColor="#666666"/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8" />
+                    <RoundRectangle CornerRadius="8"/>
                 </Border.StrokeShape>
-                <Entry Text="{Binding Price}"
-                       Keyboard="Numeric"
-                       BackgroundColor="Transparent" />
+                <Entry Text="{Binding SalePrice}" Keyboard="Numeric"
+                       BackgroundColor="Transparent"/>
             </Border>
 
-            <Label Text="Stock"
-                   FontSize="13"
-                   TextColor="#666666" />
-            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
+            <!-- First lot section — Add mode only -->
+            <BoxView HeightRequest="1" BackgroundColor="#E0E0E0"
+                     Margin="0,10"
+                     IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"/>
+
+            <Label Text="— รายละเอียด Lot แรก —"
+                   FontSize="13" FontAttributes="Bold" TextColor="#4ECDC4"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"/>
+
+            <Label Text="Cost Price (ต้นทุน)" FontSize="13" TextColor="#666666"
+                   IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"/>
+            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0"
+                    IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}">
                 <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8" />
+                    <RoundRectangle CornerRadius="8"/>
                 </Border.StrokeShape>
-                <Entry Text="{Binding Stock}"
-                       Keyboard="Numeric"
-                       BackgroundColor="Transparent" />
+                <Entry Text="{Binding CostPrice}" Keyboard="Numeric"
+                       BackgroundColor="Transparent"/>
+            </Border>
+
+            <Label Text="Initial Quantity (จำนวน)" FontSize="13" TextColor="#666666"
+                   IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"/>
+            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0"
+                    IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8"/>
+                </Border.StrokeShape>
+                <Entry Text="{Binding InitialQuantity}" Keyboard="Numeric"
+                       BackgroundColor="Transparent"/>
             </Border>
 
             <!-- Action buttons -->
-            <Grid ColumnDefinitions="*,*"
-                  ColumnSpacing="10"
-                  Margin="0,20,0,0">
-                <Button Grid.Column="0"
-                        Text="Delete"
-                        BackgroundColor="#E53935"
-                        TextColor="White"
-                        HeightRequest="46"
-                        CornerRadius="8"
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,20,0,0">
+                <Button Grid.Column="0" Text="Delete"
+                        BackgroundColor="#E53935" TextColor="White"
+                        HeightRequest="46" CornerRadius="8"
                         IsVisible="{Binding IsEditMode}"
-                        Command="{Binding DeleteCommand}" />
-                <Button Grid.Column="1"
-                        Text="Save"
-                        BackgroundColor="#a9d888"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        HeightRequest="46"
-                        CornerRadius="8"
-                        Command="{Binding SaveCommand}" />
+                        Command="{Binding DeleteCommand}"/>
+                <Button Grid.Column="1" Text="Save"
+                        BackgroundColor="#a9d888" TextColor="White"
+                        FontAttributes="Bold" HeightRequest="46" CornerRadius="8"
+                        Command="{Binding SaveCommand}"/>
             </Grid>
 
-            <Button Text="Cancel"
-                    BackgroundColor="Transparent"
-                    TextColor="#666666"
-                    Command="{Binding CancelCommand}" />
+            <Button Text="Cancel" BackgroundColor="Transparent"
+                    TextColor="#666666" Command="{Binding CancelCommand}"/>
 
         </VerticalStackLayout>
     </ScrollView>

@@ -26,4 +26,9 @@ public partial class ProductDetailPage : ContentPage
             await _viewModel.InitializeCommand.ExecuteAsync(null);
         }
     }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+    }
 }

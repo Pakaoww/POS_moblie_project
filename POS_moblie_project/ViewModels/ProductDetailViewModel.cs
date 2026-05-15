@@ -10,37 +10,21 @@ namespace POS_moblie_project.ViewModels;
 public partial class ProductDetailViewModel : ObservableObject
 {
     private readonly DatabaseService _databaseService;
-    private Product _editingProduct;
+    private Product? _editingProduct;
 
-    [ObservableProperty]
-    private int productId;
+    [ObservableProperty] private int productId;
+    [ObservableProperty] private string productCode = string.Empty;
+    [ObservableProperty] private string productName = string.Empty;
+    [ObservableProperty] private decimal salePrice;
+    [ObservableProperty] private string imagePath = string.Empty;
+    [ObservableProperty] private ObservableCollection<Category> categories = new();
+    [ObservableProperty] private Category? selectedCategory;
+    [ObservableProperty] private string pageTitle = "New Product";
+    [ObservableProperty] private bool isEditMode;
 
-    [ObservableProperty]
-    private string productCode = string.Empty;
-
-    [ObservableProperty]
-    private string productName = string.Empty;
-
-    [ObservableProperty]
-    private decimal price;
-
-    [ObservableProperty]
-    private int stock;
-
-    [ObservableProperty]
-    private string imagePath = string.Empty;
-
-    [ObservableProperty]
-    private ObservableCollection<Category> categories = new();
-
-    [ObservableProperty]
-    private Category selectedCategory;
-
-    [ObservableProperty]
-    private string pageTitle = "New Product";
-
-    [ObservableProperty]
-    private bool isEditMode;
+    // First lot fields — Add mode only
+    [ObservableProperty] private decimal costPrice;
+    [ObservableProperty] private int initialQuantity;
 
     public ProductDetailViewModel()
     {
@@ -49,29 +33,25 @@ public partial class ProductDetailViewModel : ObservableObject
 
     partial void OnProductIdChanged(int value)
     {
-        // Only trigger load when a real product ID is passed via query parameter
-        if (value > 0)
-            _ = LoadProductAsync(value);
+        if (value > 0) _ = LoadProductAsync(value);
     }
 
     [RelayCommand]
     public async Task InitializeAsync()
     {
-        // Always reload categories fresh each time the page appears
         var cats = await _databaseService.GetAllCategoriesAsync();
         Categories.Clear();
-        foreach (var c in cats)
-            Categories.Add(c);
+        foreach (var c in cats) Categories.Add(c);
 
-        // Only set up Add mode defaults if we are not in edit mode
         if (ProductId == 0)
         {
             IsEditMode = false;
             PageTitle = "New Product";
             ProductCode = string.Empty;
             ProductName = string.Empty;
-            Price = 0;
-            Stock = 0;
+            SalePrice = 0;
+            CostPrice = 0;
+            InitialQuantity = 0;
             ImagePath = string.Empty;
             SelectedCategory = Categories.FirstOrDefault();
         }
@@ -79,31 +59,27 @@ public partial class ProductDetailViewModel : ObservableObject
 
     private async Task LoadProductAsync(int id)
     {
-        // Safety guard — should never be called with 0 but defensive check
         if (id <= 0) return;
-
         try
         {
-            // Ensure categories are loaded before populating SelectedCategory
-            if (Categories.Count == 0)
-                await InitializeAsync();
+            if (Categories.Count == 0) await InitializeAsync();
 
             _editingProduct = await _databaseService.GetProductAsync(id);
             if (_editingProduct == null) return;
 
             ProductCode = _editingProduct.ProductCode;
             ProductName = _editingProduct.Name;
-            Price = _editingProduct.Price;
-            Stock = _editingProduct.Stock;
+            SalePrice = _editingProduct.SalePrice;
             ImagePath = _editingProduct.ImagePath ?? string.Empty;
-            SelectedCategory = Categories.FirstOrDefault(c => c.Id == _editingProduct.CategoryId);
+            SelectedCategory = Categories.FirstOrDefault(
+                c => c.Id == _editingProduct.CategoryId);
             IsEditMode = true;
             PageTitle = "Edit Product";
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to load product: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
     }
 
@@ -112,21 +88,14 @@ public partial class ProductDetailViewModel : ObservableObject
     {
         try
         {
-            if (!MediaPicker.Default.IsCaptureSupported)
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Not Supported", "Camera capture is not supported on this device.", "OK");
-                return;
-            }
-
+            if (!MediaPicker.Default.IsCaptureSupported) return;
             var photo = await MediaPicker.Default.CapturePhotoAsync();
-            if (photo != null)
-                await SavePhotoAsync(photo);
+            if (photo != null) await SavePhotoAsync(photo);
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Camera error: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
     }
 
@@ -136,13 +105,12 @@ public partial class ProductDetailViewModel : ObservableObject
         try
         {
             var photo = await MediaPicker.Default.PickPhotoAsync();
-            if (photo != null)
-                await SavePhotoAsync(photo);
+            if (photo != null) await SavePhotoAsync(photo);
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Gallery error: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
     }
 
@@ -150,52 +118,66 @@ public partial class ProductDetailViewModel : ObservableObject
     {
         var fileName = $"product_{Guid.NewGuid()}.jpg";
         var localPath = Path.Combine(FileSystem.AppDataDirectory, fileName);
-
         using var sourceStream = await photo.OpenReadAsync();
         using var destStream = File.Create(localPath);
         await sourceStream.CopyToAsync(destStream);
-
         ImagePath = localPath;
+    }
+
+    [RelayCommand]
+    private async Task ScanBarcodeAsync()
+    {
+        var tcs = new TaskCompletionSource<string>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
+            tcs.TrySetResult(result));
+        scannerPage.Disappearing += (s, e) =>
+            tcs.TrySetResult(string.Empty);
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(scannerPage);
+        var scannedValue = await tcs.Task;
+        if (!string.IsNullOrWhiteSpace(scannedValue))
+            ProductCode = scannedValue;
     }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
-        // Validation
         if (string.IsNullOrWhiteSpace(ProductCode))
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Validation", "Product code is required.", "OK");
             return;
         }
-
         if (string.IsNullOrWhiteSpace(ProductName))
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Validation", "Product name is required.", "OK");
             return;
         }
-
-        if (Price < 0)
+        if (SalePrice < 0)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Validation", "Price must be 0 or greater.", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Validation", "Sale price must be 0 or greater.", "OK");
             return;
         }
-
         if (SelectedCategory == null)
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Validation", "Please select a category.", "OK");
             return;
         }
+        if (!IsEditMode && InitialQuantity <= 0)
+        {
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Validation", "Initial quantity must be greater than 0.", "OK");
+            return;
+        }
 
-        // Check for duplicate product code, excluding self when editing
         var excludeId = IsEditMode ? ProductId : 0;
         if (await _databaseService.IsProductCodeExistsAsync(ProductCode.Trim(), excludeId))
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Validation", "Product code already exists. Please use a different code.", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Validation", "Product code already exists.", "OK");
             return;
         }
 
@@ -203,17 +185,11 @@ public partial class ProductDetailViewModel : ObservableObject
         {
             if (IsEditMode)
             {
-                _editingProduct.ProductCode = ProductCode.Trim();
+                _editingProduct!.ProductCode = ProductCode.Trim();
                 _editingProduct.Name = ProductName.Trim();
                 _editingProduct.CategoryId = SelectedCategory.Id;
-                _editingProduct.Price = Price;
-                _editingProduct.Stock = Stock;
-                _editingProduct.ImagePath = ImagePath ?? string.Empty;
-
-                // Auto-off เมื่อ stock ถูกแก้เป็น 0
-                if (Stock <= 0 && _editingProduct.IsVisible)
-                    _editingProduct.IsVisible = false;
-
+                _editingProduct.SalePrice = SalePrice;
+                _editingProduct.ImagePath = ImagePath;
                 await _databaseService.UpdateProductAsync(_editingProduct);
             }
             else
@@ -222,22 +198,25 @@ public partial class ProductDetailViewModel : ObservableObject
                     ProductCode.Trim(),
                     ProductName.Trim(),
                     SelectedCategory.Id,
-                    Price,
-                    Stock)
+                    SalePrice)
                 {
                     ImagePath = ImagePath ?? string.Empty,
-                    // สินค้าใหม่ที่ stock = 0 → ปิดอัตโนมัติ
-                    IsVisible = Stock > 0
+                    IsVisible = true
                 };
                 await _databaseService.CreateProductAsync(product);
+
+                // สร้าง Lot แรก
+                var lotId = await _databaseService.GenerateLotIdAsync();
+                var lot = new ProductLot(lotId, product.Id, CostPrice, InitialQuantity);
+                await _databaseService.CreateLotAsync(lot);
             }
 
             await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to save product: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
     }
 
@@ -246,53 +225,28 @@ public partial class ProductDetailViewModel : ObservableObject
     {
         if (!IsEditMode) return;
 
-        var confirm = await Application.Current.MainPage.DisplayAlert(
+        var confirm = await Application.Current!.MainPage!.DisplayAlert(
             "Delete Product",
-            $"Permanently delete \"{ProductName}\"? This cannot be undone.",
+            $"Permanently delete \"{ProductName}\" and all its lots?",
             "Delete", "Cancel");
-
         if (!confirm) return;
 
         try
         {
+            var lots = await _databaseService.GetLotsByProductAsync(ProductId);
+            foreach (var lot in lots)
+                await _databaseService.DeleteLotAsync(lot.Id);
             await _databaseService.DeleteProductAsync(ProductId);
             await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to delete product: {ex.Message}", "OK");
+            await Application.Current!.MainPage!.DisplayAlert(
+                "Error", ex.Message, "OK");
         }
     }
 
     [RelayCommand]
-    private async Task ScanBarcodeAsync()
-    {
-        var tcs = new TaskCompletionSource<string>(
-            TaskCreationOptions.RunContinuationsAsynchronously);
-
-        var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
-        {
-            tcs.TrySetResult(result);
-        });
-
-        // ✅ Set cancel (empty string) เมื่อ page ถูก pop ไม่ว่าจะกด Cancel หรือ confirm
-        scannerPage.Disappearing += (s, e) =>
-        {
-            tcs.TrySetResult(string.Empty); // จะ ignore ถ้า set result ไปแล้ว
-        };
-
-        await Application.Current.MainPage.Navigation.PushModalAsync(scannerPage);
-
-        var scannedValue = await tcs.Task;
-
-        if (!string.IsNullOrWhiteSpace(scannedValue))
-            ProductCode = scannedValue;
-    }
-
-    [RelayCommand]
     private async Task CancelAsync()
-    {
-        await Shell.Current.GoToAsync("..");
-    }
+        => await Shell.Current.GoToAsync("..");
 }

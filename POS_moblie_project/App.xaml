@@ -25,6 +25,8 @@
             <converters:BoolToThumbColumnConverter x:Key="BoolToThumbColumnConverter"/>
             <converters:BoolToLabelColumnConverter x:Key="BoolToLabelColumnConverter"/>
             <converters:BoolToLabelAlignConverter  x:Key="BoolToLabelAlignConverter"/>
+            <converters:BoolToTabColorConverter x:Key="BoolToTabColorConverter" />
+            <converters:BoolToTabTextColorConverter x:Key="BoolToTabTextColorConverter" />
 
             <!-- Empty View Template (reusable for all CollectionViews) -->
             <DataTemplate x:Key="EmptyViewTemplate">

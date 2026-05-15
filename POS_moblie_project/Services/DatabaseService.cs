@@ -13,21 +13,16 @@ public class DatabaseService
     private static string DatabasePath =>
         Path.Combine(FileSystem.AppDataDirectory, DatabaseFilename);
 
-    public DatabaseService()
-    {
-    }
+    public DatabaseService() { }
 
     public async Task InitializeAsync()
     {
-        if (_isInitialized)
-            return;
+        if (_isInitialized) return;
 
         await _initLock.WaitAsync();
         try
         {
-            // Double-check inside lock
-            if (_isInitialized)
-                return;
+            if (_isInitialized) return;
 
             var connection = new SQLiteAsyncConnection(
                 DatabasePath,
@@ -35,14 +30,13 @@ public class DatabaseService
                 SQLiteOpenFlags.Create |
                 SQLiteOpenFlags.SharedCache);
 
-            // Create all tables before assigning to _database
             await connection.CreateTableAsync<Category>();
             await connection.CreateTableAsync<Product>();
+            await connection.CreateTableAsync<ProductLot>();
             await connection.CreateTableAsync<Transaction>();
             await connection.CreateTableAsync<TransactionItem>();
             await connection.CreateTableAsync<AppSetting>();
 
-            // Only assign after everything is ready
             _database = connection;
             _isInitialized = true;
 
@@ -57,9 +51,7 @@ public class DatabaseService
 
     private async Task EnsureInitializedAsync()
     {
-        if (_isInitialized)
-            return;
-
+        if (_isInitialized) return;
         await InitializeAsync();
     }
 
@@ -180,10 +172,30 @@ public class DatabaseService
                                .ToListAsync();
     }
 
-    public async Task<Product> GetProductAsync(int id)
+    public async Task<Product?> GetProductAsync(int id)
     {
         await EnsureInitializedAsync();
         return await _database!.GetAsync<Product>(id);
+    }
+
+    public async Task<Product?> GetProductByCodeAsync(string code)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.Table<Product>()
+                               .Where(p => p.ProductCode == code)
+                               .FirstOrDefaultAsync();
+    }
+
+    public async Task<List<Product>> SearchProductsAsync(string query)
+    {
+        await EnsureInitializedAsync();
+        var q = query.Trim().ToLowerInvariant();
+        var all = await _database!.Table<Product>().ToListAsync();
+        return all.Where(p =>
+            p.Name.ToLowerInvariant().Contains(q) ||
+            p.ProductCode.ToLowerInvariant().Contains(q))
+            .OrderBy(p => p.Name)
+            .ToList();
     }
 
     public async Task<int> CreateProductAsync(Product product)
@@ -212,7 +224,6 @@ public class DatabaseService
         await EnsureInitializedAsync();
         var product = await _database!.GetAsync<Product>(id);
         if (product == null) return;
-
         product.IsVisible = !product.IsVisible;
         product.UpdatedAt = DateTime.Now;
         await _database.UpdateAsync(product);
@@ -226,6 +237,88 @@ public class DatabaseService
                                                 && p.Id != excludeId)
                                        .FirstOrDefaultAsync();
         return existing != null;
+    }
+
+    // ============================================
+    // ProductLot methods
+    // ============================================
+    public async Task<List<ProductLot>> GetLotsByProductAsync(int productId)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.Table<ProductLot>()
+                               .Where(l => l.ProductId == productId)
+                               .OrderByDescending(l => l.ReceivedAt)
+                               .ToListAsync();
+    }
+
+    public async Task<List<ProductLot>> GetAllLotsAsync()
+    {
+        await EnsureInitializedAsync();
+        return await _database!.Table<ProductLot>()
+                               .OrderByDescending(l => l.ReceivedAt)
+                               .ToListAsync();
+    }
+
+    public async Task<ProductLot?> GetLatestLotAsync(int productId)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.Table<ProductLot>()
+                               .Where(l => l.ProductId == productId)
+                               .OrderByDescending(l => l.ReceivedAt)
+                               .FirstOrDefaultAsync();
+    }
+
+    public async Task<ProductLot?> GetFifoLotAsync(int productId)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.Table<ProductLot>()
+                               .Where(l => l.ProductId == productId
+                                        && l.IsActive
+                                        && l.Remaining > 0)
+                               .OrderBy(l => l.ReceivedAt)
+                               .FirstOrDefaultAsync();
+    }
+
+    public async Task<int> GetTotalStockAsync(int productId)
+    {
+        await EnsureInitializedAsync();
+        var lots = await _database!.Table<ProductLot>()
+                                   .Where(l => l.ProductId == productId
+                                            && l.Remaining > 0)
+                                   .ToListAsync();
+        return lots.Sum(l => l.Remaining);
+    }
+
+    public async Task<string> GenerateLotIdAsync()
+    {
+        await EnsureInitializedAsync();
+        var today = DateTime.Now;
+        var datePrefix = today.ToString("yyyyMMdd");
+        var startOfDay = today.Date;
+        var endOfDay = today.Date.AddDays(1);
+        var countToday = await _database!.Table<ProductLot>()
+                                          .Where(l => l.ReceivedAt >= startOfDay
+                                                   && l.ReceivedAt < endOfDay)
+                                          .CountAsync();
+        return $"LOT{datePrefix}{(countToday + 1):D4}";
+    }
+
+    public async Task<int> CreateLotAsync(ProductLot lot)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.InsertAsync(lot);
+    }
+
+    public async Task<int> UpdateLotAsync(ProductLot lot)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.UpdateAsync(lot);
+    }
+
+    public async Task<int> DeleteLotAsync(int id)
+    {
+        await EnsureInitializedAsync();
+        return await _database!.DeleteAsync<ProductLot>(id);
     }
 
     // ============================================
@@ -245,18 +338,34 @@ public class DatabaseService
                 item.TransactionId = transaction.Id;
                 db.Insert(item);
 
-                var product = db.Get<Product>(item.ProductId);
-                if (product != null)
+                // ลด Remaining ใน lot — FIFO
+                var lot = db.Find<ProductLot>(item.LotId);
+                if (lot != null)
                 {
-                    product.Stock -= item.Quantity;
-                    if (product.Stock < 0) product.Stock = 0;
+                    lot.Remaining -= item.Quantity;
+                    if (lot.Remaining <= 0)
+                    {
+                        lot.Remaining = 0;
+                        lot.IsActive = false;
+                    }
+                    db.Update(lot);
+                }
 
-                    // auto-off เมื่อ stock หมด
-                    if (product.Stock == 0 && product.IsVisible)
+                // ถ้าไม่มี lot เหลือเลย → ปิด IsVisible อัตโนมัติ
+                var hasStock = db.Table<ProductLot>()
+                    .Where(l => l.ProductId == item.ProductId
+                             && l.Remaining > 0)
+                    .Count() > 0;
+
+                if (!hasStock)
+                {
+                    var product = db.Find<Product>(item.ProductId);
+                    if (product != null && product.IsVisible)
+                    {
                         product.IsVisible = false;
-
-                    product.UpdatedAt = DateTime.Now;
-                    db.Update(product);
+                        product.UpdatedAt = DateTime.Now;
+                        db.Update(product);
+                    }
                 }
             }
         });
@@ -267,21 +376,15 @@ public class DatabaseService
     public async Task<string> GenerateTransactionIdAsync()
     {
         await EnsureInitializedAsync();
-
         var today = DateTime.Now;
         var datePrefix = today.ToString("yyyyMMdd");
-
         var startOfDay = today.Date;
         var endOfDay = today.Date.AddDays(1);
-
         var countToday = await _database!.Table<Transaction>()
                                           .Where(t => t.Timestamp >= startOfDay
                                                    && t.Timestamp < endOfDay)
                                           .CountAsync();
-
-        var orderNumber = (countToday + 1).ToString("D4");
-
-        return $"{datePrefix}{orderNumber}";
+        return $"{datePrefix}{(countToday + 1):D4}";
     }
 
     // ============================================
@@ -291,10 +394,8 @@ public class DatabaseService
         DateTime from, DateTime to)
     {
         await EnsureInitializedAsync();
-
         var fromDate = from.Date;
-        var toDate = to.Date.AddDays(1).AddTicks(-1); // ✅ ครอบคลุมถึง 23:59:59.999
-
+        var toDate = to.Date.AddDays(1).AddTicks(-1);
         return await _database!.Table<Transaction>()
                                .Where(t => t.Timestamp >= fromDate
                                         && t.Timestamp <= toDate)
@@ -319,20 +420,16 @@ public class DatabaseService
         int productId, DateTime from, DateTime to)
     {
         await EnsureInitializedAsync();
-
         var fromDate = from.Date;
-        var toDate = to.Date.AddDays(1).AddTicks(-1); // ✅ ครอบคลุมถึง 23:59:59.999
-
+        var toDate = to.Date.AddDays(1).AddTicks(-1);
         var transactions = await _database!.Table<Transaction>()
                                            .Where(t => t.Timestamp >= fromDate
                                                     && t.Timestamp <= toDate)
                                            .ToListAsync();
         var transactionIds = transactions.Select(t => t.Id).ToList();
-
         var allItems = await _database!.Table<TransactionItem>()
                                        .Where(i => i.ProductId == productId)
                                        .ToListAsync();
-
         return allItems.Where(i => transactionIds.Contains(i.TransactionId)).ToList();
     }
 
@@ -340,24 +437,20 @@ public class DatabaseService
         DateTime from, DateTime to)
     {
         await EnsureInitializedAsync();
-
         var fromDate = from.Date;
-        var toDate = to.Date.AddDays(1).AddTicks(-1); // ✅ ครอบคลุมถึง 23:59:59.999
-
+        var toDate = to.Date.AddDays(1).AddTicks(-1);
         var transactions = await _database!.Table<Transaction>()
                                            .Where(t => t.Timestamp >= fromDate
                                                     && t.Timestamp <= toDate)
                                            .ToListAsync();
         var transactionIds = transactions.Select(t => t.Id).ToList();
-
         var allItems = await _database!.Table<TransactionItem>().ToListAsync();
         var filteredItems = allItems
             .Where(i => transactionIds.Contains(i.TransactionId))
             .ToList();
-
         var products = await _database!.Table<Product>().ToListAsync();
 
-        var report = filteredItems
+        return filteredItems
             .GroupBy(i => i.ProductId)
             .Select(g =>
             {
@@ -374,8 +467,6 @@ public class DatabaseService
             })
             .OrderByDescending(r => r.TotalQuantity)
             .ToList();
-
-        return report;
     }
 
     public async Task<List<TransactionItem>> GetAllTransactionItemsAsync()

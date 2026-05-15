@@ -43,7 +43,6 @@ public partial class CartViewModel : ObservableObject
     public string CheckoutButtonText =>
         $"Checkout  {ServiceHelper.GetService<CurrencyService>().Format(GrandTotal)}";
 
-    // ── Discount state ────────────────────────────────────
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DiscountTypeIsPercent))]
     [NotifyPropertyChangedFor(nameof(DiscountTypeIsAmount))]
@@ -85,7 +84,9 @@ public partial class CartViewModel : ObservableObject
     private bool isReceiptPrinted = false;
 
     public string PrintButtonText => IsReceiptPrinted ? "Receipt Printed" : "🖨️  Print Receipt";
-    public Color PrintButtonColor => IsReceiptPrinted ? Color.FromArgb("#AAAAAA") : Color.FromArgb("#FF6B6B");
+    public Color PrintButtonColor => IsReceiptPrinted
+        ? Color.FromArgb("#AAAAAA")
+        : Color.FromArgb("#FF6B6B");
 
     public CartViewModel()
     {
@@ -137,12 +138,13 @@ public partial class CartViewModel : ObservableObject
     {
         if (item == null) return;
 
-        var product = await _databaseService.GetProductAsync(item.ProductId);
-        if (product != null && item.Quantity >= product.Stock)
+        // เช็ค stock จาก lots แทน product.Stock
+        var totalStock = await _databaseService.GetTotalStockAsync(item.ProductId);
+        if (item.Quantity >= totalStock)
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Stock Limit",
-                $"Only {product.Stock} unit(s) available in stock.",
+                $"Only {totalStock} unit(s) available in stock.",
                 "OK");
             return;
         }
@@ -295,7 +297,7 @@ public partial class CartViewModel : ObservableObject
     {
         if (MoneyReceived < GrandTotal)
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Insufficient", "Money received is less than the total.", "OK");
             return;
         }
@@ -316,24 +318,19 @@ public partial class CartViewModel : ObservableObject
                 MoneyReceived,
                 Change);
 
+            // ← แก้: ใช้ constructor ใหม่ที่มี LotId และ UnitCost
             var items = CartItems.Select(c => new TransactionItem(
-                0, c.ProductId, c.ProductName, c.UnitPrice, c.Quantity)).ToList();
+                0,
+                c.ProductId,
+                c.LotId,
+                c.ProductName,
+                c.UnitCost,
+                c.UnitPrice,
+                c.Quantity)).ToList();
 
+            // CreateTransactionAsync จัดการลด lot.Remaining ให้แล้ว
+            // ไม่ต้อง update product.Stock เองอีกต่อไป
             await _databaseService.CreateTransactionAsync(transaction, items);
-
-            foreach (var cartItem in CartItems)
-            {
-                var product = await _databaseService.GetProductAsync(cartItem.ProductId);
-                if (product == null) continue;
-
-                product.Stock -= cartItem.Quantity;
-                if (product.Stock < 0) product.Stock = 0;
-
-                if (product.Stock == 0 && product.IsVisible)
-                    product.IsVisible = false;
-
-                await _databaseService.UpdateProductAsync(product);
-            }
 
             ReceiptTransactionId = transactionId;
             ReceiptTimestamp = transaction.Timestamp;
@@ -341,7 +338,7 @@ public partial class CartViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
+            await Application.Current!.MainPage!.DisplayAlert(
                 "Error", $"Failed to save transaction: {ex.Message}", "OK");
         }
     }

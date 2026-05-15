@@ -61,6 +61,7 @@ namespace POS_moblie_project
             builder.Services.AddSingleton<ManageCategoryViewModel>();
             builder.Services.AddSingleton<StockViewModel>();
             builder.Services.AddTransient<ProductDetailViewModel>();
+            builder.Services.AddTransient<AddStockViewModel>();
 
             // Later phases (uncomment as built):
             builder.Services.AddSingleton<HomeViewModel>();
@@ -82,6 +83,7 @@ namespace POS_moblie_project
             builder.Services.AddSingleton<ManageCategoryPage>();
             builder.Services.AddSingleton<StockPage>();
             builder.Services.AddTransient<ProductDetailPage>();
+            builder.Services.AddTransient<AddStockPage>();
 
             // Later phases (uncomment as built):
             builder.Services.AddSingleton<HomePage>();

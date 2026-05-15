@@ -148,6 +148,9 @@
 		<MauiXaml Update="Views\Splash\SplashPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Views\Stock\AddStockPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Views\Stock\ProductDetailPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
