@@ -45,6 +45,12 @@ public partial class TransactionHistoryViewModel : ObservableObject
     public TransactionHistoryViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
+
+        // Set Today as default
+        var today = DateTime.Today;
+        FromDate = today;
+        ToDate = today;
+        ActivePeriod = "Today";
     }
 
     partial void OnSearchTextChanged(string value) => ApplySearch();
@@ -55,6 +61,8 @@ public partial class TransactionHistoryViewModel : ObservableObject
         IsLoading = true;
         try
         {
+            ClearPeriodIfNotMatching();
+
             _allTransactions = await _databaseService
                 .GetTransactionsAsync(FromDate, ToDate);
 
@@ -86,6 +94,31 @@ public partial class TransactionHistoryViewModel : ObservableObject
         Transactions.Clear();
         foreach (var t in filtered)
             Transactions.Add(t);
+    }
+
+
+    private void ClearPeriodIfNotMatching()
+    {
+        if (string.IsNullOrEmpty(ActivePeriod)) return;
+
+        var today = DateTime.Today;
+        bool stillMatches = ActivePeriod switch
+        {
+            "Today" => FromDate.Date == today && ToDate.Date == today,
+            "ThisWeek" => FromDate.Date == today.AddDays(-((7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7))
+                       && ToDate.Date == FromDate.Date.AddDays(6),
+            "ThisMonth" => FromDate.Date == new DateTime(today.Year, today.Month, 1)
+                        && ToDate.Date == new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1),
+            _ => false
+        };
+
+        if (!stillMatches)
+        {
+            ActivePeriod = string.Empty;
+            OnPropertyChanged(nameof(IsTodayActive));
+            OnPropertyChanged(nameof(IsThisWeekActive));
+            OnPropertyChanged(nameof(IsThisMonthActive));
+        }
     }
 
     private void CalculateStats()
@@ -137,6 +170,16 @@ public partial class TransactionHistoryViewModel : ObservableObject
     [RelayCommand]
     private async Task SetPeriod(string period)
     {
+        // ถ้ากดปุ่มเดิมซ้ำ (toggle ออก) → แค่ดับสีแล้วหยุด ไม่ต้อง load
+        if (ActivePeriod == period)
+        {
+            ActivePeriod = string.Empty;
+            OnPropertyChanged(nameof(IsTodayActive));
+            OnPropertyChanged(nameof(IsThisWeekActive));
+            OnPropertyChanged(nameof(IsThisMonthActive));
+            return; // ← หยุดที่นี่เลย
+        }
+
         var today = DateTime.Today;
 
         switch (period)
