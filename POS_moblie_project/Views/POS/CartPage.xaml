@@ -245,12 +245,14 @@
                 <Label Grid.Row="2"
                        IsVisible="{Binding DiscountTypeIsPercent}"
                        FontSize="13" TextColor="#E6820E" HorizontalOptions="End">
-                    <Label.Text>
-                        <MultiBinding StringFormat="Discount ({0}%): -{1:N2}">
-                            <Binding Path="DiscountValue" />
-                            <Binding Path="DiscountAmount" />
-                        </MultiBinding>
-                    </Label.Text>
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Discount ("/>
+                            <Span Text="{Binding DiscountValue}"/>
+                            <Span Text="%): -"/>
+                            <Span Text="{Binding DiscountAmount, Converter={StaticResource PriceFormatConverter}}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
                 </Label>
                 <!-- Discount fixed amount -->
                 <Label Grid.Row="2" TextColor="#666666" HorizontalOptions="End" FontAttributes="Bold" FontSize="13" IsVisible="{Binding IsVatEnabled}">
