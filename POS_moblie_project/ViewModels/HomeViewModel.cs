@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microcharts;
-using POS_moblie_project.Models;
 using POS_moblie_project.Services;
 using SkiaSharp;
 
@@ -11,19 +10,31 @@ public partial class HomeViewModel : ObservableObject
 {
     private readonly DatabaseService _databaseService;
 
-    [ObservableProperty] private int totalProducts;
-    [ObservableProperty] private int lowStockItems;
-    [ObservableProperty] private int outOfStockItems;
-    [ObservableProperty] private decimal todaySales;
-    [ObservableProperty] private int todayTransactions;
-    [ObservableProperty] private Chart weeklyBarChart;
-    [ObservableProperty] private string dashboardTimeframeDisplay = "Last 7 days";
-    [ObservableProperty] private string _legendCurrentText = "Today";
-    [ObservableProperty] private string _legendOtherText = "Other";
+    [ObservableProperty] 
+    private int totalProducts;
+    [ObservableProperty] 
+    private int lowStockItems;
+    [ObservableProperty] 
+    private int outOfStockItems;
+    [ObservableProperty] 
+    private decimal todaySales;
+    [ObservableProperty] 
+    private int todayTransactions;
+    [ObservableProperty] 
+    private Chart? weeklyBarChart;           // ← nullable
+    [ObservableProperty] 
+    private string dashboardTimeframeDisplay = "Last 7 days";
+    [ObservableProperty] 
+    private string _legendCurrentText = "Today";
+    [ObservableProperty] 
+    private string _legendOtherText = "Other";
 
-    [ObservableProperty] private Chart? profitIncomeChart;
-    [ObservableProperty] private Chart? profitExpenseChart;
-    [ObservableProperty] private string profitTimeframeDisplay = "Last 7 days";
+    [ObservableProperty] 
+    private Chart? profitIncomeChart;
+    [ObservableProperty] 
+    private Chart? profitExpenseChart;
+    [ObservableProperty] 
+    private string profitTimeframeDisplay = "Last 7 days";
 
     public HomeViewModel()
     {
@@ -37,7 +48,6 @@ public partial class HomeViewModel : ObservableObject
         {
             WeeklyBarChart = null;
 
-            // Stock — คำนวณจาก lots แทน product.Stock
             var products = await _databaseService.GetAllProductsAsync();
             TotalProducts = products.Count;
 
@@ -52,14 +62,12 @@ public partial class HomeViewModel : ObservableObject
             LowStockItems = lowCount;
             OutOfStockItems = outCount;
 
-            // Today sales
             var today = DateTime.Now.Date;
             var tomorrow = today.AddDays(1);
             var todayTx = await _databaseService.GetTransactionsAsync(today, tomorrow);
             TodayTransactions = todayTx.Count;
             TodaySales = todayTx.Sum(t => t.GrandTotal);
 
-            // Read timeframe setting
             var tf = await _databaseService.GetSettingAsync("dashboard_timeframe");
             if (string.IsNullOrWhiteSpace(tf)) tf = "weekly";
             await GenerateSalesChartAsync(tf);
@@ -67,8 +75,7 @@ public partial class HomeViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");  // ← Shell
         }
     }
 
@@ -158,8 +165,7 @@ public partial class HomeViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", $"Failed to generate chart: {ex.Message}", "OK");
+            await Shell.Current.DisplayAlertAsync("Error", $"Failed to generate chart: {ex.Message}", "OK");
         }
     }
 
@@ -211,12 +217,8 @@ public partial class HomeViewModel : ObservableObject
                 for (int i = 0; i < 7; i++)
                 {
                     var date = from.AddDays(i);
-                    var income = transactions
-                        .Where(t => t.Timestamp.Date == date)
-                        .Sum(t => t.GrandTotal);
-                    var expense = lotsInRange
-                        .Where(l => l.ReceivedAt.Date == date)
-                        .Sum(l => l.CostPrice * l.Quantity);
+                    var income = transactions.Where(t => t.Timestamp.Date == date).Sum(t => t.GrandTotal);
+                    var expense = lotsInRange.Where(l => l.ReceivedAt.Date == date).Sum(l => l.CostPrice * l.Quantity);
                     buckets.Add((dayLabels[i], income, expense));
                 }
             }
@@ -231,12 +233,8 @@ public partial class HomeViewModel : ObservableObject
                     int wEnd = Math.Min(w * 7, daysInMonth);
                     var startDate = new DateTime(today.Year, today.Month, wStart);
                     var endDate = new DateTime(today.Year, today.Month, wEnd);
-                    var income = transactions
-                        .Where(t => t.Timestamp.Date >= startDate && t.Timestamp.Date <= endDate)
-                        .Sum(t => t.GrandTotal);
-                    var expense = lotsInRange
-                        .Where(l => l.ReceivedAt.Date >= startDate && l.ReceivedAt.Date <= endDate)
-                        .Sum(l => l.CostPrice * l.Quantity);
+                    var income = transactions.Where(t => t.Timestamp.Date >= startDate && t.Timestamp.Date <= endDate).Sum(t => t.GrandTotal);
+                    var expense = lotsInRange.Where(l => l.ReceivedAt.Date >= startDate && l.ReceivedAt.Date <= endDate).Sum(l => l.CostPrice * l.Quantity);
                     buckets.Add(($"W{w}", income, expense));
                 }
             }
@@ -246,14 +244,8 @@ public partial class HomeViewModel : ObservableObject
                 int q = (today.Month - 1) / 3;
                 for (int m = q * 3 + 1; m <= q * 3 + 3; m++)
                 {
-                    var monthStart = new DateTime(today.Year, m, 1);
-                    var monthEnd = monthStart.AddMonths(1).AddDays(-1);
-                    var income = transactions
-                        .Where(t => t.Timestamp.Month == m)
-                        .Sum(t => t.GrandTotal);
-                    var expense = lotsInRange
-                        .Where(l => l.ReceivedAt.Month == m)
-                        .Sum(l => l.CostPrice * l.Quantity);
+                    var income = transactions.Where(t => t.Timestamp.Month == m).Sum(t => t.GrandTotal);
+                    var expense = lotsInRange.Where(l => l.ReceivedAt.Month == m).Sum(l => l.CostPrice * l.Quantity);
                     buckets.Add(($"M{m}", income, expense));
                 }
             }
@@ -262,13 +254,8 @@ public partial class HomeViewModel : ObservableObject
                 buckets = new List<(string, decimal, decimal)>();
                 for (int m = 1; m <= 12; m++)
                 {
-                    var monthStart = new DateTime(today.Year, m, 1);
-                    var income = transactions
-                        .Where(t => t.Timestamp.Month == m)
-                        .Sum(t => t.GrandTotal);
-                    var expense = lotsInRange
-                        .Where(l => l.ReceivedAt.Month == m)
-                        .Sum(l => l.CostPrice * l.Quantity);
+                    var income = transactions.Where(t => t.Timestamp.Month == m).Sum(t => t.GrandTotal);
+                    var expense = lotsInRange.Where(l => l.ReceivedAt.Month == m).Sum(l => l.CostPrice * l.Quantity);
                     buckets.Add(($"M{m}", income, expense));
                 }
             }
@@ -357,8 +344,7 @@ public partial class HomeViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", $"Failed to generate profit chart: {ex.Message}", "OK");
+            await Shell.Current.DisplayAlertAsync("Error", $"Failed to generate profit chart: {ex.Message}", "OK");
         }
     }
 
