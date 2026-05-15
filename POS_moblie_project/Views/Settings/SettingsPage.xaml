@@ -13,7 +13,7 @@
                      Padding="0,0,16,0"
                      VerticalOptions="Center">
             <Label Text="Settings"
-                   TextColor="{StaticResource TextPrimary}"
+                   TextColor="{StaticResource BlackColor}"
                    FontSize="18"
                    FontAttributes="Bold"
                    VerticalOptions="Center"
@@ -27,52 +27,58 @@
             <!-- ══════════════════════════
                            TAX
             ══════════════════════════ -->
+            <Label Text="General Setting" TextColor="{StaticResource BlackColor}" FontAttributes="Bold"/>
 
             <Border Style="{StaticResource Card}"
-                    StrokeShape="RoundRectangle 25"
-                    BackgroundColor="{StaticResource White}">
+        StrokeShape="RoundRectangle 20"
+        StrokeThickness="0"
+        BackgroundColor="{StaticResource White}"
+                    Margin="0,8,0,16">
+                <Border.Shadow>
+                    <Shadow Brush="#e3e3e3" Offset="0,4"
+                Radius="12" Opacity="0.6" />
+                </Border.Shadow>
+
+
                 <StackLayout Spacing="0">
 
                     <!-- VAT Rate — Toggle + Stepper -->
                     <StackLayout Padding="16,14" Spacing="10">
-
-
-
                         <!-- Change Password -->
-                        <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <StackLayout Orientation="Horizontal" Padding="16,8" Spacing="12">
                             <StackLayout.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ChangePasswordCommand}"/>
                             </StackLayout.GestureRecognizers>
                             <Label Text="🔑" FontSize="20" VerticalOptions="Center"/>
                             <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
-                                <Label Text="Change Password"          Style="{StaticResource RowTitle}"/>
-                                <Label Text="Last updated 30 days ago" Style="{StaticResource RowSub}"/>
+                                <Label Text="Change Password"          TextColor="{StaticResource BlackColor}"/>
+                                <Label Text="Last updated 30 days ago" TextColor="{StaticResource DarkGrey}"/>
                             </StackLayout>
-                            <Label Text="›" Style="{StaticResource Chevron}"/>
+                            <Label Text="›" Style="{StaticResource BlackColor}"/>
                         </StackLayout>
                         <BoxView Style="{StaticResource Divider}"/>
 
                         <!-- Manage Category -->
-                        <StackLayout Orientation="Horizontal" Padding="16,14" Spacing="12">
+                        <StackLayout Orientation="Horizontal" Padding="16,8" Spacing="12">
                             <StackLayout.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ManageCategoryCommand}"/>
                             </StackLayout.GestureRecognizers>
                             <Label Text="📁" FontSize="20" VerticalOptions="Center"/>
                             <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
-                                <Label Text="Manage Category"               Style="{StaticResource RowTitle}"/>
-                                <Label Text="Change Category" Style="{StaticResource RowSub}"/>
+                                <Label Text="Manage Category"               TextColor="{StaticResource BlackColor}"/>
+                                <Label Text="Change Category" TextColor="{StaticResource DarkGrey}"/>
                             </StackLayout>
-                            <Label Text="›" Style="{StaticResource Chevron}"/>
+                            <Label Text="›" TextColor="{StaticResource BlackColor}"/>
                         </StackLayout>
                         <BoxView Style="{StaticResource Divider}"/>
 
                         <!-- Row: Icon + Label + Toggle -->
-                        <StackLayout Orientation="Horizontal" Spacing="12">
+                        <StackLayout Orientation="Horizontal" Padding="16,8" Spacing="12">
                             <Label Text="📋" FontSize="20" VerticalOptions="Center"/>
                             <StackLayout HorizontalOptions="FillAndExpand"
                                          Spacing="2" VerticalOptions="Center">
-                                <Label Text="VAT Rate"             Style="{StaticResource FieldLabel}"/>
-                                <Label Text="Enable VAT on orders" Style="{StaticResource RowSub}"/>
+                                <Label Text="VAT Rate"             TextColor="{StaticResource BlackColor}"/>
+                                <Label Text="Enable VAT on orders" TextColor="{StaticResource DarkGrey}"/>
                             </StackLayout>
                             <Border WidthRequest="62"
                                     HeightRequest="30"
@@ -107,7 +113,7 @@
 
                         <!-- Stepper (visible เมื่อ VatEnabled = true) -->
                         <Border BackgroundColor="{StaticResource White}"
-                                Stroke="{StaticResource Gray300}"
+                                Stroke="{StaticResource DarkGrey}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10"
                                 Padding="4"
@@ -123,7 +129,7 @@
                                         <TapGestureRecognizer Command="{Binding DecreaseVatCommand}"/>
                                     </Border.GestureRecognizers>
                                     <Label Text="−"
-                                           TextColor="{StaticResource Black}"
+                                           TextColor="{StaticResource BlackColor}"
                                            FontSize="22" FontAttributes="Bold"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
@@ -133,11 +139,11 @@
                                 <StackLayout HorizontalOptions="FillAndExpand"
                                              VerticalOptions="Center" Spacing="2">
                                     <Label Text="{Binding VatRateDisplay}"
-                                           TextColor="{StaticResource Black}"
+                                           TextColor="{StaticResource BlackColor}"
                                            FontSize="20" FontAttributes="Bold"
                                            HorizontalOptions="Center"/>
                                     <Label Text="Tax Rate"
-                                           TextColor="{StaticResource TextMuted}"
+                                           TextColor="{StaticResource BlackColor}"
                                            FontSize="10"
                                            HorizontalOptions="Center"/>
                                 </StackLayout>
@@ -151,7 +157,7 @@
                                         <TapGestureRecognizer Command="{Binding IncreaseVatCommand}"/>
                                     </Border.GestureRecognizers>
                                     <Label Text="+"
-                                           TextColor="{StaticResource Black}"
+                                           TextColor="{StaticResource BlackColor}"
                                            FontSize="22" FontAttributes="Bold"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
@@ -168,11 +174,17 @@
             <!-- ══════════════════════════
                  CURRENCY
             ══════════════════════════ -->
-            <Label Text="CURRENCY" Style="{StaticResource SectionLabel}"/>
+            <Label Text="Currency" TextColor="{StaticResource BlackColor}" FontAttributes="Bold"/>
 
             <Border Style="{StaticResource Card}"
-                    StrokeShape="RoundRectangle 25"
-                    BackgroundColor="{StaticResource White}">
+        StrokeShape="RoundRectangle 20"
+        StrokeThickness="0"
+        BackgroundColor="{StaticResource BorderColor}"
+                    Margin="0,8,0,16">
+                <Border.Shadow>
+        <Shadow Brush="#e3e3e3" Offset="0,4"
+                Radius="12" Opacity="0.6" />
+    </Border.Shadow>
                 <StackLayout Spacing="0" Padding="16,14">
 
                     <!-- Show/Hide symbol toggle -->
@@ -180,7 +192,7 @@
                         <Label Text="💱" FontSize="20" VerticalOptions="Center"/>
                         <StackLayout HorizontalOptions="FillAndExpand"
                          Spacing="2" VerticalOptions="Center">
-                            <Label Text="Show Currency Symbol" Style="{StaticResource RowTitle}"/>
+                            <Label Text="Show Currency Symbol" TextColor="{StaticResource BlackColor}"/>
                         </StackLayout>
                         <Border WidthRequest="62"
         HeightRequest="30"
@@ -215,7 +227,7 @@
 
                     <!-- Symbol input (แสดงเมื่อเปิด) -->
                     <Border BackgroundColor="{StaticResource White}"
-                            Stroke="{StaticResource Gray300}"
+                            Stroke="{StaticResource DarkGrey}"
                             StrokeThickness="1"
                             StrokeShape="RoundRectangle 10"
                             Padding="12,8"
@@ -223,7 +235,7 @@
                             IsVisible="{Binding ShowCurrencySymbol}">
                         <StackLayout Orientation="Horizontal" Spacing="12">
                             <Label Text="Symbol"
-                       Style="{StaticResource RowSub}"
+                       TextColor="{StaticResource BlackColor}"
                        VerticalOptions="Center"
                        WidthRequest="60"/>
                             <Entry Text="{Binding CurrencySymbol}"
@@ -231,12 +243,12 @@
                        MaxLength="4"
                        FontSize="16"
                        FontAttributes="Bold"
-                       TextColor="{StaticResource TextPrimary}"
+                       TextColor="{StaticResource BlackColor}"
                        PlaceholderColor="{StaticResource TextMuted}"
                        BackgroundColor="Transparent"
                        HorizontalOptions="FillAndExpand"/>
                             <Label Text="{Binding CurrencySymbol, StringFormat='Preview: {0}100.00'}"
-                       TextColor="{StaticResource AccentAmber}"
+                       TextColor="{StaticResource DarkGrey}"
                        FontSize="13"
                        VerticalOptions="Center"/>
                         </StackLayout>
@@ -257,11 +269,17 @@
             <!-- ══════════════════════════
                  DATA MANAGEMENT
             ══════════════════════════ -->
-            <Label Text="DATA MANAGEMENT" Style="{StaticResource SectionLabel}"/>
+            <Label Text="Data Management" TextColor="{StaticResource BlackColor}" FontAttributes="Bold"/>
 
             <Border Style="{StaticResource Card}"
-                    StrokeShape="RoundRectangle 25"
-                    BackgroundColor="{StaticResource White}">
+        StrokeShape="RoundRectangle 20"
+        StrokeThickness="0"
+        BackgroundColor="{StaticResource BorderColor}">
+                
+                <Border.Shadow>
+                    <Shadow Brush="#e3e3e3" Offset="0,4"
+                Radius="12" Opacity="0.6" />
+                </Border.Shadow>
                 <StackLayout Spacing="0" Padding="16,14">
 
                     <!-- Backup Database -->
@@ -271,8 +289,8 @@
                         </StackLayout.GestureRecognizers>
                         <Label Text="💾" FontSize="20" VerticalOptions="Center"/>
                         <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Backup Database" Style="{StaticResource RowTitle}"/>
-                            <Label Text="Save a copy of the .db3 file" Style="{StaticResource RowSub}"/>
+                            <Label Text="Backup Database" TextColor="{StaticResource BlackColor}"/>
+                            <Label Text="Save a copy of the .db3 file" TextColor="{StaticResource DarkGrey}"/>
                         </StackLayout>
                         <Label Text="›" Style="{StaticResource Chevron}"/>
                     </StackLayout>
@@ -286,10 +304,10 @@
                         </StackLayout.GestureRecognizers>
                         <Label Text="📥" FontSize="20" VerticalOptions="Center"/>
                         <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Import / Restore" Style="{StaticResource RowTitle}"/>
-                            <Label Text="Restore from a .db3 backup file" Style="{StaticResource RowSub}"/>
+                            <Label Text="Import / Restore" TextColor="{StaticResource BlackColor}"/>
+                            <Label Text="Restore from a .db3 backup file" TextColor="{StaticResource DarkGrey}"/>
                         </StackLayout>
-                        <Label Text="›" Style="{StaticResource Chevron}"/>
+                        <Label Text="›" TextColor="{StaticResource BlackColor}"/>
                     </StackLayout>
 
                 </StackLayout>
@@ -303,5 +321,6 @@
 
 
         </StackLayout>
+       
     </ScrollView>
 </ContentPage>

@@ -23,7 +23,7 @@
 
                     <!-- POS Button -->
                     <Border Grid.Column="0"
-                            BackgroundColor="#ffffff"
+                            BackgroundColor="{StaticResource BorderColor}"
                             StrokeThickness="0"
                             Padding="0">
                         <Border.StrokeShape>
@@ -38,14 +38,14 @@
                         </Border.GestureRecognizers>
                         <Label Text="POS"
                                FontSize="17" FontAttributes="Bold"
-                               TextColor="#3c3d3c"
+                               TextColor="{StaticResource BlackColor}"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>
 
                     <!-- Stock Button -->
                     <Border Grid.Column="1"
-                            BackgroundColor="#ffffff"
+                            BackgroundColor="{StaticResource BorderColor}"
                             StrokeThickness="0"
                             Padding="0">
                         <Border.StrokeShape>
@@ -60,7 +60,7 @@
                         </Border.GestureRecognizers>
                         <Label Text="Stock"
                                FontSize="17" FontAttributes="Bold"
-                               TextColor="#3c3d3c"
+                               TextColor="{StaticResource BlackColor}"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>
@@ -68,7 +68,7 @@
                 </Grid>
 
                 <!-- Stock Overview Card -->
-                <Border BackgroundColor="#ffffff"
+                <Border BackgroundColor="{StaticResource BorderColor}"
                         StrokeThickness="0"
                         Padding="22,20">
                     <Border.StrokeShape>
@@ -83,13 +83,13 @@
 
                         <Label Text="Stock Overview"
                                FontSize="14" FontAttributes="Bold"
-                               TextColor="#3c3d3c" />
+                               TextColor="{StaticResource BlackColor}" />
 
                         <!-- Total Products -->
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                             <Label Text="{Binding TotalProducts}"
                                    FontSize="38" FontAttributes="Bold"
-                                   TextColor="#3c3d3c"
+                                   TextColor="{StaticResource BlackColor}"
                                    VerticalOptions="Center" />
                             <Label Text="Total Products"
                                    FontSize="14" TextColor="#c4c4c4"
@@ -106,7 +106,7 @@
 
                             <!-- Low Stock -->
                             <Border Grid.Column="0"
-                                    BackgroundColor="#e7f6ce"
+                                    BackgroundColor="{StaticResource LightYellow}"
                                     StrokeThickness="0"
                                     Padding="12,10"
                                     Margin="0,0,6,0">
@@ -116,9 +116,9 @@
                                 <VerticalStackLayout Spacing="2">
                                     <Label Text="{Binding LowStockItems}"
                                            FontSize="22" FontAttributes="Bold"
-                                           TextColor="#3c3d3c" />
+                                           TextColor="{StaticResource DarkYellow}" />
                                     <Label Text="Low Stock Items"
-                                           FontSize="11" TextColor="#a9d888" />
+                                           FontSize="11" TextColor="{StaticResource DarkYellow}" />
                                 </VerticalStackLayout>
                             </Border>
 
@@ -134,19 +134,21 @@
                                 <VerticalStackLayout Spacing="2">
                                     <Label Text="{Binding OutOfStockItems}"
                                            FontSize="22" FontAttributes="Bold"
-                                           TextColor="#3c3d3c" />
+                                           TextColor="{StaticResource DarkRed}" />
                                     <Label Text="Out of Stock"
                                            FontSize="11" TextColor="#d37f8b" />
                                 </VerticalStackLayout>
                             </Border>
+                            
 
                         </Grid>
 
                     </VerticalStackLayout>
+                    
                 </Border>
 
                 <!-- Today Sales Card -->
-                <Border BackgroundColor="#ffffff"
+                <Border BackgroundColor="{StaticResource BorderColor}"
                         StrokeThickness="0"
                         Padding="22,20">
                     <Border.StrokeShape>
@@ -161,13 +163,13 @@
 
                         <Label Text="Today's Sales"
                                FontSize="14" FontAttributes="Bold"
-                               TextColor="#3c3d3c" />
+                               TextColor="{StaticResource BlackColor}" />
 
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                             <!-- Today Sales Card — ส่วน HorizontalStackLayout ตรงกลาง แก้บรรทัดนี้ -->
                             <Label Text="{Binding TodaySales, Converter={StaticResource PriceFormatConverter}}"
                                    FontSize="28" FontAttributes="Bold"
-                                   TextColor="#4ECDC4"
+                                   TextColor="{StaticResource DarkGreen}"
                                    VerticalOptions="Center" />
                         </HorizontalStackLayout>
 
@@ -184,7 +186,7 @@
                 <!-- ══════════════════════════════════════════════════ -->
                 <!--  Sales Report Card  — กราฟแท่ง 7 วัน (Microcharts) -->
                 <!-- ══════════════════════════════════════════════════ -->
-                <Border BackgroundColor="#ffffff"
+                <Border BackgroundColor="{StaticResource BorderColor}"
                         StrokeThickness="0"
                         Padding="22,20">
                     <Border.StrokeShape>
@@ -203,7 +205,7 @@
                             <VerticalStackLayout Grid.Column="0" Spacing="2">
                                 <Label Text="Sales Report"
                                        FontSize="14" FontAttributes="Bold"
-                                       TextColor="#3c3d3c" />
+                                       TextColor="{StaticResource BlackColor}" />
                                 <Label Text="Last 7 days"
                                        FontSize="11" TextColor="#c4c4c4" />
                             </VerticalStackLayout>
@@ -247,7 +249,7 @@
                 </Border>
 
                 <!-- Transaction History Card -->
-                <Border BackgroundColor="#ffffff"
+                <Border BackgroundColor="{StaticResource BorderColor}"
                         StrokeThickness="0"
                         Padding="22,22">
                     <Border.StrokeShape>
@@ -265,12 +267,12 @@
                         <VerticalStackLayout Grid.Column="0" Spacing="6">
                             <Label Text="Transaction History"
                                    FontSize="15" FontAttributes="Bold"
-                                   TextColor="#3c3d3c" />
+                                   TextColor="{StaticResource BlackColor}" />
                             <Label Text="Browse all past transactions"
                                    FontSize="12" TextColor="#c4c4c4" />
                         </VerticalStackLayout>
                         <Border Grid.Column="1"
-                                BackgroundColor="#fef3dc"
+                                BackgroundColor="{StaticResource LightGreen}"
                                 StrokeThickness="0"
                                 WidthRequest="36" HeightRequest="36"
                                 VerticalOptions="Center">
@@ -278,7 +280,7 @@
                                 <RoundRectangle CornerRadius="10" />
                             </Border.StrokeShape>
                             <Label Text=">"
-                                   FontSize="18" TextColor="#dfc784"
+                                   FontSize="18" TextColor="{StaticResource DarkGrey}"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center" />
                         </Border>
@@ -287,6 +289,7 @@
 
             </VerticalStackLayout>
         </Grid>
+        
     </ScrollView>
 
 </ContentPage>

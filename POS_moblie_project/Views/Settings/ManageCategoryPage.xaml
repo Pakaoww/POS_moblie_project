@@ -8,11 +8,11 @@
              Title="Manage Categories"
              BackgroundColor="White">
 
-    <Grid RowDefinitions="Auto,*" Padding="16">
+    <Grid RowDefinitions="Auto,*" Padding="16"  BackgroundColor="{StaticResource BgColor}">
 
         <Button Grid.Row="0"
                 Text="+ Add New Category"
-                BackgroundColor="#4ECDC4"
+                BackgroundColor="{StaticResource DarkGreen}"
                 TextColor="White"
                 FontAttributes="Bold"
                 CornerRadius="8"
@@ -38,11 +38,14 @@
                     <DataTemplate x:DataType="models:Category">
                         <Border Margin="0,0,0,8"
                                 Padding="14,12"
-                                BackgroundColor="#F5F5F7"
+                                BackgroundColor="{StaticResource BorderColor}"
                                 StrokeThickness="0">
+                            
+                            
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="10" />
                             </Border.StrokeShape>
+                            
 
                             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
 
