@@ -117,9 +117,16 @@ public partial class HomeViewModel : ObservableObject
             var allItems = await _databaseService.GetAllTransactionItemsAsync();
             var filteredItems = allItems.Where(i => txnIds.Contains(i.TransactionId)).ToList();
 
-            var productSales = filteredItems
-                .GroupBy(i => i.ProductName)
-                .Select(g => new { Product = g.Key, Count = g.Sum(i => i.Quantity) })
+            var allProducts = await _databaseService.GetAllProductsAsync();
+            var allCategories = await _databaseService.GetAllCategoriesAsync();
+            var catLookup = allCategories.ToDictionary(c => c.Id, c => c.Name);
+            var productCatLookup = allProducts
+                .Where(p => catLookup.ContainsKey(p.CategoryId))
+                .ToDictionary(p => p.Id, p => catLookup[p.CategoryId]);
+
+            var categorySales = filteredItems
+                .GroupBy(i => productCatLookup.TryGetValue(i.ProductId, out var cat) ? cat : "Uncategorized")
+                .Select(g => new { Category = g.Key, Count = g.Sum(i => i.Quantity) })
                 .OrderByDescending(x => x.Count)
                 .ToList();
 
@@ -133,14 +140,14 @@ public partial class HomeViewModel : ObservableObject
                 SKColor.Parse("#F98581"),  
                 SKColor.Parse("#FEE7AA"),  
                 SKColor.Parse("#CEC2EB"),  
-                SKColor.Parse("#f9e0e0"),  // LightRed
-                SKColor.Parse("#c4c4c4"),  // DarkGrey
-                SKColor.Parse("#e3e3e3"),  // LightGrey
-                SKColor.Parse("#4ECDC4"),  // teal (primary)
-                SKColor.Parse("#F4A620"),  // amber (primary)
+                SKColor.Parse("#f9e0e0"),
+                SKColor.Parse("#c4c4c4"),
+                SKColor.Parse("#e3e3e3"),
+                SKColor.Parse("#4ECDC4"),
+                SKColor.Parse("#F4A620"),
             };
 
-            int totalCount = productSales.Sum(x => x.Count);
+            int totalCount = categorySales.Sum(x => x.Count);
             if (totalCount == 0)
             {
                 WeeklyBarChart = new PieChart
@@ -153,13 +160,13 @@ public partial class HomeViewModel : ObservableObject
             }
 
             int colorIdx = 0;
-            foreach (var ps in productSales)
+            foreach (var cs in categorySales)
             {
                 var color = colors[colorIdx % colors.Length];
-                entries.Add(new ChartEntry(ps.Count)
+                entries.Add(new ChartEntry(cs.Count)
                 {
-                    Label = ps.Product,
-                    ValueLabel = $"{ps.Count} units",
+                    Label = cs.Category,
+                    ValueLabel = $"{cs.Count} units",
                     Color = color,
                 });
                 colorIdx++;
