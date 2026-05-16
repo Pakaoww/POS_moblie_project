@@ -6,9 +6,9 @@
              x:Class="POS_moblie_project.Views.POS.POSPage"
              x:DataType="vm:POSViewModel"
              Title="POS"
-             BackgroundColor="White">
+             BackgroundColor="{StaticResource BgColor}">
 
-    <Grid RowDefinitions="*,Auto" RowSpacing="0" BackgroundColor="White"
+    <Grid RowDefinitions="*,Auto" RowSpacing="0" BackgroundColor="{StaticResource BgColor}"
           Padding="0,0,0,0">
 
         <RefreshView Grid.Row="0"

@@ -60,6 +60,12 @@ public partial class AddStockViewModel : ObservableObject
     public AddStockViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
+
+        ServiceHelper.GetService<CurrencyService>().SettingChanged += () =>
+        {
+            OnPropertyChanged(nameof(SalePrice));
+            OnPropertyChanged(nameof(CostPrice));
+        };
     }
 
     [RelayCommand]

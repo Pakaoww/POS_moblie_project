@@ -46,6 +46,12 @@ public partial class TransactionHistoryViewModel : ObservableObject
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
 
+        ServiceHelper.GetService<CurrencyService>().SettingChanged += () =>
+        {
+            OnPropertyChanged(nameof(TotalRevenue));
+            OnPropertyChanged(nameof(AverageRevenue));
+        };
+
         // Set Today as default
         var today = DateTime.Today;
         FromDate = today;

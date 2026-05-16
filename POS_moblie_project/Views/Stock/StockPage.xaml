@@ -109,7 +109,7 @@
                                                FontSize="12" TextColor="#666666"/>
                                         <Label Text="{Binding TotalStock, StringFormat='Stock: {0} units'}"
                                                FontSize="12" TextColor="#666666"/>
-                                        <Label Text="{Binding SalePrice, StringFormat='฿{0:N2}'}"
+                                        <Label Text="{Binding SalePrice, Converter={StaticResource PriceFormatConverter}}"
                                                FontSize="13" FontAttributes="Bold" TextColor="#4ECDC4"/>
                                     </VerticalStackLayout>
 
@@ -172,8 +172,14 @@
                                            FontSize="11" TextColor="#888888"/>
                                     <Label Text="{Binding ReceivedAt, StringFormat='Received: {0:dd/MM/yyyy HH:mm}'}"
                                            FontSize="11" TextColor="#888888"/>
-                                    <Label Text="{Binding CostPrice, StringFormat='Cost: ฿{0:N2}'}"
-                                           FontSize="12" TextColor="#666666"/>
+                                    <Label FontSize="12" TextColor="#666666">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Cost: "/>
+                                                <Span Text="{Binding CostPrice, Converter={StaticResource PriceFormatConverter}}"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="1"
                                                      VerticalOptions="Center"

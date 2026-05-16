@@ -1,9 +1,11 @@
-﻿namespace POS_moblie_project.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace POS_moblie_project.Models;
 
 /// <summary>
 /// In-memory only — not stored in SQLite
 /// </summary>
-public class CartItem
+public partial class CartItem : ObservableObject
 {
     public int ProductId { get; set; }
     public int LotId { get; set; }
@@ -11,8 +13,12 @@ public class CartItem
     public string ProductName { get; set; } = string.Empty;
     public decimal UnitCost { get; set; }
     public decimal UnitPrice { get; set; }
-    public int Quantity { get; set; }
     public string ImagePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Subtotal))]
+    private int quantity;
+
     public decimal Subtotal => UnitPrice * Quantity;
 
     public CartItem(Product product, ProductLot lot, int quantity = 1)

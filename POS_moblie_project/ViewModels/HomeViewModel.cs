@@ -39,6 +39,11 @@ public partial class HomeViewModel : ObservableObject
     public HomeViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
+
+        ServiceHelper.GetService<CurrencyService>().SettingChanged += () =>
+        {
+            OnPropertyChanged(nameof(TodaySales));
+        };
     }
 
     [RelayCommand]
@@ -121,12 +126,18 @@ public partial class HomeViewModel : ObservableObject
             var entries = new List<ChartEntry>();
             var colors = new[]
             {
-                SKColor.Parse("#FF6384"), SKColor.Parse("#36A2EB"),
-                SKColor.Parse("#FFCE56"), SKColor.Parse("#4BC0C0"),
-                SKColor.Parse("#9966FF"), SKColor.Parse("#FF9F40"),
-                SKColor.Parse("#C9CBCF"), SKColor.Parse("#7BC8A4"),
-                SKColor.Parse("#E7E9ED"), SKColor.Parse("#F7464A"),
-                SKColor.Parse("#949FB1"), SKColor.Parse("#4D5360"),
+                SKColor.Parse("#C3EEFA"),
+                SKColor.Parse("#FFC2D1"),  
+                SKColor.Parse("#C8E6B2"),  
+                SKColor.Parse("#FFD0A7"),  
+                SKColor.Parse("#F98581"),  
+                SKColor.Parse("#FEE7AA"),  
+                SKColor.Parse("#CEC2EB"),  
+                SKColor.Parse("#f9e0e0"),  // LightRed
+                SKColor.Parse("#c4c4c4"),  // DarkGrey
+                SKColor.Parse("#e3e3e3"),  // LightGrey
+                SKColor.Parse("#4ECDC4"),  // teal (primary)
+                SKColor.Parse("#F4A620"),  // amber (primary)
             };
 
             int totalCount = productSales.Sum(x => x.Count);
@@ -173,6 +184,8 @@ public partial class HomeViewModel : ObservableObject
     {
         try
         {
+            ProfitIncomeChart = null;
+            ProfitIncomeChart = null;
             var today = DateTime.Now.Date;
             DateTime from, to;
 
@@ -263,6 +276,7 @@ public partial class HomeViewModel : ObservableObject
             bool noData = buckets.All(b => b.Income == 0 && b.Expense == 0);
             if (noData)
             {
+                ProfitIncomeChart = null;
                 ProfitIncomeChart = new LineChart
                 {
                     Entries = new[] { new ChartEntry(0) { Label = "No data", Color = SKColor.Parse("#CCCCCC") } },
@@ -297,6 +311,7 @@ public partial class HomeViewModel : ObservableObject
                 ValueLabelColor = incomeColor,
             }).ToList();
 
+            ProfitIncomeChart = null;
             ProfitIncomeChart = new LineChart
             {
                 Entries = incomeEntries,
@@ -333,7 +348,7 @@ public partial class HomeViewModel : ObservableObject
                 LineAreaAlpha = 20,
                 PointMode = PointMode.Circle,
                 PointSize = pointSize,
-                LabelTextSize = 0f,
+                LabelTextSize = labelSize,
                 ValueLabelTextSize = 0f,
                 LabelOrientation = Orientation.Horizontal,
                 ValueLabelOrientation = Orientation.Horizontal,

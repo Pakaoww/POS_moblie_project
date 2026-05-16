@@ -43,6 +43,7 @@ public partial class StockViewModel : ObservableObject
     public StockViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
+
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();

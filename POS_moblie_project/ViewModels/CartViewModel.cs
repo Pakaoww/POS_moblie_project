@@ -92,6 +92,11 @@ public partial class CartViewModel : ObservableObject
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
         _posViewModel = ServiceHelper.GetService<POSViewModel>();
+
+        ServiceHelper.GetService<CurrencyService>().SettingChanged += () =>
+        {
+            OnPropertyChanged(nameof(CheckoutButtonText));
+        };
     }
 
     [RelayCommand]

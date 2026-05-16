@@ -63,6 +63,15 @@ public partial class ProfitReportViewModel : ObservableObject
     public ProfitReportViewModel()
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
+
+        // Refresh stats เมื่อ currency setting เปลี่ยน
+        ServiceHelper.GetService<CurrencyService>().SettingChanged += () =>
+        {
+            OnPropertyChanged(nameof(TotalIncome));
+            OnPropertyChanged(nameof(TotalExpense));
+            OnPropertyChanged(nameof(TotalProfit));
+        };
+
         var today = DateTime.Today;
         int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
         FromDate = today.AddDays(-diff);
@@ -272,8 +281,8 @@ public partial class ProfitReportViewModel : ObservableObject
             LineAreaAlpha = 20,
             PointMode = PointMode.Circle,
             PointSize = pointSize,
-            LabelTextSize = 0f,
-            ValueLabelTextSize = 0f,
+            LabelTextSize = labelSize,
+            ValueLabelTextSize = valueSize,
             LabelOrientation = Orientation.Horizontal,
             ValueLabelOrientation = Orientation.Horizontal,
             IsAnimated = false,

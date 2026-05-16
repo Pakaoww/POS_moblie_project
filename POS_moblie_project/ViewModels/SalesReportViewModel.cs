@@ -46,6 +46,11 @@ public partial class SalesReportViewModel : ObservableObject
     {
         _databaseService = ServiceHelper.GetService<DatabaseService>();
 
+        ServiceHelper.GetService<CurrencyService>().SettingChanged += () =>
+        {
+            OnPropertyChanged(nameof(TotalRevenue));
+        };
+
         var today = DateTime.Today;
         FromDate = today;
         ToDate = today;

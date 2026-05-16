@@ -70,7 +70,7 @@
                                            FontSize="12" TextColor="#666666"/>
                                 </VerticalStackLayout>
                                 <Label Grid.Column="1"
-                                       Text="{Binding SalePrice, StringFormat='฿{0:N2}'}"
+                                       Text="{Binding SalePrice, Converter={StaticResource PriceFormatConverter}}"
                                        FontSize="13" TextColor="#4ECDC4"
                                        VerticalOptions="Center"/>
                             </Grid>
@@ -119,8 +119,14 @@
                                FontSize="12" TextColor="#555555"/>
                         <Label Text="{Binding CategoryName, StringFormat='Category: {0}'}"
                                FontSize="12" TextColor="#555555"/>
-                        <Label Text="{Binding SalePrice, StringFormat='Sale Price: ฿{0:N2}'}"
-                               FontSize="13" FontAttributes="Bold" TextColor="#4ECDC4"/>
+                        <Label FontSize="13" TextColor="#4ECDC4" FontAttributes="Bold">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Sale Price: "/>
+                                    <Span Text="{Binding SalePrice, Converter={StaticResource PriceFormatConverter}}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </VerticalStackLayout>
                 </Grid>
             </Border>

@@ -16,9 +16,9 @@ public partial class App : Application
         return new Window(new SplashPage());
     }
 
-    protected override void OnStart()
+    protected override async void OnStart()
     {
         base.OnStart();
-        _ = ServiceHelper.GetService<CurrencyService>().LoadAsync();
+        await ServiceHelper.GetService<CurrencyService>().LoadAsync();
     }
 }
