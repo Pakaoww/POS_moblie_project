@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using POS_moblie_project.Models;
 using POS_moblie_project.ViewModels;
+using SQLite;
 
 namespace POS_moblie_project.Services;
 
@@ -240,6 +241,11 @@ public class BackupService
         var backupName = $"POS_DB_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.db3";
         var backupPath = Path.Combine(FileSystem.Current.CacheDirectory, backupName);
         await Task.Run(() => File.Copy(dbPath, backupPath, overwrite: true));
+        await Task.Run(() =>
+        {
+            using var backupDb = new SQLiteConnection(backupPath);
+            backupDb.Execute("UPDATE AppSettings SET Value = '' WHERE Key = 'password_hash'");
+        });
         return backupPath;
     }
 
@@ -248,7 +254,20 @@ public class BackupService
         try
         {
             var dbPath = Path.Combine(FileSystem.AppDataDirectory, "mobilepos.db3");
+            var currentHash = await _databaseService.GetSettingAsync("password_hash");
             await Task.Run(() => File.Copy(sourceFilePath, dbPath, overwrite: true));
+            await Task.Run(() =>
+            {
+                using var db = new SQLiteConnection(dbPath);
+                var existing = db.Table<AppSetting>().FirstOrDefault(s => s.Key == "password_hash");
+                if (existing == null)
+                    db.Insert(new AppSetting("password_hash", currentHash));
+                else
+                {
+                    existing.Value = currentHash;
+                    db.Update(existing);
+                }
+            });
             return true;
         }
         catch
