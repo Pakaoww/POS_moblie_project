@@ -126,6 +126,9 @@
 		<MauiXaml Update="Views\POS\CartPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Views\POS\ConfirmPaymentPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Views\POS\HoldPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>

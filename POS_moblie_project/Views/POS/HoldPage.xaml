@@ -210,38 +210,42 @@
 
         <!-- ── Bottom Summary ── -->
         <Border Grid.Row="2"
-                BackgroundColor="#222222"
+                BackgroundColor="{StaticResource BorderColor}"
                 Padding="16"
-                StrokeThickness="0"
+                StrokeThickness="1"
                 IsVisible="{Binding HasSelectedSession}">
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="16"/>
+                <RoundRectangle CornerRadius="20"/>
             </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#e3e3e3" Offset="0,4"
+                Radius="12" Opacity="0.6" />
+            </Border.Shadow>
 
             <VerticalStackLayout Spacing="10">
 
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Text="Total"
-                           FontSize="15" TextColor="#CCCCCC"/>
+                           FontSize="15" TextColor="{StaticResource BlackColor}"/>
                     <Label Grid.Column="1"
                            Text="{Binding GrandTotal, Converter={StaticResource PriceFormatConverter}}"
                            FontSize="22" FontAttributes="Bold"
-                           TextColor="White"/>
+                           TextColor="{StaticResource BlackColor}"/>
                 </Grid>
 
                 <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
                     <Button Grid.Column="0"
                             Text="🗑 Clear"
                             HeightRequest="48" CornerRadius="12"
-                            BackgroundColor="#3A3A3A"
-                            TextColor="#FF6B6B"
+                            BackgroundColor="#FFE0E0"
+                            TextColor="#E53935"
                             FontAttributes="Bold"
                             Command="{Binding ClearHoldCommand}"/>
                     <Button Grid.Column="1"
                             Text="Resume"
                             HeightRequest="48" CornerRadius="12"
-                            BackgroundColor="#3A3A3A"
-                            TextColor="White"
+                            BackgroundColor="{StaticResource LightGrey}"
+                            TextColor="{StaticResource BlackColor}"
                             FontAttributes="Bold"
                             Command="{Binding ResumeOrderCommand}"/>
                     <Button Grid.Column="2"

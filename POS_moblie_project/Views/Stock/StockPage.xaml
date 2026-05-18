@@ -130,7 +130,10 @@
                                                         CommandParameter="{Binding .}"/>
                                             </Border.GestureRecognizers>
                                             <Grid ColumnDefinitions="*,*" Padding="3,0">
-                                                <!-- Thumb circle -->
+                                                <Label Text="{Binding IsVisible, Converter={StaticResource BoolToVisibleTextConverter}}"
+                                                       FontSize="10" FontAttributes="Bold" TextColor="White"
+                                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                                       Grid.Column="{Binding IsVisible, Converter={StaticResource BoolToLabelColumnConverter}}"/>
                                                 <Border WidthRequest="22" HeightRequest="22"
                                                         BackgroundColor="White" StrokeThickness="0"
                                                         HorizontalOptions="Center" VerticalOptions="Center"
@@ -145,12 +148,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <!-- Status label -->
-                                        <Label Text="{Binding IsVisible, Converter={StaticResource BoolToVisibleTextConverter}}"
-                                               FontSize="10"
-                                               FontAttributes="Bold"
-                                               HorizontalOptions="Center"
-                                               TextColor="{Binding IsVisible, Converter={StaticResource BoolToColorConverter}}"/>
+                                        
                                     </VerticalStackLayout>
 
                                 </Grid>

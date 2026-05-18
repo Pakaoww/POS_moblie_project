@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using POS_moblie_project.Models;
 using POS_moblie_project.Services;
 using System.Collections.ObjectModel;
+using POS_moblie_project.Views.POS;
 
 namespace POS_moblie_project.ViewModels;
 
@@ -323,18 +324,16 @@ public partial class CartViewModel : ObservableObject
             return;
         }
 
-        // Popup ยืนยันก่อน
         var currency = ServiceHelper.GetService<CurrencyService>();
-        var confirm = await Application.Current!.MainPage!.DisplayAlert(
-            "Confirm Payment",
-            $"Grand Total:  {currency.Format(GrandTotal)}\n" +
-            $"Received:       {currency.Format(MoneyReceived)}\n" +
-            $"─────────────────\n" +
-            $"Change:          {currency.Format(Change)}",
-            "✓ Confirm",
-            "Cancel");
+        var page = new ConfirmPaymentPage(
+            currency.Format(GrandTotal),
+            currency.Format(MoneyReceived),
+            currency.Format(Change));
 
-        if (!confirm) return;
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(page, animated: true);
+        await page.WaitForDismissAsync();
+
+        if (!page.IsConfirmed) return;
 
         try
         {
@@ -352,7 +351,6 @@ public partial class CartViewModel : ObservableObject
                 MoneyReceived,
                 Change);
 
-            // ← แก้: ใช้ constructor ใหม่ที่มี LotId และ UnitCost
             var items = CartItems.Select(c => new TransactionItem(
                 0,
                 c.ProductId,
@@ -362,8 +360,6 @@ public partial class CartViewModel : ObservableObject
                 c.UnitPrice,
                 c.Quantity)).ToList();
 
-            // CreateTransactionAsync จัดการลด lot.Remaining ให้แล้ว
-            // ไม่ต้อง update product.Stock เองอีกต่อไป
             await _databaseService.CreateTransactionAsync(transaction, items);
 
             ReceiptTransactionId = transactionId;
