@@ -488,4 +488,17 @@ public class DatabaseService
         await EnsureInitializedAsync();
         return await _database!.Table<TransactionItem>().ToListAsync();
     }
+
+    public async Task ResetAllDataAsync()
+    {
+        await EnsureInitializedAsync();
+
+        await _database!.RunInTransactionAsync(db =>
+        {
+            db.DeleteAll<TransactionItem>();
+            db.DeleteAll<Transaction>();
+            db.DeleteAll<ProductLot>();
+            db.DeleteAll<Product>();
+        });
+    }
 }

@@ -107,6 +107,41 @@ public partial class SettingsViewModel : ObservableObject
         if (VatRate > 0) VatRate--;
     }
 
+    [RelayCommand]
+    private async Task ResetDataAsync()
+    {
+        var confirm1 = await Shell.Current.DisplayAlert(
+            "Reset All Data",
+            "This will permanently delete ALL products, transactions, and stock lots.\n\nThis action cannot be undone.",
+            "Yes, Reset", "Cancel");
+
+        if (!confirm1) return;
+
+        // ยืนยันอีกครั้ง
+        var confirm2 = await Shell.Current.DisplayAlert(
+            "Are you sure?",
+            "All data will be deleted permanently.",
+            "Delete Everything", "Cancel");
+
+        if (!confirm2) return;
+
+        try
+        {
+            IsBusy = true;
+            await _databaseService.ResetAllDataAsync();
+            await Shell.Current.DisplayAlert(
+                "Done", "All data has been reset successfully.", "OK");
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
 
     // ════════════════════════════════════════════════════════
     //  NAVIGATION
