@@ -208,19 +208,30 @@ public partial class ProfitReportViewModel : ObservableObject
         else
             buckets = GroupByMonth(_allLots);
 
-        if (buckets.Count == 0)
+        // ── ถ้าไม่มี data — clear ทั้งคู่ก่อนเสมอ ───────────
+        IncomeChart = null;
+        ExpenseChart = null;
+
+        if (buckets.Count == 0 || buckets.All(b => b.Income == 0 && b.Expense == 0))
         {
+            var emptyEntry = new ChartEntry(0)
+            {
+                Label = "No data",
+                Color = SKColor.Parse("#CCCCCC")
+            };
+
             IncomeChart = new LineChart
             {
-                Entries = new[] { new ChartEntry(0) { Label = "No data", Color = SKColor.Parse("#CCCCCC") } },
+                Entries = new[] { emptyEntry },
                 BackgroundColor = SKColors.Transparent,
                 LabelTextSize = 24f,
                 ValueLabelTextSize = 22f,
             };
-            ExpenseChart = null;
+            // ExpenseChart ยังเป็น null — ไม่แสดงเลย
             return;
         }
 
+        // ── มี data — สร้าง chart ปกติ ───────────────────────
         float maxVal = 0;
         foreach (var b in buckets)
         {
@@ -233,21 +244,18 @@ public partial class ProfitReportViewModel : ObservableObject
         float labelSize = buckets.Count > 10 ? 20f : 28f;
         float valueSize = buckets.Count > 10 ? 0f : 22f;
         float pointSize = buckets.Count > 10 ? 8f : 12f;
-
         float chartMax = maxVal > 0 ? maxVal * 1.15f : 1f;
-
-        var incomeEntries = buckets.Select(b => new ChartEntry((float)b.Income)
-        {
-            Label = b.Label,
-            ValueLabel = "",
-            Color = incomeColor,
-            TextColor = SKColor.Parse("#3c3d3c"),
-            ValueLabelColor = incomeColor,
-        }).ToList();
 
         IncomeChart = new LineChart
         {
-            Entries = incomeEntries,
+            Entries = buckets.Select(b => new ChartEntry((float)b.Income)
+            {
+                Label = b.Label,
+                ValueLabel = "",
+                Color = incomeColor,
+                TextColor = SKColor.Parse("#3c3d3c"),
+                ValueLabelColor = incomeColor,
+            }).ToList(),
             BackgroundColor = SKColors.Transparent,
             LineMode = LineMode.Spline,
             LineSize = 3f,
@@ -263,18 +271,16 @@ public partial class ProfitReportViewModel : ObservableObject
             MaxValue = chartMax,
         };
 
-        var expenseEntries = buckets.Select(b => new ChartEntry((float)b.Expense)
-        {
-            Label = b.Label,
-            ValueLabel = "",
-            Color = expenseColor,
-            TextColor = SKColors.Transparent,
-            ValueLabelColor = expenseColor,
-        }).ToList();
-
         ExpenseChart = new LineChart
         {
-            Entries = expenseEntries,
+            Entries = buckets.Select(b => new ChartEntry((float)b.Expense)
+            {
+                Label = b.Label,
+                ValueLabel = "",
+                Color = expenseColor,
+                TextColor = SKColors.Transparent,
+                ValueLabelColor = expenseColor,
+            }).ToList(),
             BackgroundColor = SKColors.Transparent,
             LineMode = LineMode.Spline,
             LineSize = 3f,
