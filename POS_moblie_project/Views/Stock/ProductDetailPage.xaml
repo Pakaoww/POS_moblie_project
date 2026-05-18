@@ -30,6 +30,12 @@
                         CornerRadius="8" Command="{Binding PickPhotoCommand}"/>
             </HorizontalStackLayout>
 
+            <!-- Loading indicator -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                   IsVisible="{Binding IsLoading}"
+                   Color="#9966FF"
+                   HorizontalOptions="Center"/>
+
             <!-- Product Code -->
             <Label Text="Product Code" FontSize="13" TextColor="#666666" Margin="0,10,0,0"/>
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
@@ -48,14 +54,25 @@
             </Grid>
 
             <!-- Product Name -->
-            <Label Text="Product Name" FontSize="13" TextColor="#666666"/>
-            <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8"/>
-                </Border.StrokeShape>
-                <Entry Text="{Binding ProductName}" BackgroundColor="Transparent"/>
-            </Border>
-
+            <Label Text="Product Name" FontSize="13" TextColor="#666666" Margin="0,10,0,0"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Border Grid.Column="0" BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8"/>
+                    </Border.StrokeShape>
+                    <Entry Text="{Binding ProductName}" BackgroundColor="Transparent"/>
+                </Border>
+                <Button Grid.Column="1"
+                        Text="🤖"
+                        BackgroundColor="#9966FF"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        HeightRequest="44"
+                        WidthRequest="48"
+                        CornerRadius="8"
+                        Padding="0"
+                        Command="{Binding ScanProductImageCommand}"/>
+            </Grid>
             <!-- Category -->
             <Label Text="Category" FontSize="13" TextColor="#666666"/>
             <Border BackgroundColor="#F5F5F7" Padding="4,0" StrokeThickness="0">

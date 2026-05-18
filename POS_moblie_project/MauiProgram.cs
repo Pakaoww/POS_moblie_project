@@ -48,6 +48,7 @@ namespace POS_moblie_project
             // ============================================
             builder.Services.AddSingleton<DatabaseService>();
             builder.Services.AddSingleton<CurrencyService>();
+            builder.Services.AddSingleton<ProductAiService>();
 
             // Backup service (for export):
             builder.Services.AddSingleton<BackupService>();

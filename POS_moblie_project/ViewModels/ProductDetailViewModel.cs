@@ -139,6 +139,9 @@ public partial class ProductDetailViewModel : ObservableObject
             ProductCode = scannedValue;
     }
 
+    [ObservableProperty]
+    private bool _isLoading;
+
     [RelayCommand]
     private async Task SaveAsync()
     {
@@ -249,4 +252,83 @@ public partial class ProductDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task CancelAsync()
         => await Shell.Current.GoToAsync("..");
+
+    [RelayCommand]
+    private async Task ScanProductImageAsync()
+    {
+        try
+        {
+            var action = await Shell.Current.DisplayActionSheet(
+                "AI Product Detection",
+                "Cancel",
+                null,
+                "📷 Take Photo",
+                "🖼️ Choose from Gallery");
+
+            if (action == null || action == "Cancel") return;
+
+            FileResult? result = null;
+
+            if (action == "📷 Take Photo")
+            {
+                if (!MediaPicker.Default.IsCaptureSupported)
+                {
+                    await Shell.Current.DisplayAlert(
+                        "Not Supported", "Camera is not available.", "OK");
+                    return;
+                }
+                result = await MediaPicker.Default.CapturePhotoAsync();
+            }
+            else if (action == "🖼️ Choose from Gallery")
+            {
+                result = await MediaPicker.Default.PickPhotoAsync();
+            }
+
+            if (result == null) return;
+
+            IsLoading = true;
+
+            var aiService = ServiceHelper.GetService<ProductAiService>();
+            ProductSuggestion suggestion;
+
+#if ANDROID
+            using var stream1 = await result.OpenReadAsync();
+            var ocrService = new Platforms.Android.OcrService();
+            var rawText = await ocrService.RecognizeTextAsync(stream1);
+
+            if (!string.IsNullOrWhiteSpace(rawText))
+                suggestion = await aiService.AnalyzeTextAsync(rawText);
+            else
+            {
+                using var stream2 = await result.OpenReadAsync();
+                suggestion = await aiService.AnalyzeImageAsync(stream2);
+            }
+#else
+        using var stream = await result.OpenReadAsync();
+        suggestion = await aiService.AnalyzeImageAsync(stream);
+#endif
+
+            if (!string.IsNullOrWhiteSpace(suggestion.ProductName))
+                ProductName = suggestion.ProductName;
+            if (!string.IsNullOrWhiteSpace(suggestion.ProductCode))
+                ProductCode = suggestion.ProductCode;
+            if (suggestion.Price > 0)
+                SalePrice = suggestion.Price;
+
+            await Shell.Current.DisplayAlert(
+                "AI Detection",
+                $"Product: {suggestion.ProductName}\n" +
+                $"Code: {(string.IsNullOrWhiteSpace(suggestion.ProductCode) ? "-" : suggestion.ProductCode)}\n" +
+                $"Price: {(suggestion.Price > 0 ? suggestion.Price.ToString("N2") : "-")}",
+                "OK");
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
 }
