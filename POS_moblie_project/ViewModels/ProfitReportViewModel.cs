@@ -32,8 +32,9 @@ public partial class ProfitReportViewModel : ObservableObject
     private bool isLoading;
 
     [ObservableProperty]
-    private string activePeriod = "ThisWeek";
+    private string activePeriod = "Today";
 
+    public bool IsTodayActive => ActivePeriod == "Today";
     public bool IsThisWeekActive => ActivePeriod == "ThisWeek";
     public bool IsThisMonthActive => ActivePeriod == "ThisMonth";
     public bool IsThisYearActive => ActivePeriod == "ThisYear";
@@ -73,10 +74,9 @@ public partial class ProfitReportViewModel : ObservableObject
         };
 
         var today = DateTime.Today;
-        int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
-        FromDate = today.AddDays(-diff);
-        ToDate = FromDate.AddDays(6);
-        ActivePeriod = "ThisWeek";
+        FromDate = today;
+        ToDate = today;
+        ActivePeriod = "Today";
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -351,7 +351,7 @@ public partial class ProfitReportViewModel : ObservableObject
             var expense = activeLots
                 .Where(l => l.ReceivedAt.Date >= cursor && l.ReceivedAt.Date <= monthEnd)
                 .Sum(l => l.CostPrice * l.Quantity);
-            result.Add((cursor.ToString("MMM"), income, expense));
+            result.Add(($"{cursor.Month}", income, expense));
             cursor = cursor.AddMonths(1);
         }
         return result;
@@ -364,6 +364,7 @@ public partial class ProfitReportViewModel : ObservableObject
         var today = DateTime.Today;
         bool stillMatches = ActivePeriod switch
         {
+            "Today" => FromDate.Date == today && ToDate.Date == today,
             "ThisWeek" => FromDate.Date == today.AddDays(-((7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7))
                        && ToDate.Date == FromDate.Date.AddDays(6),
             "ThisMonth" => FromDate.Date == new DateTime(today.Year, today.Month, 1)
@@ -376,6 +377,7 @@ public partial class ProfitReportViewModel : ObservableObject
         if (!stillMatches)
         {
             ActivePeriod = string.Empty;
+            OnPropertyChanged(nameof(IsTodayActive));
             OnPropertyChanged(nameof(IsThisWeekActive));
             OnPropertyChanged(nameof(IsThisMonthActive));
             OnPropertyChanged(nameof(IsThisYearActive));
@@ -388,6 +390,7 @@ public partial class ProfitReportViewModel : ObservableObject
         if (ActivePeriod == period)
         {
             ActivePeriod = string.Empty;
+            OnPropertyChanged(nameof(IsTodayActive));
             OnPropertyChanged(nameof(IsThisWeekActive));
             OnPropertyChanged(nameof(IsThisMonthActive));
             OnPropertyChanged(nameof(IsThisYearActive));
@@ -398,6 +401,10 @@ public partial class ProfitReportViewModel : ObservableObject
 
         switch (period)
         {
+            case "Today":
+                FromDate = today;
+                ToDate = today;
+                break;
             case "ThisWeek":
                 int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
                 FromDate = today.AddDays(-diff);
@@ -414,6 +421,7 @@ public partial class ProfitReportViewModel : ObservableObject
         }
 
         ActivePeriod = period;
+        OnPropertyChanged(nameof(IsTodayActive));
         OnPropertyChanged(nameof(IsThisWeekActive));
         OnPropertyChanged(nameof(IsThisMonthActive));
         OnPropertyChanged(nameof(IsThisYearActive));

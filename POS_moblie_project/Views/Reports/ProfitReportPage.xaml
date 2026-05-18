@@ -36,10 +36,23 @@
                         </Border>
 
                         <!-- Presets: This Week, This Month, This Year -->
-                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
                             <Border Grid.Column="0" StrokeThickness="1.5" Padding="0" HeightRequest="36"
-            BackgroundColor="{Binding IsThisWeekActive, Converter={StaticResource BoolToColorConverter}}"
-            Stroke="{Binding IsThisWeekActive, Converter={StaticResource BoolToColorConverter}}">
+                                    BackgroundColor="{Binding IsTodayActive, Converter={StaticResource BoolToColorConverter}}"
+                                    Stroke="{Binding IsTodayActive, Converter={StaticResource BoolToColorConverter}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SetPeriodCommand}" CommandParameter="Today"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="Today" HorizontalOptions="Center" VerticalOptions="Center"
+                                       FontSize="12" FontAttributes="Bold" TextColor="White"/>
+                            </Border>
+
+                            <Border Grid.Column="1" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+                                    BackgroundColor="{Binding IsThisWeekActive, Converter={StaticResource BoolToColorConverter}}"
+                                    Stroke="{Binding IsThisWeekActive, Converter={StaticResource BoolToColorConverter}}">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="8"/>
                                 </Border.StrokeShape>
@@ -47,12 +60,12 @@
                                     <TapGestureRecognizer Command="{Binding SetPeriodCommand}" CommandParameter="ThisWeek"/>
                                 </Border.GestureRecognizers>
                                 <Label Text="This Week" HorizontalOptions="Center" VerticalOptions="Center"
-               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                                       FontSize="12" FontAttributes="Bold" TextColor="White"/>
                             </Border>
 
-                            <Border Grid.Column="1" StrokeThickness="1.5" Padding="0" HeightRequest="36"
-            BackgroundColor="{Binding IsThisMonthActive, Converter={StaticResource BoolToColorConverter}}"
-            Stroke="{Binding IsThisMonthActive, Converter={StaticResource BoolToColorConverter}}">
+                            <Border Grid.Column="2" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+                                    BackgroundColor="{Binding IsThisMonthActive, Converter={StaticResource BoolToColorConverter}}"
+                                    Stroke="{Binding IsThisMonthActive, Converter={StaticResource BoolToColorConverter}}">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="8"/>
                                 </Border.StrokeShape>
@@ -60,12 +73,12 @@
                                     <TapGestureRecognizer Command="{Binding SetPeriodCommand}" CommandParameter="ThisMonth"/>
                                 </Border.GestureRecognizers>
                                 <Label Text="This Month" HorizontalOptions="Center" VerticalOptions="Center"
-               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                                       FontSize="12" FontAttributes="Bold" TextColor="White"/>
                             </Border>
 
-                            <Border Grid.Column="2" StrokeThickness="1.5" Padding="0" HeightRequest="36"
-            BackgroundColor="{Binding IsThisYearActive, Converter={StaticResource BoolToColorConverter}}"
-            Stroke="{Binding IsThisYearActive, Converter={StaticResource BoolToColorConverter}}">
+                            <Border Grid.Column="3" StrokeThickness="1.5" Padding="0" HeightRequest="36"
+                                    BackgroundColor="{Binding IsThisYearActive, Converter={StaticResource BoolToColorConverter}}"
+                                    Stroke="{Binding IsThisYearActive, Converter={StaticResource BoolToColorConverter}}">
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="8"/>
                                 </Border.StrokeShape>
@@ -73,7 +86,7 @@
                                     <TapGestureRecognizer Command="{Binding SetPeriodCommand}" CommandParameter="ThisYear"/>
                                 </Border.GestureRecognizers>
                                 <Label Text="This Year" HorizontalOptions="Center" VerticalOptions="Center"
-               FontSize="13" FontAttributes="Bold" TextColor="White"/>
+                                       FontSize="12" FontAttributes="Bold" TextColor="White"/>
                             </Border>
                         </Grid>
 
