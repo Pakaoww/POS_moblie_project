@@ -17,338 +17,228 @@
                                  Spacing="16">
 
                 <!-- POS & Stock Buttons Row -->
-                <Grid ColumnDefinitions="*,*"
-                      ColumnSpacing="14"
-                      HeightRequest="120">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="14" HeightRequest="120">
 
-                    <!-- POS Button -->
                     <Border Grid.Column="0"
                             BackgroundColor="{StaticResource BorderColor}"
-                            StrokeThickness="0"
-                            Padding="0">
+                            StrokeThickness="0" Padding="0">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="20" />
+                            <RoundRectangle CornerRadius="20"/>
                         </Border.StrokeShape>
                         <Border.Shadow>
-                            <Shadow Brush="#e3e3e3" Offset="0,4"
-                                    Radius="12" Opacity="0.6" />
+                            <Shadow Brush="#e3e3e3" Offset="0,4" Radius="12" Opacity="0.6"/>
                         </Border.Shadow>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding GoToPosCommand}" />
+                            <TapGestureRecognizer Command="{Binding GoToPosCommand}"/>
                         </Border.GestureRecognizers>
-                        <Label Text="POS"
-                               FontSize="17" FontAttributes="Bold"
+                        <Label Text="POS" FontSize="17" FontAttributes="Bold"
                                TextColor="{StaticResource BlackColor}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
 
-                    <!-- Stock Button -->
                     <Border Grid.Column="1"
                             BackgroundColor="{StaticResource BorderColor}"
-                            StrokeThickness="0"
-                            Padding="0">
+                            StrokeThickness="0" Padding="0">
                         <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="20" />
+                            <RoundRectangle CornerRadius="20"/>
                         </Border.StrokeShape>
                         <Border.Shadow>
-                            <Shadow Brush="#e3e3e3" Offset="0,4"
-                                    Radius="12" Opacity="0.6" />
+                            <Shadow Brush="#e3e3e3" Offset="0,4" Radius="12" Opacity="0.6"/>
                         </Border.Shadow>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding GoToStockCommand}" />
+                            <TapGestureRecognizer Command="{Binding GoToStockCommand}"/>
                         </Border.GestureRecognizers>
-                        <Label Text="Stock"
-                               FontSize="17" FontAttributes="Bold"
+                        <Label Text="Stock" FontSize="17" FontAttributes="Bold"
                                TextColor="{StaticResource BlackColor}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
 
                 </Grid>
 
                 <!-- Stock Overview Card -->
                 <Border BackgroundColor="{StaticResource BorderColor}"
-                        StrokeThickness="0"
-                        Padding="22,20">
+                        StrokeThickness="0" Padding="22,20">
                     <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="20" />
+                        <RoundRectangle CornerRadius="20"/>
                     </Border.StrokeShape>
                     <Border.Shadow>
-                        <Shadow Brush="#e3e3e3" Offset="0,4"
-                                Radius="12" Opacity="0.6" />
+                        <Shadow Brush="#e3e3e3" Offset="0,4" Radius="12" Opacity="0.6"/>
                     </Border.Shadow>
-
                     <VerticalStackLayout Spacing="12">
-
-                        <Label Text="Stock Overview"
-                               FontSize="14" FontAttributes="Bold"
-                               TextColor="{StaticResource BlackColor}" />
-
-                        <!-- Total Products -->
+                        <Label Text="Stock Overview" FontSize="14" FontAttributes="Bold"
+                               TextColor="{StaticResource BlackColor}"/>
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                             <Label Text="{Binding TotalProducts}"
                                    FontSize="38" FontAttributes="Bold"
-                                   TextColor="{StaticResource BlackColor}"
-                                   VerticalOptions="Center" />
-                            <Label Text="Total Products"
-                                   FontSize="14" TextColor="#c4c4c4"
-                                   VerticalOptions="End"
-                                   Margin="0,0,0,6" />
+                                   TextColor="{StaticResource BlackColor}" VerticalOptions="Center"/>
+                            <Label Text="Total Products" FontSize="14" TextColor="#c4c4c4"
+                                   VerticalOptions="End" Margin="0,0,0,6"/>
                         </HorizontalStackLayout>
-
-                        <BoxView HeightRequest="1"
-                                 Color="#e3e3e3"
-                                 Margin="0,2" />
-
-                        <!-- Stats Row -->
+                        <BoxView HeightRequest="1" Color="#e3e3e3" Margin="0,2"/>
                         <Grid ColumnDefinitions="*,*">
-
-                            <!-- Low Stock -->
-                            <Border Grid.Column="0"
-                                    BackgroundColor="{StaticResource LightYellow}"
-                                    StrokeThickness="0"
-                                    Padding="12,10"
-                                    Margin="0,0,6,0">
+                            <Border Grid.Column="0" BackgroundColor="{StaticResource LightYellow}"
+                                    StrokeThickness="0" Padding="12,10" Margin="0,0,6,0">
                                 <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="12" />
+                                    <RoundRectangle CornerRadius="12"/>
                                 </Border.StrokeShape>
                                 <VerticalStackLayout Spacing="2">
-                                    <Label Text="{Binding LowStockItems}"
-                                           FontSize="22" FontAttributes="Bold"
-                                           TextColor="{StaticResource DarkYellow}" />
-                                    <Label Text="Low Stock Items"
-                                           FontSize="11" TextColor="{StaticResource DarkYellow}" />
+                                    <Label Text="{Binding LowStockItems}" FontSize="22" FontAttributes="Bold"
+                                           TextColor="{StaticResource DarkYellow}"/>
+                                    <Label Text="Low Stock Items" FontSize="11"
+                                           TextColor="{StaticResource DarkYellow}"/>
                                 </VerticalStackLayout>
                             </Border>
-
-                            <!-- Out of Stock -->
-                            <Border Grid.Column="1"
-                                    BackgroundColor="#f9e0e0"
-                                    StrokeThickness="0"
-                                    Padding="12,10"
-                                    Margin="6,0,0,0">
+                            <Border Grid.Column="1" BackgroundColor="#f9e0e0"
+                                    StrokeThickness="0" Padding="12,10" Margin="6,0,0,0">
                                 <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="12" />
+                                    <RoundRectangle CornerRadius="12"/>
                                 </Border.StrokeShape>
                                 <VerticalStackLayout Spacing="2">
-                                    <Label Text="{Binding OutOfStockItems}"
-                                           FontSize="22" FontAttributes="Bold"
-                                           TextColor="{StaticResource DarkRed}" />
-                                    <Label Text="Out of Stock"
-                                           FontSize="11" TextColor="#d37f8b" />
+                                    <Label Text="{Binding OutOfStockItems}" FontSize="22" FontAttributes="Bold"
+                                           TextColor="{StaticResource DarkRed}"/>
+                                    <Label Text="Out of Stock" FontSize="11" TextColor="#d37f8b"/>
                                 </VerticalStackLayout>
                             </Border>
-                            
-
                         </Grid>
-
                     </VerticalStackLayout>
-                    
                 </Border>
 
-                <!-- Today Sales Card (tap → Transaction History) -->
+                <!-- ── Transaction History Card ─────────────────── -->
+                <!-- IsVisible bind กับ ShowTransactionHistory -->
                 <Border BackgroundColor="{StaticResource BorderColor}"
-                        StrokeThickness="0"
-                        Padding="22,20">
+                        StrokeThickness="0" Padding="22,20"
+                        IsVisible="{Binding ShowTransactionHistory}">
                     <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="20" />
+                        <RoundRectangle CornerRadius="20"/>
                     </Border.StrokeShape>
                     <Border.Shadow>
-                        <Shadow Brush="#e3e3e3" Offset="0,4"
-                                Radius="12" Opacity="0.6" />
+                        <Shadow Brush="#e3e3e3" Offset="0,4" Radius="12" Opacity="0.6"/>
                     </Border.Shadow>
                     <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoToTransactionsCommand}" />
+                        <TapGestureRecognizer Command="{Binding GoToTransactionsCommand}"/>
                     </Border.GestureRecognizers>
-
                     <Grid ColumnDefinitions="*,Auto">
-
                         <VerticalStackLayout Grid.Column="0" Spacing="12">
-
-                            <Label Text="Transaction History"
-                                   FontSize="14" FontAttributes="Bold"
-                                   TextColor="{StaticResource BlackColor}" />
-                            <BoxView HeightRequest="1"
-                                     Color="#e3e3e3"
-                                     Margin="0,2" />
-                            <Label Text="Today's Revenue"
-                                   FontSize="13" TextColor="{StaticResource DarkGreen}" />
+                            <Label Text="Transaction History" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource BlackColor}"/>
+                            <BoxView HeightRequest="1" Color="#e3e3e3" Margin="0,2"/>
+                            <Label Text="Today's Revenue" FontSize="13"
+                                   TextColor="{StaticResource DarkGreen}"/>
                             <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                                 <Label Text="{Binding TodaySales, Converter={StaticResource PriceFormatConverter}}"
                                        FontSize="28" FontAttributes="Bold"
-                                       TextColor="{StaticResource DarkGreen}"
-                                       VerticalOptions="Center" />
+                                       TextColor="{StaticResource DarkGreen}" VerticalOptions="Center"/>
                             </HorizontalStackLayout>
-
-                            <BoxView HeightRequest="1"
-                                     Color="#e3e3e3"
-                                     Margin="0,2" />
-
+                            <BoxView HeightRequest="1" Color="#e3e3e3" Margin="0,2"/>
                             <Label Text="{Binding TodayTransactions, StringFormat='{0} transactions today'}"
-                                   FontSize="13" TextColor="#c4c4c4" />
-
+                                   FontSize="13" TextColor="#c4c4c4"/>
                         </VerticalStackLayout>
-
-                        <Border Grid.Column="1"
-                                BackgroundColor="{StaticResource LightGreen}"
-                                StrokeThickness="0"
-                                WidthRequest="36" HeightRequest="36"
+                        <Border Grid.Column="1" BackgroundColor="{StaticResource LightGreen}"
+                                StrokeThickness="0" WidthRequest="36" HeightRequest="36"
                                 VerticalOptions="Center">
                             <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="10" />
+                                <RoundRectangle CornerRadius="10"/>
                             </Border.StrokeShape>
-                            <Label Text=">"
-                                   FontSize="18" TextColor="{StaticResource DarkGrey}"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
+                            <Label Text=">" FontSize="18" TextColor="{StaticResource DarkGrey}"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
-
                     </Grid>
                 </Border>
 
-
-                <!-- ══════════════════════════════════════════════════ -->
-                <!--  Profit Report Card                          -->
-                <!-- ══════════════════════════════════════════════════ -->
+                <!-- ── Profit Report Card ────────────────────────── -->
+                <!-- IsVisible bind กับ ShowProfitReport -->
                 <Border BackgroundColor="{StaticResource BorderColor}"
-                        StrokeThickness="0"
-                        Padding="22,20">
+                        StrokeThickness="0" Padding="22,20"
+                        IsVisible="{Binding ShowProfitReport}">
                     <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="20" />
+                        <RoundRectangle CornerRadius="20"/>
                     </Border.StrokeShape>
                     <Border.Shadow>
-                        <Shadow Brush="#e3e3e3" Offset="0,4"
-                                Radius="12" Opacity="0.6" />
+                        <Shadow Brush="#e3e3e3" Offset="0,4" Radius="12" Opacity="0.6"/>
                     </Border.Shadow>
-
                     <VerticalStackLayout Spacing="14">
-
-                        <!-- Header row -->
                         <Grid ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                <Label Text="Profit Report"
-                                       FontSize="14" FontAttributes="Bold"
-                                       TextColor="{StaticResource BlackColor}" />
-                                <Label Text="{Binding ProfitTimeframeDisplay}"
-                                       FontSize="11" TextColor="#c4c4c4" />
+                                <Label Text="Profit Report" FontSize="14" FontAttributes="Bold"
+                                       TextColor="{StaticResource BlackColor}"/>
+                                <Label Text="{Binding ProfitTimeframeDisplay}" FontSize="11" TextColor="#c4c4c4"/>
                             </VerticalStackLayout>
-
-                            <Border Grid.Column="1"
-                                    BackgroundColor="#e7f6ce"
-                                    StrokeThickness="0"
-                                    WidthRequest="36" HeightRequest="36"
+                            <Border Grid.Column="1" BackgroundColor="#e7f6ce"
+                                    StrokeThickness="0" WidthRequest="36" HeightRequest="36"
                                     VerticalOptions="Center">
                                 <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="10" />
+                                    <RoundRectangle CornerRadius="10"/>
                                 </Border.StrokeShape>
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding GoToProfitReportCommand}" />
+                                    <TapGestureRecognizer Command="{Binding GoToProfitReportCommand}"/>
                                 </Border.GestureRecognizers>
-                                <Label Text=">"
-                                       FontSize="18" TextColor="#a9d888"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
+                                <Label Text=">" FontSize="18" TextColor="#a9d888"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
                         </Grid>
-
-                        <BoxView HeightRequest="1"
-                                 Color="#f0f0f0"
-                                 Margin="0,0" />
-
+                        <BoxView HeightRequest="1" Color="#f0f0f0" Margin="0,0"/>
                         <Grid HeightRequest="220">
                             <microcharts:ChartView Chart="{Binding ProfitExpenseChart}"
                                                    HeightRequest="220"
-                                                   HorizontalOptions="Fill"
-                                                   VerticalOptions="Fill"/>
+                                                   HorizontalOptions="Fill" VerticalOptions="Fill"/>
                             <microcharts:ChartView Chart="{Binding ProfitIncomeChart}"
                                                    HeightRequest="220"
-                                                   HorizontalOptions="Fill"
-                                                   VerticalOptions="Fill"/>
+                                                   HorizontalOptions="Fill" VerticalOptions="Fill"/>
                         </Grid>
-
                         <HorizontalStackLayout Spacing="16" HorizontalOptions="Center">
                             <HorizontalStackLayout Spacing="4">
-                                <Border WidthRequest="10" HeightRequest="10"
-                                        BackgroundColor="#4ECDC4" StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 5"
+                                <Border WidthRequest="10" HeightRequest="10" BackgroundColor="#4ECDC4"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 5"
                                         VerticalOptions="Center"/>
                                 <Label Text="Income" FontSize="11" TextColor="#888888" VerticalOptions="Center"/>
                             </HorizontalStackLayout>
                             <HorizontalStackLayout Spacing="4">
-                                <Border WidthRequest="10" HeightRequest="10"
-                                        BackgroundColor="#E74C3C" StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 5"
+                                <Border WidthRequest="10" HeightRequest="10" BackgroundColor="#E74C3C"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 5"
                                         VerticalOptions="Center"/>
                                 <Label Text="Expense" FontSize="11" TextColor="#888888" VerticalOptions="Center"/>
                             </HorizontalStackLayout>
                         </HorizontalStackLayout>
-
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- ══════════════════════════════════════════════════ -->
-                <!--  Sales Report Card  — Pie chart by product   -->
-                <!-- ══════════════════════════════════════════════════ -->
+                <!-- ── Sales Report Card ─────────────────────────── -->
+                <!-- IsVisible bind กับ ShowSalesReport -->
                 <Border BackgroundColor="{StaticResource BorderColor}"
-                        StrokeThickness="0"
-                        Padding="22,20">
+                        StrokeThickness="0" Padding="22,20"
+                        IsVisible="{Binding ShowSalesReport}">
                     <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="20" />
+                        <RoundRectangle CornerRadius="20"/>
                     </Border.StrokeShape>
                     <Border.Shadow>
-                        <Shadow Brush="#e3e3e3" Offset="0,4"
-                                Radius="12" Opacity="0.6" />
+                        <Shadow Brush="#e3e3e3" Offset="0,4" Radius="12" Opacity="0.6"/>
                     </Border.Shadow>
-
                     <VerticalStackLayout Spacing="14">
-
-                        <!-- Header row -->
                         <Grid ColumnDefinitions="*,Auto">
-
-                            <Label Grid.Column="0"
-                                   Text="Sales Report"
-                                   FontSize="14" FontAttributes="Bold"
-                                   TextColor="{StaticResource BlackColor}"
-                                   VerticalOptions="Center" />
-
-                            <Border Grid.Column="1"
-                                    BackgroundColor="#e7f6ce"
-                                    StrokeThickness="0"
-                                    WidthRequest="36" HeightRequest="36"
+                            <Label Grid.Column="0" Text="Sales Report" FontSize="14" FontAttributes="Bold"
+                                   TextColor="{StaticResource BlackColor}" VerticalOptions="Center"/>
+                            <Border Grid.Column="1" BackgroundColor="#e7f6ce"
+                                    StrokeThickness="0" WidthRequest="36" HeightRequest="36"
                                     VerticalOptions="Center">
                                 <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="10" />
+                                    <RoundRectangle CornerRadius="10"/>
                                 </Border.StrokeShape>
                                 <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding GoToReportsCommand}" />
+                                    <TapGestureRecognizer Command="{Binding GoToReportsCommand}"/>
                                 </Border.GestureRecognizers>
-                                <Label Text=">"
-                                       FontSize="18" TextColor="#a9d888"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
+                                <Label Text=">" FontSize="18" TextColor="#a9d888"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Border>
-
                         </Grid>
-
-                        <BoxView HeightRequest="1"
-                                 Color="#f0f0f0"
-                                 Margin="0,0" />
-
+                        <BoxView HeightRequest="1" Color="#f0f0f0" Margin="0,0"/>
                         <microcharts:ChartView Chart="{Binding WeeklyBarChart}"
                                                HeightRequest="260"
-                                               VerticalOptions="Fill"
-                                               HorizontalOptions="Fill" />
-
+                                               VerticalOptions="Fill" HorizontalOptions="Fill"/>
                     </VerticalStackLayout>
                 </Border>
-
-
-
 
             </VerticalStackLayout>
         </Grid>
-        
     </ScrollView>
 
 </ContentPage>

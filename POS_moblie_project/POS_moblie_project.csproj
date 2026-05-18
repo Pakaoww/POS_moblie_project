@@ -150,6 +150,9 @@
 		<MauiXaml Update="Views\Settings\AdminPanelPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Views\Settings\AdminPasswordPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Views\Settings\ManageCategoryPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>

@@ -65,6 +65,8 @@ namespace POS_moblie_project
             builder.Services.AddTransient<AddStockViewModel>();
             builder.Services.AddTransient<AdminPanelViewModel>();
             builder.Services.AddTransient<AdminPanelPage>();
+            builder.Services.AddTransient<AdminPasswordViewModel>();
+            builder.Services.AddTransient<AdminPasswordPage>();
 
             // Later phases (uncomment as built):
             builder.Services.AddSingleton<HomeViewModel>();

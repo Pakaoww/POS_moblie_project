@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using POS_moblie_project.Services;
 
 namespace POS_moblie_project.ViewModels.Settings;
 
@@ -139,7 +140,14 @@ public partial class AdminManagePasswordViewModel : ObservableObject
 
         await SecureStorage.SetAsync(AdminPinKey, pin);
         _newPinTemp = string.Empty;
+
+        // ── แสดง popup success ก่อน invoke event ──────────
+        await AppAlert.ShowSuccessAsync(
+            "Admin PIN Updated",
+            "Your admin PIN has been changed successfully.");
+
         OnPinSuccess?.Invoke();
+        await Shell.Current.GoToAsync("..");
     }
 
     // ════════════════════════════════════════════════════════

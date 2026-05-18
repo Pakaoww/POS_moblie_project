@@ -124,26 +124,7 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenAdminPanelAsync()
     {
-        // ── Prompt รหัส Admin ────────────────────────────────
-        var input = await Shell.Current.DisplayPromptAsync(
-            "Admin Panel",
-            "Enter admin password to continue",
-            accept: "Confirm",
-            cancel: "Cancel",
-            keyboard: Keyboard.Numeric);
-
-        if (input is null) return;
-
-        bool isValid = await AdminManagePasswordViewModel.VerifyAdminAsync(input);
-
-        if (!isValid)
-        {
-            await AppAlert.ShowErrorAsync("Access Denied", "Incorrect admin password.");
-            return;
-        }
-
-        // ── ผ่าน → ไปหน้า Admin Panel ───────────────────────
-        await Shell.Current.GoToAsync("AdminPanelPage");
+        await Shell.Current.GoToAsync("AdminPasswordPage");
     }
 
     // ════════════════════════════════════════════════════════
