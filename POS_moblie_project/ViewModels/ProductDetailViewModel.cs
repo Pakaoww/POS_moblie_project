@@ -145,30 +145,21 @@ public partial class ProductDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveAsync()
     {
-        if (string.IsNullOrWhiteSpace(ProductCode))
-        {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Product code is required.", "OK");
-            return;
-        }
+        // ── Validation — บังคับแค่ชื่อสินค้าอย่างเดียว ──────
         if (string.IsNullOrWhiteSpace(ProductName))
         {
             await Application.Current!.MainPage!.DisplayAlert(
                 "Validation", "Product name is required.", "OK");
             return;
         }
-        if (SalePrice < 0)
-        {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Sale price must be 0 or greater.", "OK");
-            return;
-        }
+
         if (SelectedCategory == null)
         {
             await Application.Current!.MainPage!.DisplayAlert(
                 "Validation", "Please select a category.", "OK");
             return;
         }
+
         if (!IsEditMode && InitialQuantity <= 0)
         {
             await Application.Current!.MainPage!.DisplayAlert(
@@ -176,12 +167,16 @@ public partial class ProductDetailViewModel : ObservableObject
             return;
         }
 
-        var excludeId = IsEditMode ? ProductId : 0;
-        if (await _databaseService.IsProductCodeExistsAsync(ProductCode.Trim(), excludeId))
+        // เช็ค duplicate เฉพาะเมื่อกรอก ProductCode
+        if (!string.IsNullOrWhiteSpace(ProductCode))
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Product code already exists.", "OK");
-            return;
+            var excludeId = IsEditMode ? ProductId : 0;
+            if (await _databaseService.IsProductCodeExistsAsync(ProductCode.Trim(), excludeId))
+            {
+                await Application.Current!.MainPage!.DisplayAlert(
+                    "Validation", "Product code already exists.", "OK");
+                return;
+            }
         }
 
         try
@@ -191,24 +186,23 @@ public partial class ProductDetailViewModel : ObservableObject
                 _editingProduct!.ProductCode = ProductCode.Trim();
                 _editingProduct.Name = ProductName.Trim();
                 _editingProduct.CategoryId = SelectedCategory.Id;
-                _editingProduct.SalePrice = SalePrice;
+                _editingProduct.SalePrice = SalePrice;      // 0 ได้
                 _editingProduct.ImagePath = ImagePath;
                 await _databaseService.UpdateProductAsync(_editingProduct);
             }
             else
             {
                 var product = new Product(
-                    ProductCode.Trim(),
+                    ProductCode.Trim(),  // string.Empty ได้
                     ProductName.Trim(),
                     SelectedCategory.Id,
-                    SalePrice)
+                    SalePrice)           // 0 ได้
                 {
                     ImagePath = ImagePath ?? string.Empty,
                     IsVisible = true
                 };
                 await _databaseService.CreateProductAsync(product);
 
-                // สร้าง Lot แรก
                 var lotId = await _databaseService.GenerateLotIdAsync();
                 var lot = new ProductLot(lotId, product.Id, CostPrice, InitialQuantity);
                 await _databaseService.CreateLotAsync(lot);
@@ -308,18 +302,13 @@ public partial class ProductDetailViewModel : ObservableObject
         suggestion = await aiService.AnalyzeImageAsync(stream);
 #endif
 
+            // ── ใส่แค่ ProductName อย่างเดียว ────────────────
             if (!string.IsNullOrWhiteSpace(suggestion.ProductName))
                 ProductName = suggestion.ProductName;
-            if (!string.IsNullOrWhiteSpace(suggestion.ProductCode))
-                ProductCode = suggestion.ProductCode;
-            if (suggestion.Price > 0)
-                SalePrice = suggestion.Price;
 
             await Shell.Current.DisplayAlert(
                 "AI Detection",
-                $"Product: {suggestion.ProductName}\n" +
-                $"Code: {(string.IsNullOrWhiteSpace(suggestion.ProductCode) ? "-" : suggestion.ProductCode)}\n" +
-                $"Price: {(suggestion.Price > 0 ? suggestion.Price.ToString("N2") : "-")}",
+                $"Product: {suggestion.ProductName}",
                 "OK");
         }
         catch (Exception ex)
