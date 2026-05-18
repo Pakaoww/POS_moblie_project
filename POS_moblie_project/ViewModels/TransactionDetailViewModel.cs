@@ -85,7 +85,7 @@ public partial class TransactionDetailViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
         finally
         {
@@ -98,10 +98,7 @@ public partial class TransactionDetailViewModel : ObservableObject
     {
         if (IsReceiptPrinted)
         {
-            await Shell.Current.DisplayAlert(
-                "Already Printed",
-                "The receipt has already been printed to your gallery successfully.",
-                "OK");
+            await AppAlert.ShowAsync("Already Printed", "The receipt has already been printed to your gallery successfully.");
             return;
         }
 

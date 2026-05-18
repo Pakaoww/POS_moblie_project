@@ -34,8 +34,8 @@ public partial class ManageCategoryViewModel : ObservableObject  // ← public p
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to load categories: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Error", $"Failed to load categories: {ex.Message}");
+
         }
         finally
         {
@@ -62,8 +62,8 @@ public partial class ManageCategoryViewModel : ObservableObject  // ← public p
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to add category: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Error", $"Failed to add category: {ex.Message}");
+
         }
     }
 
@@ -92,8 +92,7 @@ public partial class ManageCategoryViewModel : ObservableObject  // ← public p
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to update: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Error", $"Failed to update: {ex.Message}");
         }
     }
 
@@ -102,10 +101,8 @@ public partial class ManageCategoryViewModel : ObservableObject  // ← public p
     {
         if (category == null) return;
 
-        var confirm = await Application.Current.MainPage.DisplayAlert(
-            "Delete Category",
-            $"Delete \"{category.Name}\"?",
-            "Delete", "Cancel");
+        var confirm = await AppAlert.ConfirmAsync(
+                    "Delete Category", $"Delete \"{category.Name}\"?", "Delete", "Cancel", isDanger: true);
 
         if (!confirm) return;
 
@@ -116,8 +113,7 @@ public partial class ManageCategoryViewModel : ObservableObject  // ← public p
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", $"Failed to delete: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Error", $"Failed to delete: {ex.Message}");
         }
     }
 }

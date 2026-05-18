@@ -183,20 +183,17 @@ public partial class AddStockViewModel : ObservableObject
     {
         if (_selectedProduct == null)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Please select a product first.", "OK");
+            await AppAlert.ShowWarningAsync("Validation", "Please select a product first.");
             return;
         }
         if (CostPrice < 0)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Cost price must be 0 or greater.", "OK");
+            await AppAlert.ShowWarningAsync("Validation", "Cost price must be 0 or greater.");
             return;
         }
         if (Quantity <= 0)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Quantity must be greater than 0.", "OK");
+            await AppAlert.ShowWarningAsync("Validation", "Quantity must be greater than 0.");
             return;
         }
 
@@ -212,17 +209,15 @@ public partial class AddStockViewModel : ObservableObject
                 await _databaseService.UpdateProductAsync(_selectedProduct);
             }
 
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Success",
-                $"Added {Quantity} units to \"{ProductName}\"\nLot: {lotId}",
-                "OK");
+            await AppAlert.ShowSuccessAsync("Success", 
+                           $"Added {Quantity} units to \"{ProductName}\"\nLot: {lotId}");
+
 
             await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 

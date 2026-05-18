@@ -75,8 +75,7 @@ public partial class SalesReportViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
         finally 
         {
@@ -145,8 +144,7 @@ public partial class SalesReportViewModel : ObservableObject
     {
         if (_allItems.Count == 0)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "No Data", "No sales data to export.", "OK");
+            await AppAlert.ShowWarningAsync("No Data", "No sales data to export.");
             return;
         }
 
@@ -164,8 +162,7 @@ public partial class SalesReportViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Export Failed", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Export Failed", ex.Message);
         }
     }
     [RelayCommand]

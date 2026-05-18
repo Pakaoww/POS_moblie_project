@@ -1,14 +1,12 @@
-using POS_moblie_project.Services;
-using POS_moblie_project.ViewModels;
+using POS_moblie_project.ViewModels.Settings;
 
 namespace POS_moblie_project.Views.Settings;
 
-public partial class ManagePasswordPage : ContentPage
+public partial class AdminManagePasswordPage : ContentPage
 {
-    private readonly ManagePasswordViewModel _viewModel;
-    private ManagePasswordMode _mode;
+    private readonly AdminManagePasswordViewModel _viewModel;
 
-    public ManagePasswordPage(ManagePasswordViewModel viewModel)
+    public AdminManagePasswordPage(AdminManagePasswordViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -19,19 +17,7 @@ public partial class ManagePasswordPage : ContentPage
         _viewModel.OnPinSuccess += HandlePinSuccess;
     }
 
-    // ── รับ mode จาก SettingsViewModel ──────────────────────
-    public void SetMode(ManagePasswordMode mode)
-    {
-        _mode = mode;
-    }
-
     // ── Lifecycle ─────────────────────────────────────────
-
-    protected override void OnAppearing()
-    {
-        base.OnAppearing();
-        _viewModel.InitializeCommand.Execute(_mode);
-    }
 
     protected override void OnDisappearing()
     {
@@ -56,13 +42,7 @@ public partial class ManagePasswordPage : ContentPage
 
     private async void HandlePinSuccess()
     {
-        var message = _mode == ManagePasswordMode.ChangePin
-            ? "PIN changed successfully."
-            : "Password changed successfully.";
-
-        await AppAlert.ShowSuccessAsync("Success", message);
-
-        // กลับไปหน้า Settings
+        await DisplayAlert("Success", "Admin PIN updated successfully.", "OK");
         await Shell.Current.GoToAsync("..");
     }
 

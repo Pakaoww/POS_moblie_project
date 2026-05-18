@@ -17,5 +17,10 @@ public partial class HomePage : ContentPage
     {
         base.OnAppearing();
         await _viewModel.LoadDashboardCommand.ExecuteAsync(null);
+
+        // Refresh visibility เมื่อกลับจาก Admin Panel
+        _viewModel.RefreshAdminSettings();
+
+        _ = _viewModel.LoadDashboardCommand.ExecuteAsync(null);
     }
 }

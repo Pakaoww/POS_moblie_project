@@ -20,6 +20,10 @@ namespace POS_moblie_project
             Routing.RegisterRoute("ProductSalesDetailPage", typeof(ProductSalesDetailPage));
             Routing.RegisterRoute("ManageCategoryPage", typeof(ManageCategoryPage));
             Routing.RegisterRoute("managePasswordPage", typeof(ManagePasswordPage));
+            Routing.RegisterRoute("AdminPanelPage", typeof(AdminPanelPage));
+            Routing.RegisterRoute(
+                    nameof(AdminManagePasswordPage),
+                    typeof(AdminManagePasswordPage));
         }
     }
 }

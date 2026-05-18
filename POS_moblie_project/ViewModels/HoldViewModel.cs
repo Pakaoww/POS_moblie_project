@@ -142,8 +142,7 @@ public partial class HoldViewModel : ObservableObject
     {
         if (SelectedSession is null || !SelectedSession.Items.Any())
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Empty", "No items in this session.", "OK");
+            await AppAlert.ShowWarningAsync("Empty", "No items in this session.");
             return;
         }
         foreach (var item in SelectedSession.Items)

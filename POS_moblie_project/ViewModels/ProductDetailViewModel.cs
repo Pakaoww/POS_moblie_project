@@ -78,8 +78,7 @@ public partial class ProductDetailViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 
@@ -94,8 +93,7 @@ public partial class ProductDetailViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 
@@ -109,8 +107,7 @@ public partial class ProductDetailViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 
@@ -148,22 +145,20 @@ public partial class ProductDetailViewModel : ObservableObject
         // ── Validation — บังคับแค่ชื่อสินค้าอย่างเดียว ──────
         if (string.IsNullOrWhiteSpace(ProductName))
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Product name is required.", "OK");
+            await AppAlert.ShowWarningAsync("Validation", "Product code is required.");
             return;
         }
 
         if (SelectedCategory == null)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Please select a category.", "OK");
+            await AppAlert.ShowWarningAsync("Validation", "Product name is required.");
             return;
         }
 
         if (!IsEditMode && InitialQuantity <= 0)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Validation", "Initial quantity must be greater than 0.", "OK");
+            await AppAlert.ShowWarningAsync("Validation", "Sale price must be 0 or greater.");
+
             return;
         }
 
@@ -173,8 +168,7 @@ public partial class ProductDetailViewModel : ObservableObject
             var excludeId = IsEditMode ? ProductId : 0;
             if (await _databaseService.IsProductCodeExistsAsync(ProductCode.Trim(), excludeId))
             {
-                await Application.Current!.MainPage!.DisplayAlert(
-                    "Validation", "Product code already exists.", "OK");
+                await AppAlert.ShowWarningAsync("Validation", "Please select a category.");
                 return;
             }
         }
@@ -212,8 +206,7 @@ public partial class ProductDetailViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 
@@ -222,10 +215,10 @@ public partial class ProductDetailViewModel : ObservableObject
     {
         if (!IsEditMode) return;
 
-        var confirm = await Application.Current!.MainPage!.DisplayAlert(
-            "Delete Product",
-            $"Delete \"{ProductName}\" and all its lots?",
-            "Delete", "Cancel");
+        var confirm = await AppAlert.ConfirmAsync(
+                    "Delete Product",
+                    $"Delete \"{ProductName}\" and all its lots?",
+                    "Delete", "Cancel", isDanger: true);
         if (!confirm) return;
 
         try
@@ -238,8 +231,7 @@ public partial class ProductDetailViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 
@@ -267,8 +259,7 @@ public partial class ProductDetailViewModel : ObservableObject
             {
                 if (!MediaPicker.Default.IsCaptureSupported)
                 {
-                    await Shell.Current.DisplayAlert(
-                        "Not Supported", "Camera is not available.", "OK");
+                    await AppAlert.ShowWarningAsync("Not Supported", "Camera is not available.");
                     return;
                 }
                 result = await MediaPicker.Default.CapturePhotoAsync();
@@ -306,14 +297,11 @@ public partial class ProductDetailViewModel : ObservableObject
             if (!string.IsNullOrWhiteSpace(suggestion.ProductName))
                 ProductName = suggestion.ProductName;
 
-            await Shell.Current.DisplayAlert(
-                "AI Detection",
-                $"Product: {suggestion.ProductName}",
-                "OK");
+            await AppAlert.ShowSuccessAsync("AI Detection", $"Product: {suggestion.ProductName}");
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
         finally
         {

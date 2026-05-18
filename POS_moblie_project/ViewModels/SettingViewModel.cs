@@ -120,6 +120,32 @@ public partial class SettingsViewModel : ObservableObject
     private async Task ManageCategoryAsync()
         => await Shell.Current.GoToAsync("ManageCategoryPage");
 
+    // ---- Admin Panel ---------
+    [RelayCommand]
+    private async Task OpenAdminPanelAsync()
+    {
+        // ── Prompt รหัส Admin ────────────────────────────────
+        var input = await Shell.Current.DisplayPromptAsync(
+            "Admin Panel",
+            "Enter admin password to continue",
+            accept: "Confirm",
+            cancel: "Cancel",
+            keyboard: Keyboard.Numeric);
+
+        if (input is null) return;
+
+        bool isValid = await AdminManagePasswordViewModel.VerifyAdminAsync(input);
+
+        if (!isValid)
+        {
+            await AppAlert.ShowErrorAsync("Access Denied", "Incorrect admin password.");
+            return;
+        }
+
+        // ── ผ่าน → ไปหน้า Admin Panel ───────────────────────
+        await Shell.Current.GoToAsync("AdminPanelPage");
+    }
+
     // ════════════════════════════════════════════════════════
     //  BACKUP / EXPORT / IMPORT
     // ════════════════════════════════════════════════════════
@@ -143,8 +169,7 @@ public partial class SettingsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Backup Failed", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Backup Failed", ex.Message);
         }
         finally
         {
@@ -157,10 +182,10 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (IsBusy) return;
 
-        var confirm = await Application.Current.MainPage.DisplayAlert(
-            "Import Database",
-            "This will REPLACE all current data with the imported file. Continue?",
-            "Yes, Import", "Cancel");
+        var confirm = await AppAlert.ConfirmAsync(
+                "Import Database",
+                "This will REPLACE all current data with the imported file. Continue?",
+                "Yes, Import", "Cancel", isDanger: true);
 
         if (!confirm) return;
 
@@ -184,22 +209,17 @@ public partial class SettingsViewModel : ObservableObject
 
             if (success)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Import Successful",
-                    "Database restored. The app will restart.",
-                    "OK");
+                await AppAlert.ShowSuccessAsync("Import Successful", "Database restored. The app will restart.");
                 Application.Current.MainPage = new AppShell();
             }
             else
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Import Failed", "Could not restore database.", "OK");
+                await AppAlert.ShowErrorAsync("Import Failed", "Could not restore database.");
             }
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Import Failed", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Import Failed", ex.Message);
         }
         finally
         {

@@ -1,6 +1,7 @@
+using POS_moblie_project.Services;
+using ZXing.Common;
 using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
-using ZXing.Common;
 
 namespace POS_moblie_project.Views.Shared;
 
@@ -38,8 +39,8 @@ public partial class BarcodeScannerPage : ContentPage
         if (status != PermissionStatus.Granted)
         {
             SetStatus("❌ Camera permission denied", "Red");
-            await DisplayAlert("Permission Denied",
-                "Camera permission is required to scan barcodes.", "OK");
+            await AppAlert.ShowWarningAsync("Permission Denied",
+                    "Camera permission is required to scan barcodes.");
             _isLeavingPage = true;
             await Navigation.PopModalAsync();
             return;
@@ -146,9 +147,8 @@ public partial class BarcodeScannerPage : ContentPage
 
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            var confirm = await DisplayAlert(
-                "Confirm barcode",
-                $"Read successfully: {first.Value}\nUse this value?",
+            var confirm = await AppAlert.ConfirmAsync(
+                "Confirm barcode", $"Read successfully: {first.Value}\nUse this value?",
                 "Confirm", "Scan again");
 
             if (confirm)
@@ -187,9 +187,8 @@ public partial class BarcodeScannerPage : ContentPage
                 SetStatus("✅ Barcode read successfully — Please confirm", "Green");
                 SetResult(scannedValue);
 
-                var confirm = await DisplayAlert(
-                    "Confirm barcode",
-                    $"Read successfully: {scannedValue}\nUse this value?",
+                var confirm = await AppAlert.ConfirmAsync(
+                    "Confirm barcode", $"Read successfully: {scannedValue}\nUse this value?",
                     "Confirm", "Scan again");
 
                 if (confirm)
@@ -207,15 +206,14 @@ public partial class BarcodeScannerPage : ContentPage
             else
             {
                 SetStatus("❌ No barcode found in the image", "Red");
-                await DisplayAlert("Not Found",
-                    "No barcode found in the selected image.", "OK");
+                await AppAlert.ShowWarningAsync("Not Found", "No barcode found in the selected image.");
                 ResetForRescan();
             }
         }
         catch (Exception ex)
         {
             SetStatus($"❌ Error: {ex.Message}", "Red");
-            await DisplayAlert("Error", $"Failed to read image: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Error", $"Failed to read image: {ex.Message}");
             ResetForRescan();
         }
     }

@@ -77,8 +77,7 @@ public partial class TransactionHistoryViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
         finally
         {
@@ -149,8 +148,7 @@ public partial class TransactionHistoryViewModel : ObservableObject
     {
         if (_allTransactions.Count == 0)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "No Data", "No transactions to export.", "OK");
+            await AppAlert.ShowWarningAsync("No Data", "No transactions to export.");
             return;
         }
 
@@ -168,8 +166,7 @@ public partial class TransactionHistoryViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Export Failed", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Export Failed", ex.Message);
         }
     }
 

@@ -102,8 +102,7 @@ public partial class StockViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
         finally
         {
@@ -155,10 +154,7 @@ public partial class StockViewModel : ObservableObject
         var products = await _databaseService.GetAllProductsAsync();
         if (products.Count == 0)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "No Products",
-                "There are no existing products, please add new products first.",
-                "OK");
+            await AppAlert.ShowWarningAsync("No Products", "There are no existing products, please add new products first.");
             return;
         }
         await Shell.Current.GoToAsync("AddStockPage");
@@ -178,10 +174,7 @@ public partial class StockViewModel : ObservableObject
 
         if (!item.IsVisible && item.TotalStock <= 0)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Out of Stock",
-                "The product is out of stock, unable to be sold.",
-                "OK");
+            await AppAlert.ShowWarningAsync("Out of Stock", "The product is out of stock, unable to be sold.");
             return;
         }
 
@@ -199,8 +192,7 @@ public partial class StockViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 
@@ -209,10 +201,8 @@ public partial class StockViewModel : ObservableObject
     {
         if (item == null) return;
 
-        var confirm = await Application.Current!.MainPage!.DisplayAlert(
-            "Delete Product",
-            $"Delete \"{item.Name}\" and all its lots?",
-            "Delete", "Cancel");
+        var confirm = await AppAlert.ConfirmAsync(
+                "Delete Product", $"Delete \"{item.Name}\" and all its lots?", "Delete", "Cancel", isDanger: true);
         if (!confirm) return;
 
         try
@@ -226,8 +216,7 @@ public partial class StockViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 

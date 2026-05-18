@@ -30,8 +30,7 @@ public partial class SplashPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Startup Error",
-                $"Failed to initialize the app: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Startup Error", $"Failed to initialize the app: {ex.Message}");
         }
     }
 }

@@ -113,8 +113,7 @@ public partial class ProfitReportViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
         finally
         {
@@ -446,8 +445,7 @@ public partial class ProfitReportViewModel : ObservableObject
     {
         if (_allEntries.Count == 0)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "No Data", "No profit data to export.", "OK");
+            await AppAlert.ShowWarningAsync("No Data", "No profit data to export.");
             return;
         }
 
@@ -466,8 +464,7 @@ public partial class ProfitReportViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert(
-                "Export Failed", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Export Failed", ex.Message);
         }
     }
 }

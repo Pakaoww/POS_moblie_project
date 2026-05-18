@@ -1,3 +1,4 @@
+using POS_moblie_project.Services;
 using POS_moblie_project.ViewModels;
 
 namespace POS_moblie_project.Views.Transactions;
@@ -22,7 +23,7 @@ public partial class TransactionDetailPage : ContentPage
             var screenshot = await ReceiptContainer.CaptureAsync();
             if (screenshot == null)
             {
-                await Shell.Current.DisplayAlert("Error", "Failed to capture receipt.", "OK");
+                await AppAlert.ShowErrorAsync("Error", "Failed to capture receipt.");
                 return false;
             }
 
@@ -37,7 +38,7 @@ public partial class TransactionDetailPage : ContentPage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[Receipt] {ex}");
-            await Shell.Current.DisplayAlert("Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
             return false;
         }
     }
@@ -58,14 +59,14 @@ public partial class TransactionDetailPage : ContentPage
 
         if (uri == null)
         {
-            await Shell.Current.DisplayAlert("Error", "MediaStore insert failed.", "OK");
+            await AppAlert.ShowErrorAsync("Error", "MediaStore insert failed.");
             return false;
         }
 
         using var output = context.ContentResolver.OpenOutputStream(uri)!;
         await imageStream.CopyToAsync(output);
 
-        await Shell.Current.DisplayAlert("Saved ✓", $"Saved in Pictures/POS\n{fileName}", "OK");
+        await AppAlert.ShowSuccessAsync("Saved ✓", $"Saved in Pictures/POS\n{fileName}");
         return true;
     }
 #endif

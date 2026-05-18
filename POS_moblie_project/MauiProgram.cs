@@ -63,6 +63,8 @@ namespace POS_moblie_project
             builder.Services.AddSingleton<StockViewModel>();
             builder.Services.AddTransient<ProductDetailViewModel>();
             builder.Services.AddTransient<AddStockViewModel>();
+            builder.Services.AddTransient<AdminPanelViewModel>();
+            builder.Services.AddTransient<AdminPanelPage>();
 
             // Later phases (uncomment as built):
             builder.Services.AddSingleton<HomeViewModel>();
@@ -86,6 +88,8 @@ namespace POS_moblie_project
             builder.Services.AddSingleton<StockPage>();
             builder.Services.AddTransient<ProductDetailPage>();
             builder.Services.AddTransient<AddStockPage>();
+            builder.Services.AddTransient<AdminManagePasswordPage>();
+            builder.Services.AddTransient<AdminManagePasswordViewModel>();
 
             // Later phases (uncomment as built):
             builder.Services.AddSingleton<HomePage>();

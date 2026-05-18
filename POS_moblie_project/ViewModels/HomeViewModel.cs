@@ -80,7 +80,7 @@ public partial class HomeViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");  // ← Shell
+            await AppAlert.ShowErrorAsync("Error", ex.Message);  // ← Shell
         }
     }
 
@@ -183,7 +183,7 @@ public partial class HomeViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlertAsync("Error", $"Failed to generate chart: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Error", $"Failed to generate chart: {ex.Message}");
         }
     }
 
@@ -366,8 +366,30 @@ public partial class HomeViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlertAsync("Error", $"Failed to generate profit chart: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Error", $"Failed to generate profit chart: {ex.Message}");
         }
+    }
+
+    // properties สำหรับ bind IsVisible ของแต่ละ card ใน HomePage.xaml
+
+    // ── Properties ───────────────────────────────────────────────
+
+    public bool ShowSalesReport
+        => Preferences.Get("admin_show_sales_report", true);
+
+    public bool ShowProfitReport
+        => Preferences.Get("admin_show_profit_report", true);
+
+    public bool ShowTransactionHistory
+        => Preferences.Get("admin_show_transaction_history", true);
+
+    // ── เพิ่มใน HomeViewModel ────────────────────────────────────
+
+    public void RefreshAdminSettings()
+    {
+        OnPropertyChanged(nameof(ShowSalesReport));
+        OnPropertyChanged(nameof(ShowProfitReport));
+        OnPropertyChanged(nameof(ShowTransactionHistory));
     }
 
     [RelayCommand]

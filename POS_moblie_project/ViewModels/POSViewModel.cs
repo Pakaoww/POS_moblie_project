@@ -54,7 +54,6 @@ public partial class POSViewModel : ObservableObject
             _allProducts = await _databaseService.GetVisibleProductsAsync();
             _allCategories = await _databaseService.GetAllCategoriesAsync();
 
-            // Build stock cache จาก lots
             _stockCache.Clear();
             foreach (var p in _allProducts)
             {
@@ -71,8 +70,7 @@ public partial class POSViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", ex.Message, "OK");
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
         finally
         {
@@ -113,17 +111,16 @@ public partial class POSViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void IncreaseQuantity(ProductWithQuantity item)
+    private async Task IncreaseQuantityAsync(ProductWithQuantity item)
     {
         if (item == null) return;
 
         var available = GetAvailableStock(item) - item.Quantity;
         if (available <= 0)
         {
-            Application.Current!.MainPage!.DisplayAlert(
+            await AppAlert.ShowWarningAsync(
                 "Stock Limit",
-                $"No more stock available for \"{item.Name}\".",
-                "OK");
+                $"No more stock available for \"{item.Name}\".");
             return;
         }
         item.Quantity++;
@@ -145,13 +142,12 @@ public partial class POSViewModel : ObservableObject
         var addQty = Math.Min(item.Quantity, available);
         if (addQty <= 0) return;
 
-        // FIFO — หา lot เก่าสุดที่ยังมีของ
         var fifoLot = await _databaseService.GetFifoLotAsync(item.ProductId);
         if (fifoLot == null)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
+            await AppAlert.ShowWarningAsync(
                 "Out of Stock",
-                $"\"{item.Name}\" has no stock available.", "OK");
+                $"\"{item.Name}\" has no stock available.");
             return;
         }
 
@@ -170,8 +166,9 @@ public partial class POSViewModel : ObservableObject
     {
         if (CartItems.Count == 0)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "No Items", "Please add items to cart before holding.", "OK");
+            await AppAlert.ShowWarningAsync(
+                "No Items",
+                "Please add items to cart before holding.");
             return;
         }
 
@@ -197,8 +194,9 @@ public partial class POSViewModel : ObservableObject
     {
         if (CartItems.Count == 0)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Cart Empty", "Please add items to cart first.", "OK");
+            await AppAlert.ShowWarningAsync(
+                "Cart Empty",
+                "Please add items to cart first.");
             return;
         }
         await Shell.Current.GoToAsync("CartPage");

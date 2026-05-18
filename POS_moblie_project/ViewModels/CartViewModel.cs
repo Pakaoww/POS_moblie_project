@@ -147,10 +147,7 @@ public partial class CartViewModel : ObservableObject
         var totalStock = await _databaseService.GetTotalStockAsync(item.ProductId);
         if (item.Quantity >= totalStock)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Stock Limit",
-                $"Only {totalStock} unit(s) available in stock.",
-                "OK");
+            await AppAlert.ShowWarningAsync("Stock Limit", $"Only {totalStock} unit(s) available in stock.");
             return;
         }
 
@@ -322,8 +319,7 @@ public partial class CartViewModel : ObservableObject
     {
         if (MoneyReceived < GrandTotal)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Insufficient", "Money received is less than the total.", "OK");
+            await AppAlert.ShowWarningAsync("Insufficient", "Money received is less than the total.");
             return;
         }
 
@@ -376,8 +372,7 @@ public partial class CartViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Application.Current!.MainPage!.DisplayAlert(
-                "Error", $"Failed to save transaction: {ex.Message}", "OK");
+            await AppAlert.ShowErrorAsync("Error", $"Failed to save transaction: {ex.Message}");
         }
     }
 
@@ -390,10 +385,7 @@ public partial class CartViewModel : ObservableObject
     {
         if (IsReceiptPrinted)
         {
-            await Shell.Current.DisplayAlert(
-                "Already Printed",
-                "The receipt has already been printed to your gallery successfully.",
-                "OK");
+            await AppAlert.ShowAsync("Already Printed", "The receipt has already been printed to your gallery successfully.");
             return;
         }
 
