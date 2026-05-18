@@ -89,6 +89,10 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (value != null)
             _ = _databaseService.SetSettingAsync("dashboard_timeframe", value.Key);
+
+        // Refresh chart ทันทีที่เปลี่ยน timeframe
+        var homeVm = ServiceHelper.GetService<HomeViewModel>();
+        _ = homeVm.LoadDashboardCommand.ExecuteAsync(null);
     }
 
     [RelayCommand]

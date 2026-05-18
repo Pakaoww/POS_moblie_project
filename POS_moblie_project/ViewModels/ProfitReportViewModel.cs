@@ -351,7 +351,7 @@ public partial class ProfitReportViewModel : ObservableObject
             var expense = activeLots
                 .Where(l => l.ReceivedAt.Date >= cursor && l.ReceivedAt.Date <= monthEnd)
                 .Sum(l => l.CostPrice * l.Quantity);
-            result.Add(($"{cursor.Month}", income, expense));
+            result.Add(($"M{cursor.Month}", income, expense));
             cursor = cursor.AddMonths(1);
         }
         return result;
