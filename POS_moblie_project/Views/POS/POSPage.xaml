@@ -75,44 +75,59 @@
                     <DataTemplate x:DataType="vm:ProductWithQuantity">
                         <Border Margin="16,0" Padding="12"
                                 BackgroundColor="#F5F5F7" StrokeThickness="0">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
-                            <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="12">
-                                <Border Grid.Column="0" WidthRequest="48" HeightRequest="48"
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10"/>
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="48,*,Auto" ColumnSpacing="10">
+            
+                                <!-- รูป -->
+                                <Border Grid.Column="0" WidthRequest="44" HeightRequest="44"
                                         BackgroundColor="#E0E0E5" StrokeThickness="0">
-                                    <Border.StrokeShape><RoundRectangle CornerRadius="6"/></Border.StrokeShape>
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6"/>
+                                    </Border.StrokeShape>
                                     <Image Source="{Binding ImagePath}" Aspect="AspectFill"/>
                                 </Border>
+
+                                <!-- ชื่อ + ราคา (กว้างขึ้นเพราะ column เป็น *) -->
                                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                    <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="#222222"/>
+                                    <Label Text="{Binding Name}" FontSize="14" FontAttributes="Bold"
+                                           TextColor="#222222" LineBreakMode="TailTruncation" MaxLines="1"/>
                                     <Label Text="{Binding Price, Converter={StaticResource PriceFormatConverter}}"
-                                           FontSize="13" TextColor="#4ECDC4"/>
+                                           FontSize="12" TextColor="#4ECDC4"/>
                                 </VerticalStackLayout>
-                                <Grid Grid.Column="2" ColumnDefinitions="Auto,Auto,Auto,Auto"
-                                      ColumnSpacing="6" VerticalOptions="Center">
+
+                                <Grid Grid.Column="2"
+                                      ColumnDefinitions="26,20,26,8,44"
+                                      ColumnSpacing="3" VerticalOptions="Center">
                                     <Button Grid.Column="0" Text="−"
-                                            WidthRequest="36" HeightRequest="36"
-                                            CornerRadius="18" Padding="0" FontSize="18"
+                                            WidthRequest="30" HeightRequest="30"
+                                            MinimumWidthRequest="26" MinimumHeightRequest="26"
+                                            CornerRadius="13" Padding="0" FontSize="14"
                                             BackgroundColor="#E0E0E5" TextColor="#444444"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:POSViewModel}}, Path=DecreaseQuantityCommand}"
                                             CommandParameter="{Binding .}"/>
                                     <Label Grid.Column="1" Text="{Binding Quantity}"
-                                           FontSize="15" FontAttributes="Bold"
-                                           WidthRequest="28" HorizontalOptions="Center"
+                                           FontSize="12" FontAttributes="Bold"
+                                           WidthRequest="20" HorizontalOptions="Center"
                                            VerticalOptions="Center" HorizontalTextAlignment="Center"
                                            TextColor="#222222"/>
                                     <Button Grid.Column="2" Text="+"
-                                            WidthRequest="36" HeightRequest="36"
-                                            CornerRadius="18" Padding="0" FontSize="18"
+                                            WidthRequest="30" HeightRequest="30"
+                                            MinimumWidthRequest="26" MinimumHeightRequest="26"
+                                            CornerRadius="13" Padding="0" FontSize="14"
                                             BackgroundColor="#E0E0E5" TextColor="#444444"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:POSViewModel}}, Path=IncreaseQuantityCommand}"
                                             CommandParameter="{Binding .}"/>
-                                    <Button Grid.Column="3" Text="Add"
-                                            WidthRequest="52" HeightRequest="36"
-                                            CornerRadius="8" Padding="0" FontSize="13"
+                                    <!-- Column 3 เป็น spacer 8px -->
+                                    <Button Grid.Column="4" Text="Add"
+                                            WidthRequest="44" HeightRequest="28"
+                                            CornerRadius="8" Padding="0" FontSize="12"
                                             BackgroundColor="#a9d888" TextColor="White"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:POSViewModel}}, Path=AddToCartCommand}"
                                             CommandParameter="{Binding .}"/>
                                 </Grid>
+
                             </Grid>
                         </Border>
                     </DataTemplate>
