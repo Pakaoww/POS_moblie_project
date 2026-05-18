@@ -259,6 +259,24 @@ public partial class CartViewModel : ObservableObject
 
     // ── Charge keypad ──────────────────────────────────────
 
+    // กด EXACT — ใส่ยอด GrandTotal เลย
+    [RelayCommand]
+    private void SetExactAmount()
+    {
+        MoneyReceivedInput = GrandTotal.ToString("F2");
+        MoneyReceived = GrandTotal;
+        Change = 0;
+    }
+
+    // กด C — clear ทั้งหมด
+    [RelayCommand]
+    private void ClearCharge()
+    {
+        MoneyReceivedInput = string.Empty;
+        MoneyReceived = 0;
+        Change = -GrandTotal;
+    }
+
     [RelayCommand]
     private void ChargeDigitPressed(string digit)
     {
@@ -266,6 +284,8 @@ public partial class CartViewModel : ObservableObject
         if (digit == "." && MoneyReceivedInput.Contains(".")) return;
         if (digit == "." && MoneyReceivedInput.Length == 0)
             MoneyReceivedInput = "0.";
+        else if (digit == "00")
+            MoneyReceivedInput = MoneyReceivedInput.Length == 0 ? "0" : MoneyReceivedInput + "00";
         else
             MoneyReceivedInput += digit;
 
@@ -306,6 +326,19 @@ public partial class CartViewModel : ObservableObject
                 "Insufficient", "Money received is less than the total.", "OK");
             return;
         }
+
+        // Popup ยืนยันก่อน
+        var currency = ServiceHelper.GetService<CurrencyService>();
+        var confirm = await Application.Current!.MainPage!.DisplayAlert(
+            "Confirm Payment",
+            $"Grand Total:  {currency.Format(GrandTotal)}\n" +
+            $"Received:       {currency.Format(MoneyReceived)}\n" +
+            $"─────────────────\n" +
+            $"Change:          {currency.Format(Change)}",
+            "✓ Confirm",
+            "Cancel");
+
+        if (!confirm) return;
 
         try
         {
