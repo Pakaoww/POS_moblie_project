@@ -155,21 +155,18 @@ public partial class AdminPanelViewModel : ObservableObject
     {
         Preferences.Set(ShowSalesReportKey, value);
         RefreshHome();
-        RefreshShell();
     }
 
     partial void OnShowProfitReportChanged(bool value)
     {
         Preferences.Set(ShowProfitReportKey, value);
         RefreshHome();
-        RefreshShell();
     }
 
     partial void OnShowTransactionHistoryChanged(bool value)
     {
         Preferences.Set(ShowTransactionKey, value);
         RefreshHome();
-        RefreshShell();
     }
 
     private static void RefreshHome()
@@ -178,11 +175,6 @@ public partial class AdminPanelViewModel : ObservableObject
         homeVm.RefreshAdminSettings();
     }
 
-    private static void RefreshShell()
-    {
-        if (Shell.Current is AppShell appShell)
-            appShell.RefreshFlyoutVisibility();
-    }
 
     [RelayCommand] private void ToggleShowSalesReport() => ShowSalesReport = !ShowSalesReport;
     [RelayCommand] private void ToggleShowProfitReport() => ShowProfitReport = !ShowProfitReport;

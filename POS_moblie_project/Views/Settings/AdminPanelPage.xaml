@@ -103,6 +103,110 @@
                         <Label Text="›" FontSize="20" TextColor="#AAAAAA" VerticalOptions="Center"/>
                     </StackLayout>
 
+                    <!-- ════════════════════════════
+                         PAGE LOCK SETTINGS
+                    ════════════════════════════ -->
+                    <BoxView HeightRequest="1" Color="#E0E0E0" Margin="16,0"
+                             IsVisible="{Binding ShowLockSettings}"/>
+
+                    <StackLayout Spacing="0" IsVisible="{Binding ShowLockSettings}">
+                        <StackLayout Padding="16,12,16,4" Spacing="2">
+                            <Label Text="🔒 Page Lock" TextColor="#222222" FontSize="14" FontAttributes="Bold"/>
+                            <Label Text="Require admin PIN to access these pages"
+                                   TextColor="#888888" FontSize="12"/>
+                        </StackLayout>
+
+                        <!-- Lock Transaction History -->
+                        <StackLayout Orientation="Horizontal" Padding="16,8,16,8" Spacing="12">
+                            <Label Text="📜" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="Lock Transaction History" HorizontalOptions="FillAndExpand"
+                                   TextColor="#222222" FontSize="13" VerticalOptions="Center"/>
+                            <Border WidthRequest="62" HeightRequest="30" StrokeThickness="0"
+                                    BackgroundColor="{Binding LockTransactionHistory, Converter={StaticResource BoolToColorConverter}}"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="15"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleLockTransactionHistoryCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,*" Padding="3,0" InputTransparent="True">
+                                    <Label Text="{Binding LockTransactionHistory, Converter={StaticResource BoolToVisibleTextConverter}}"
+                                           FontSize="10" FontAttributes="Bold" TextColor="White"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           Grid.Column="{Binding LockTransactionHistory, Converter={StaticResource BoolToLabelColumnConverter}}"/>
+                                    <Border WidthRequest="22" HeightRequest="22" BackgroundColor="White" StrokeThickness="0"
+                                            HorizontalOptions="Center" VerticalOptions="Center"
+                                            Grid.Column="{Binding LockTransactionHistory, Converter={StaticResource BoolToThumbColumnConverter}}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="11"/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackLayout>
+
+                        <!-- Lock Sales Report -->
+                        <StackLayout Orientation="Horizontal" Padding="16,8,16,8" Spacing="12">
+                            <Label Text="📄" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="Lock Sales Report" HorizontalOptions="FillAndExpand"
+                                   TextColor="#222222" FontSize="13" VerticalOptions="Center"/>
+                            <Border WidthRequest="62" HeightRequest="30" StrokeThickness="0"
+                                    BackgroundColor="{Binding LockSalesReport, Converter={StaticResource BoolToColorConverter}}"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="15"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleLockSalesReportCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,*" Padding="3,0" InputTransparent="True">
+                                    <Label Text="{Binding LockSalesReport, Converter={StaticResource BoolToVisibleTextConverter}}"
+                                           FontSize="10" FontAttributes="Bold" TextColor="White"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           Grid.Column="{Binding LockSalesReport, Converter={StaticResource BoolToLabelColumnConverter}}"/>
+                                    <Border WidthRequest="22" HeightRequest="22" BackgroundColor="White" StrokeThickness="0"
+                                            HorizontalOptions="Center" VerticalOptions="Center"
+                                            Grid.Column="{Binding LockSalesReport, Converter={StaticResource BoolToThumbColumnConverter}}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="11"/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackLayout>
+
+                        <!-- Lock Profit Report -->
+                        <StackLayout Orientation="Horizontal" Padding="16,8,16,12" Spacing="12">
+                            <Label Text="📊" FontSize="16" VerticalOptions="Center"/>
+                            <Label Text="Lock Profit Report" HorizontalOptions="FillAndExpand"
+                                   TextColor="#222222" FontSize="13" VerticalOptions="Center"/>
+                            <Border WidthRequest="62" HeightRequest="30" StrokeThickness="0"
+                                    BackgroundColor="{Binding LockProfitReport, Converter={StaticResource BoolToColorConverter}}"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="15"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleLockProfitReportCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,*" Padding="3,0" InputTransparent="True">
+                                    <Label Text="{Binding LockProfitReport, Converter={StaticResource BoolToVisibleTextConverter}}"
+                                           FontSize="10" FontAttributes="Bold" TextColor="White"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           Grid.Column="{Binding LockProfitReport, Converter={StaticResource BoolToLabelColumnConverter}}"/>
+                                    <Border WidthRequest="22" HeightRequest="22" BackgroundColor="White" StrokeThickness="0"
+                                            HorizontalOptions="Center" VerticalOptions="Center"
+                                            Grid.Column="{Binding LockProfitReport, Converter={StaticResource BoolToThumbColumnConverter}}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="11"/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackLayout>
+                    </StackLayout>
+
                 </StackLayout>
             </Border>
 
