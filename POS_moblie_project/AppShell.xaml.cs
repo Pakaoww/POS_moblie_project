@@ -20,13 +20,12 @@ namespace POS_moblie_project
             Routing.RegisterRoute("TransactionDetailPage", typeof(TransactionDetailPage));
             Routing.RegisterRoute("ProductSalesDetailPage", typeof(ProductSalesDetailPage));
             Routing.RegisterRoute("ManageCategoryPage", typeof(ManageCategoryPage));
-            Routing.RegisterRoute("managePasswordPage", typeof(ManagePasswordPage));
+            Routing.RegisterRoute("ManagePasswordPage", typeof(ManagePasswordPage));
             Routing.RegisterRoute("AdminPanelPage", typeof(AdminPanelPage));
             Routing.RegisterRoute("AdminManagePasswordPage", typeof(AdminManagePasswordPage));
             Routing.RegisterRoute("AdminPasswordPage", typeof(AdminPasswordPage));
             Routing.RegisterRoute("PasswordPage", typeof(PasswordPage));
 
-            // ตั้งค่า visibility ครั้งแรกตาม Preferences
             RefreshFlyoutVisibility();
         }
 

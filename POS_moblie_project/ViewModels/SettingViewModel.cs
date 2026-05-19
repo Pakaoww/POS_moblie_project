@@ -94,7 +94,7 @@ public partial class SettingsViewModel : ObservableObject
 
     [RelayCommand]
     private async Task ChangePasswordAsync()
-        => await Shell.Current.GoToAsync("managePasswordPage");
+        => await Shell.Current.GoToAsync("ManagePasswordPage");
 
     [RelayCommand]
     private async Task ManageCategoryAsync()
@@ -104,7 +104,7 @@ public partial class SettingsViewModel : ObservableObject
     private async Task OpenAdminPanelAsync()
     {
         // ครั้งแรกที่ยังไม่มี admin PIN → เข้าได้เลย
-        bool hasPIN = await AdminPasswordViewModel.HasAdminPinAsync();
+        bool hasPIN = await PageLockService.HasAdminPinAsync();
 
         if (!hasPIN)
         {

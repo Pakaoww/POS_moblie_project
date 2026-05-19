@@ -201,13 +201,4 @@ public partial class AdminManagePasswordViewModel : ObservableObject
         await Shell.Current.GoToAsync("..");
     }
 
-    // ════════════════════════════════════════════════════════
-    //  STATIC HELPER
-    // ════════════════════════════════════════════════════════
-
-    public static async Task<bool> VerifyAdminAsync(string inputPin)
-    {
-        var saved = await SecureStorage.GetAsync(AdminPinKey);
-        return saved is null || saved == inputPin;
-    }
 }

@@ -1,12 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using POS_moblie_project.Services;
 
 namespace POS_moblie_project.ViewModels;
 
 public partial class AdminPasswordViewModel : ObservableObject
 {
-    private const string AdminPinKey = "admin_pin";
-
     [ObservableProperty]
     private string _statusMessage = "Enter Admin Password";
 
@@ -15,6 +14,8 @@ public partial class AdminPasswordViewModel : ObservableObject
 
     [ObservableProperty]
     private string _enteredPin = string.Empty;
+
+    private string _targetRoute = "//settings/AdminPanelPage";
 
     // ════════════════════════════════════════════════════════
     //  INIT
@@ -26,6 +27,13 @@ public partial class AdminPasswordViewModel : ObservableObject
         EnteredPin = string.Empty;
         IsError = false;
         StatusMessage = "Enter Admin Password";
+    }
+
+    public void SetTarget(string target)
+    {
+        _targetRoute = string.IsNullOrWhiteSpace(target)
+            ? "//settings/AdminPanelPage"
+            : target;
     }
 
     // ════════════════════════════════════════════════════════
@@ -65,13 +73,21 @@ public partial class AdminPasswordViewModel : ObservableObject
         var pin = EnteredPin;
         EnteredPin = string.Empty;
 
-        var saved = await SecureStorage.GetAsync(AdminPinKey);
-        bool isValid = saved is null || saved == pin;
+        bool isValid = await PageLockService.VerifyAdminPinAsync(pin);
 
         if (!isValid)
         {
             IsError = true;
             StatusMessage = "Incorrect admin password";
+            return;
+        }
+
+        if (_targetRoute != "//settings/AdminPanelPage")
+        {
+            PageLockService.Authorize(_targetRoute);
+            // Pop กลับไปหน้าที่ถูก lock (TransactionHistoryPage ฯลฯ)
+            // ตอนนี้ OnAppearing ของหน้านั้นจะ ConsumeAuthorization แล้วโหลดตามปกติ
+            await Shell.Current.GoToAsync("..");
             return;
         }
 
@@ -82,21 +98,12 @@ public partial class AdminPasswordViewModel : ObservableObject
     private async Task CancelAsync()
     {
         EnteredPin = string.Empty;
-        await Shell.Current.GoToAsync("..");
+        // ถ้ามี target แสดงว่ามาจาก Locked Page → กลับ Dashboard ทันที
+        // เพื่อไม่ให้ loop redirect กลับมาที่นี่อีก
+        if (_targetRoute != "//settings/AdminPanelPage")
+            await Shell.Current.GoToAsync("///home");
+        else
+            await Shell.Current.GoToAsync("..");
     }
 
-    // ── Static helpers ────────────────────────────────────
-
-    public static async Task<bool> VerifyAdminAsync(string pin)
-    {
-        var saved = await SecureStorage.GetAsync(AdminPinKey);
-        return saved is null || saved == pin;
-    }
-
-    /// <summary>ตรวจสอบว่ามี Admin PIN ตั้งไว้แล้วหรือยัง</summary>
-    public static async Task<bool> HasAdminPinAsync()
-    {
-        var saved = await SecureStorage.GetAsync(AdminPinKey);
-        return !string.IsNullOrWhiteSpace(saved);
-    }
 }
