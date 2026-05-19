@@ -135,9 +135,16 @@ public partial class SalesReportViewModel : ObservableObject
                 i.ProductCode.ToLowerInvariant().Contains(s));
         }
 
-        ReportItems.Clear();
-        foreach (var i in filtered)
-            ReportItems.Add(i);
+        var filteredList = filtered.ToList();
+        var filteredIds = new HashSet<int>(filteredList.Select(i => i.ProductId));
+
+        for (int i = ReportItems.Count - 1; i >= 0; i--)
+            if (!filteredIds.Contains(ReportItems[i].ProductId))
+                ReportItems.RemoveAt(i);
+
+        foreach (var item in filteredList)
+            if (!ReportItems.Any(ei => ei.ProductId == item.ProductId))
+                ReportItems.Add(item);
     }
 
     private void CalculateStats()

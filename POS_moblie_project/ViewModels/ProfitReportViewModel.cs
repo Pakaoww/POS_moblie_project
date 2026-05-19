@@ -195,9 +195,16 @@ public partial class ProfitReportViewModel : ObservableObject
         else if (ActiveFilter == "Expense")
             filtered = filtered.Where(e => e.EntryType == "Expense");
 
-        ReportEntries.Clear();
-        foreach (var e in filtered)
-            ReportEntries.Add(e);
+        var filteredList = filtered.ToList();
+        var filteredIds = new HashSet<string>(filteredList.Select(e => e.Id));
+
+        for (int i = ReportEntries.Count - 1; i >= 0; i--)
+            if (!filteredIds.Contains(ReportEntries[i].Id))
+                ReportEntries.RemoveAt(i);
+
+        foreach (var e in filteredList)
+            if (!ReportEntries.Any(ee => ee.Id == e.Id))
+                ReportEntries.Add(e);
     }
 
     private void CalculateStats()

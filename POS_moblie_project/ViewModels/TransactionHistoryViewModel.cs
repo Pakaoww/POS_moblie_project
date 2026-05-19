@@ -103,9 +103,16 @@ public partial class TransactionHistoryViewModel : ObservableObject
                 t.TransactionId.ToLowerInvariant().Contains(s));
         }
 
-        Transactions.Clear();
-        foreach (var t in filtered)
-            Transactions.Add(t);
+        var filteredList = filtered.ToList();
+        var filteredIds = new HashSet<string>(filteredList.Select(t => t.TransactionId));
+
+        for (int i = Transactions.Count - 1; i >= 0; i--)
+            if (!filteredIds.Contains(Transactions[i].TransactionId))
+                Transactions.RemoveAt(i);
+
+        foreach (var t in filteredList)
+            if (!Transactions.Any(et => et.TransactionId == t.TransactionId))
+                Transactions.Add(t);
     }
 
     private void ClearPeriodIfNotMatching()
