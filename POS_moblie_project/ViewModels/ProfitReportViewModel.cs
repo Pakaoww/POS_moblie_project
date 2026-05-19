@@ -79,6 +79,18 @@ public partial class ProfitReportViewModel : ObservableObject
         ActivePeriod = "Today";
     }
 
+    partial void OnFromDateChanged(DateTime value)
+    {
+        if (value > ToDate)
+            ToDate = value;
+    }
+
+    partial void OnToDateChanged(DateTime value)
+    {
+        if (value < FromDate)
+            FromDate = value;
+    }
+
     partial void OnSearchTextChanged(string value) => ApplyFilter();
 
     partial void OnActiveFilterChanged(string value)

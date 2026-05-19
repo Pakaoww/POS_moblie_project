@@ -151,10 +151,15 @@ public partial class StockViewModel : ObservableObject
     [RelayCommand]
     private async Task AddStockAsync()
     {
-        var products = await _databaseService.GetAllProductsAsync();
+        var products = (await _databaseService.GetAllProductsAsync())
+            .Where(p => !p.IsDeleted)  // ← filter deleted ออก
+            .ToList();
+
         if (products.Count == 0)
         {
-            await AppAlert.ShowWarningAsync("No Products", "There are no existing products, please add new products first.");
+            await AppAlert.ShowWarningAsync(
+                "No Products",
+                "There are no existing products, please add new products first.");
             return;
         }
         await Shell.Current.GoToAsync("AddStockPage");

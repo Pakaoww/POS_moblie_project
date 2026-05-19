@@ -53,7 +53,9 @@ public partial class HomeViewModel : ObservableObject
         {
             WeeklyBarChart = null;
 
-            var products = await _databaseService.GetAllProductsAsync();
+            var products = (await _databaseService.GetAllProductsAsync())
+                .Where(p => !p.IsDeleted)  // ← filter deleted
+                .ToList();
             TotalProducts = products.Count;
 
             int lowCount = 0;
@@ -80,7 +82,7 @@ public partial class HomeViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await AppAlert.ShowErrorAsync("Error", ex.Message);  // ← Shell
+            await AppAlert.ShowErrorAsync("Error", ex.Message);
         }
     }
 

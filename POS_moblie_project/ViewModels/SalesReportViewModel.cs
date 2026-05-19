@@ -41,6 +41,7 @@ public partial class SalesReportViewModel : ObservableObject
     public bool IsTodayActive => ActivePeriod == "Today";
     public bool IsThisWeekActive => ActivePeriod == "ThisWeek";
     public bool IsThisMonthActive => ActivePeriod == "ThisMonth";
+    public bool IsThisYearActive => ActivePeriod == "ThisYear";
 
     public SalesReportViewModel()
     {
@@ -55,6 +56,18 @@ public partial class SalesReportViewModel : ObservableObject
         FromDate = today;
         ToDate = today;
         ActivePeriod = "Today";
+    }
+
+    partial void OnFromDateChanged(DateTime value)
+    {
+        if (value > ToDate)
+            ToDate = value;
+    }
+
+    partial void OnToDateChanged(DateTime value)
+    {
+        if (value < FromDate)
+            FromDate = value;
     }
 
     partial void OnSearchTextChanged(string value) => ApplySearch();
@@ -92,9 +105,11 @@ public partial class SalesReportViewModel : ObservableObject
         {
             "Today" => FromDate.Date == today && ToDate.Date == today,
             "ThisWeek" => FromDate.Date == today.AddDays(-((7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7))
-                       && ToDate.Date == FromDate.Date.AddDays(6),
+                        && ToDate.Date == FromDate.Date.AddDays(6),
             "ThisMonth" => FromDate.Date == new DateTime(today.Year, today.Month, 1)
                         && ToDate.Date == new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1),
+            "ThisYear" => FromDate.Date == new DateTime(today.Year, 1, 1)           // ← เพิ่ม
+                        && ToDate.Date == new DateTime(today.Year, 12, 31),
             _ => false
         };
 
@@ -104,6 +119,7 @@ public partial class SalesReportViewModel : ObservableObject
             OnPropertyChanged(nameof(IsTodayActive));
             OnPropertyChanged(nameof(IsThisWeekActive));
             OnPropertyChanged(nameof(IsThisMonthActive));
+            OnPropertyChanged(nameof(IsThisYearActive));  // ← เพิ่ม
         }
     }
 
@@ -165,6 +181,7 @@ public partial class SalesReportViewModel : ObservableObject
             await AppAlert.ShowErrorAsync("Export Failed", ex.Message);
         }
     }
+
     [RelayCommand]
     private async Task SetPeriod(string period)
     {
@@ -174,6 +191,7 @@ public partial class SalesReportViewModel : ObservableObject
             OnPropertyChanged(nameof(IsTodayActive));
             OnPropertyChanged(nameof(IsThisWeekActive));
             OnPropertyChanged(nameof(IsThisMonthActive));
+            OnPropertyChanged(nameof(IsThisYearActive));  // ← เพิ่ม
             return;
         }
 
@@ -194,13 +212,17 @@ public partial class SalesReportViewModel : ObservableObject
                 FromDate = new DateTime(today.Year, today.Month, 1);
                 ToDate = FromDate.AddMonths(1).AddDays(-1);
                 break;
+            case "ThisYear":                                    // ← เพิ่ม
+                FromDate = new DateTime(today.Year, 1, 1);
+                ToDate = new DateTime(today.Year, 12, 31);
+                break;
         }
 
-        ActivePeriod = ActivePeriod == period ? string.Empty : period;
-
+        ActivePeriod = period;
         OnPropertyChanged(nameof(IsTodayActive));
         OnPropertyChanged(nameof(IsThisWeekActive));
         OnPropertyChanged(nameof(IsThisMonthActive));
+        OnPropertyChanged(nameof(IsThisYearActive));  // ← เพิ่ม
 
         await LoadReportCommand.ExecuteAsync(null);
     }

@@ -26,7 +26,6 @@ public partial class TransactionHistoryViewModel : ObservableObject
     [ObservableProperty]
     private bool isLoading;
 
-    // Stats
     [ObservableProperty]
     private int totalTransactions;
 
@@ -36,11 +35,13 @@ public partial class TransactionHistoryViewModel : ObservableObject
     [ObservableProperty]
     private decimal totalRevenue;
 
-    [ObservableProperty] private string _activePeriod = string.Empty;
+    [ObservableProperty]
+    private string _activePeriod = string.Empty;
 
     public bool IsTodayActive => ActivePeriod == "Today";
     public bool IsThisWeekActive => ActivePeriod == "ThisWeek";
     public bool IsThisMonthActive => ActivePeriod == "ThisMonth";
+    public bool IsThisYearActive => ActivePeriod == "ThisYear";  // ← เพิ่ม
 
     public TransactionHistoryViewModel()
     {
@@ -52,11 +53,20 @@ public partial class TransactionHistoryViewModel : ObservableObject
             OnPropertyChanged(nameof(AverageRevenue));
         };
 
-        // Set Today as default
         var today = DateTime.Today;
         FromDate = today;
         ToDate = today;
         ActivePeriod = "Today";
+    }
+
+    partial void OnFromDateChanged(DateTime value)
+    {
+        if (value > ToDate) ToDate = value;
+    }
+
+    partial void OnToDateChanged(DateTime value)
+    {
+        if (value < FromDate) FromDate = value;
     }
 
     partial void OnSearchTextChanged(string value) => ApplySearch();
@@ -68,10 +78,7 @@ public partial class TransactionHistoryViewModel : ObservableObject
         try
         {
             ClearPeriodIfNotMatching();
-
-            _allTransactions = await _databaseService
-                .GetTransactionsAsync(FromDate, ToDate);
-
+            _allTransactions = await _databaseService.GetTransactionsAsync(FromDate, ToDate);
             ApplySearch();
             CalculateStats();
         }
@@ -101,7 +108,6 @@ public partial class TransactionHistoryViewModel : ObservableObject
             Transactions.Add(t);
     }
 
-
     private void ClearPeriodIfNotMatching()
     {
         if (string.IsNullOrEmpty(ActivePeriod)) return;
@@ -111,18 +117,18 @@ public partial class TransactionHistoryViewModel : ObservableObject
         {
             "Today" => FromDate.Date == today && ToDate.Date == today,
             "ThisWeek" => FromDate.Date == today.AddDays(-((7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7))
-                       && ToDate.Date == FromDate.Date.AddDays(6),
+                        && ToDate.Date == FromDate.Date.AddDays(6),
             "ThisMonth" => FromDate.Date == new DateTime(today.Year, today.Month, 1)
                         && ToDate.Date == new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1),
+            "ThisYear" => FromDate.Date == new DateTime(today.Year, 1, 1)      // ← เพิ่ม
+                        && ToDate.Date == new DateTime(today.Year, 12, 31),
             _ => false
         };
 
         if (!stillMatches)
         {
             ActivePeriod = string.Empty;
-            OnPropertyChanged(nameof(IsTodayActive));
-            OnPropertyChanged(nameof(IsThisWeekActive));
-            OnPropertyChanged(nameof(IsThisMonthActive));
+            NotifyPeriodChanged();
         }
     }
 
@@ -155,8 +161,7 @@ public partial class TransactionHistoryViewModel : ObservableObject
         try
         {
             var backupService = ServiceHelper.GetService<BackupService>();
-            var filePath = await backupService
-                .ExportTransactionHistoryAsync(_allTransactions);
+            var filePath = await backupService.ExportTransactionHistoryAsync(_allTransactions);
 
             await Share.Default.RequestAsync(new ShareFileRequest
             {
@@ -173,14 +178,11 @@ public partial class TransactionHistoryViewModel : ObservableObject
     [RelayCommand]
     private async Task SetPeriod(string period)
     {
-        // ถ้ากดปุ่มเดิมซ้ำ (toggle ออก) → แค่ดับสีแล้วหยุด ไม่ต้อง load
         if (ActivePeriod == period)
         {
             ActivePeriod = string.Empty;
-            OnPropertyChanged(nameof(IsTodayActive));
-            OnPropertyChanged(nameof(IsThisWeekActive));
-            OnPropertyChanged(nameof(IsThisMonthActive));
-            return; // ← หยุดที่นี่เลย
+            NotifyPeriodChanged();
+            return;
         }
 
         var today = DateTime.Today;
@@ -200,14 +202,23 @@ public partial class TransactionHistoryViewModel : ObservableObject
                 FromDate = new DateTime(today.Year, today.Month, 1);
                 ToDate = FromDate.AddMonths(1).AddDays(-1);
                 break;
+            case "ThisYear":                                // ← เพิ่ม
+                FromDate = new DateTime(today.Year, 1, 1);
+                ToDate = new DateTime(today.Year, 12, 31);
+                break;
         }
 
-        ActivePeriod = ActivePeriod == period ? string.Empty : period;
+        ActivePeriod = period;
+        NotifyPeriodChanged();
 
+        await LoadTransactionsCommand.ExecuteAsync(null);
+    }
+
+    private void NotifyPeriodChanged()
+    {
         OnPropertyChanged(nameof(IsTodayActive));
         OnPropertyChanged(nameof(IsThisWeekActive));
         OnPropertyChanged(nameof(IsThisMonthActive));
-
-        await LoadTransactionsCommand.ExecuteAsync(null);
+        OnPropertyChanged(nameof(IsThisYearActive));  // ← เพิ่ม
     }
 }
