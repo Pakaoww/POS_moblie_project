@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using POS_moblie_project.Services;
+using POS_moblie_project.Views.Settings;
 using System.Collections.ObjectModel;
 
 namespace POS_moblie_project.ViewModels.Settings;
@@ -18,6 +19,12 @@ public partial class AdminPanelViewModel : ObservableObject
     [ObservableProperty] private bool _showProfitReport;
     [ObservableProperty] private bool _showTransactionHistory;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowChangePinButton))]
+    private bool _isPinLockEnabled;
+
+    public bool ShowChangePinButton => IsPinLockEnabled;
+
     // ── Timeframe ─────────────────────────────────────────
     public ObservableCollection<TimeframeOption> TimeframeOptions { get; } = new()
     {
@@ -34,8 +41,6 @@ public partial class AdminPanelViewModel : ObservableObject
     {
         if (value is null) return;
         _ = _databaseService.SetSettingAsync("dashboard_timeframe", value.Key);
-
-        // Refresh chart ใน HomeViewModel ทันที
         var homeVm = ServiceHelper.GetService<HomeViewModel>();
         _ = homeVm.LoadDashboardCommand.ExecuteAsync(null);
     }
@@ -50,15 +55,79 @@ public partial class AdminPanelViewModel : ObservableObject
         _showProfitReport = Preferences.Get(ShowProfitReportKey, true);
         _showTransactionHistory = Preferences.Get(ShowTransactionKey, true);
 
-        // โหลด timeframe ที่บันทึกไว้
-        _ = LoadTimeframeAsync();
+        _ = LoadAsync();
     }
 
-    private async Task LoadTimeframeAsync()
+    private async Task LoadAsync()
     {
         var tf = await _databaseService.GetSettingAsync("dashboard_timeframe");
         SelectedTimeframe = TimeframeOptions.FirstOrDefault(o => o.Key == tf)
                             ?? TimeframeOptions[0];
+
+        await RefreshPinStateAsync();
+    }
+
+    /// <summary>เรียกจาก AdminPanelPage.OnAppearing ทุกครั้งที่กลับมา</summary>
+    public async Task RefreshPinStateAsync()
+    {
+        var saved = await SecureStorage.GetAsync(AdminPinKey);
+        IsPinLockEnabled = !string.IsNullOrWhiteSpace(saved);
+    }
+
+    // ── Toggle PIN Lock ───────────────────────────────────
+
+    private bool _isToggling = false;
+
+    [RelayCommand]
+    private async Task TogglePinLockAsync()
+    {
+        if (_isToggling) return;
+        _isToggling = true;
+
+        try
+        {
+            if (!IsPinLockEnabled)
+            {
+                // ── เปิด PIN Lock → ไปสร้างรหัสก่อน ──
+                var page = ServiceHelper.GetService<AdminManagePasswordPage>();
+                var vm = page.BindingContext as AdminManagePasswordViewModel;
+                if (vm != null)
+                {
+                    vm.Initialize(AdminManagePasswordViewModel.AdminPinMode.SetNew);
+                }
+                await Shell.Current.GoToAsync("AdminManagePasswordPage");
+                // IsPinLockEnabled จะถูก refresh ใน OnAppearing ของ AdminPanelPage
+                // เมื่อกลับมาจากหน้า SetNew สำเร็จ
+            }
+            else
+            {
+                // ── ปิด PIN Lock → confirm แล้วลบทันที ──
+                bool confirm = await AppAlert.ConfirmAsync(
+                    "Disable PIN Lock",
+                    "Admin Panel will be accessible without a password. Continue?",
+                    "Disable", "Cancel", isDanger: true);
+
+                if (!confirm) return;
+
+                SecureStorage.Remove("admin_pin");
+                IsPinLockEnabled = false;
+                // ไม่ navigate ไปไหน อยู่หน้าเดิม
+            }
+        }
+        finally
+        {
+            _isToggling = false;
+        }
+    }
+
+    // ── Change Admin Password ─────────────────────────────
+
+    [RelayCommand]
+    private async Task ChangeAdminPasswordAsync()
+    {
+        var vm = ServiceHelper.GetService<AdminManagePasswordViewModel>();
+        vm.Initialize(AdminManagePasswordViewModel.AdminPinMode.Change);
+        await Shell.Current.GoToAsync("AdminManagePasswordPage");
     }
 
     // ── Toggle Visibility ─────────────────────────────────
@@ -100,16 +169,11 @@ public partial class AdminPanelViewModel : ObservableObject
     [RelayCommand] private void ToggleShowProfitReport() => ShowProfitReport = !ShowProfitReport;
     [RelayCommand] private void ToggleShowTransactionHistory() => ShowTransactionHistory = !ShowTransactionHistory;
 
-    // ── Admin Password ────────────────────────────────────
-
-    [RelayCommand]
-    private async Task ChangeAdminPasswordAsync()
-        => await Shell.Current.GoToAsync("AdminManagePasswordPage");
-
     public static async Task<bool> VerifyAdminAsync(string pin)
     {
         var saved = await SecureStorage.GetAsync(AdminPinKey);
         return saved is null || saved == pin;
     }
 }
+
 public record TimeframeOption(string Key, string DisplayName);

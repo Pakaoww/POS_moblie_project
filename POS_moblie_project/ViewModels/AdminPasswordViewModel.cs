@@ -40,8 +40,8 @@ public partial class AdminPasswordViewModel : ObservableObject
         StatusMessage = "Enter Admin Password";
         EnteredPin += digit;
 
-        if (EnteredPin.Length == 6)
-            ConfirmCommand.Execute(null);
+        // ── ลบ auto-confirm ออก ─────────────────────────────
+        // ผู้ใช้ต้องกด OK เองเท่านั้น
     }
 
     [RelayCommand]
@@ -75,7 +75,6 @@ public partial class AdminPasswordViewModel : ObservableObject
             return;
         }
 
-        // ── ใช้ absolute path เพื่อ clear navigation stack ──
         await Shell.Current.GoToAsync("//settings/AdminPanelPage");
     }
 
@@ -86,10 +85,18 @@ public partial class AdminPasswordViewModel : ObservableObject
         await Shell.Current.GoToAsync("..");
     }
 
-    // ── Static helper ─────────────────────────────────────
+    // ── Static helpers ────────────────────────────────────
+
     public static async Task<bool> VerifyAdminAsync(string pin)
     {
         var saved = await SecureStorage.GetAsync(AdminPinKey);
         return saved is null || saved == pin;
+    }
+
+    /// <summary>ตรวจสอบว่ามี Admin PIN ตั้งไว้แล้วหรือยัง</summary>
+    public static async Task<bool> HasAdminPinAsync()
+    {
+        var saved = await SecureStorage.GetAsync(AdminPinKey);
+        return !string.IsNullOrWhiteSpace(saved);
     }
 }

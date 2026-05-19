@@ -5,6 +5,7 @@ namespace POS_moblie_project.Views.Settings;
 public partial class AdminManagePasswordPage : ContentPage
 {
     private readonly AdminManagePasswordViewModel _viewModel;
+    private AdminManagePasswordViewModel.AdminPinMode _mode = AdminManagePasswordViewModel.AdminPinMode.Change;
 
     public AdminManagePasswordPage(AdminManagePasswordViewModel viewModel)
     {
@@ -17,7 +18,19 @@ public partial class AdminManagePasswordPage : ContentPage
         _viewModel.OnPinSuccess += HandlePinSuccess;
     }
 
-    // ── Lifecycle ─────────────────────────────────────────
+    /// <summary>ให้ AdminPanelViewModel เรียกเพื่อตั้ง mode</summary>
+    public void SetMode(AdminManagePasswordViewModel.AdminPinMode mode)
+    {
+        _mode = mode;
+        _viewModel.Initialize(mode);
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        // Initialize ใหม่ด้วย mode ที่เคย set ไว้ เพื่อให้ step กลับมาถูกต้อง
+        _viewModel.Initialize(_mode);
+    }
 
     protected override void OnDisappearing()
     {
@@ -27,26 +40,16 @@ public partial class AdminManagePasswordPage : ContentPage
         _viewModel.OnPinSuccess -= HandlePinSuccess;
     }
 
-    // ── Event Handlers ────────────────────────────────────
+    private async void HandlePinError(string _)
+        => await ShakePinDotsAsync();
 
-    private async void HandlePinError(string errorMessage)
-    {
-        await ShakePinDotsAsync();
-    }
-
-    private async void HandleStepChanged(string newTitle)
+    private async void HandleStepChanged(string _)
     {
         await PinDotsLayout.FadeTo(0, 120);
         await PinDotsLayout.FadeTo(1, 120);
     }
 
-    private async void HandlePinSuccess()
-    {
-        await DisplayAlert("Success", "Admin PIN updated successfully.", "OK");
-        await Shell.Current.GoToAsync("..");
-    }
-
-    // ── Shake Animation ───────────────────────────────────
+    private void HandlePinSuccess() { }
 
     private async Task ShakePinDotsAsync()
     {

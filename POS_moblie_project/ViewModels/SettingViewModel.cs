@@ -102,7 +102,20 @@ public partial class SettingsViewModel : ObservableObject
 
     [RelayCommand]
     private async Task OpenAdminPanelAsync()
-        => await Shell.Current.GoToAsync("AdminPasswordPage");
+    {
+        // ครั้งแรกที่ยังไม่มี admin PIN → เข้าได้เลย
+        bool hasPIN = await AdminPasswordViewModel.HasAdminPinAsync();
+
+        if (!hasPIN)
+        {
+            await Shell.Current.GoToAsync("//settings/AdminPanelPage");
+            return;
+        }
+
+        // มี PIN แล้ว → ต้องยืนยันก่อน
+        await Shell.Current.GoToAsync("AdminPasswordPage");
+    }
+
 
     // ════════════════════════════════════════════════════════
     //  BACKUP / IMPORT
