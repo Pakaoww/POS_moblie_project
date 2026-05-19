@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using POS_moblie_project.Services;
-
 using System.Collections.ObjectModel;
 
 namespace POS_moblie_project.ViewModels.Settings;
@@ -53,9 +52,6 @@ public partial class SettingsViewModel : ObservableObject
         ShowCurrencySymbol = (await _databaseService.GetSettingAsync("show_currency_symbol")) != "false";
         var sym = await _databaseService.GetSettingAsync("currency_symbol");
         CurrencySymbol = string.IsNullOrWhiteSpace(sym) ? "฿" : sym;
-
-        var tf = await _databaseService.GetSettingAsync("dashboard_timeframe");
-        SelectedTimeframe = TimeframeOptions.FirstOrDefault(o => o.Key == tf) ?? TimeframeOptions[0];
     }
 
     partial void OnVatEnabledChanged(bool value)
@@ -71,29 +67,8 @@ public partial class SettingsViewModel : ObservableObject
         => _ = _currencyService.SetSymbolAsync(value);
 
     // ════════════════════════════════════════════════════════
-    //  DASHBOARD TIMEFRAME
+    //  VAT COMMANDS
     // ════════════════════════════════════════════════════════
-
-    public ObservableCollection<TimeframeOption> TimeframeOptions { get; } = new()
-    {
-        new("weekly", "Weekly (7 days)"),
-        new("monthly", "Monthly (30 days)"),
-        new("quarterly", "Quarterly (90 days)"),
-        new("yearly", "Yearly (365 days)"),
-    };
-
-    [ObservableProperty]
-    private TimeframeOption? _selectedTimeframe;
-
-    partial void OnSelectedTimeframeChanged(TimeframeOption? value)
-    {
-        if (value != null)
-            _ = _databaseService.SetSettingAsync("dashboard_timeframe", value.Key);
-
-        // Refresh chart ทันทีที่เปลี่ยน timeframe
-        var homeVm = ServiceHelper.GetService<HomeViewModel>();
-        _ = homeVm.LoadDashboardCommand.ExecuteAsync(null);
-    }
 
     [RelayCommand]
     private void IncreaseVat()
@@ -107,6 +82,11 @@ public partial class SettingsViewModel : ObservableObject
         if (VatRate > 0) VatRate--;
     }
 
+    [RelayCommand]
+    private void ToggleVat() => VatEnabled = !VatEnabled;
+
+    [RelayCommand]
+    private void ToggleShowCurrencySymbol() => ShowCurrencySymbol = !ShowCurrencySymbol;
 
     // ════════════════════════════════════════════════════════
     //  NAVIGATION
@@ -120,15 +100,12 @@ public partial class SettingsViewModel : ObservableObject
     private async Task ManageCategoryAsync()
         => await Shell.Current.GoToAsync("ManageCategoryPage");
 
-    // ---- Admin Panel ---------
     [RelayCommand]
     private async Task OpenAdminPanelAsync()
-    {
-        await Shell.Current.GoToAsync("AdminPasswordPage");
-    }
+        => await Shell.Current.GoToAsync("AdminPasswordPage");
 
     // ════════════════════════════════════════════════════════
-    //  BACKUP / EXPORT / IMPORT
+    //  BACKUP / IMPORT
     // ════════════════════════════════════════════════════════
 
     [ObservableProperty]
@@ -164,9 +141,9 @@ public partial class SettingsViewModel : ObservableObject
         if (IsBusy) return;
 
         var confirm = await AppAlert.ConfirmAsync(
-                "Import Database",
-                "This will REPLACE all current data with the imported file. Continue?",
-                "Yes, Import", "Cancel", isDanger: true);
+            "Import Database",
+            "This will REPLACE all current data with the imported file. Continue?",
+            "Yes, Import", "Cancel", isDanger: true);
 
         if (!confirm) return;
 
@@ -180,7 +157,7 @@ public partial class SettingsViewModel : ObservableObject
                     new Dictionary<DevicePlatform, IEnumerable<string>>
                     {
                         { DevicePlatform.Android, new[] { "application/octet-stream" } },
-                        { DevicePlatform.iOS, new[] { "public.data" } },
+                        { DevicePlatform.iOS,     new[] { "public.data"              } },
                     })
             });
 
@@ -207,11 +184,4 @@ public partial class SettingsViewModel : ObservableObject
             IsBusy = false;
         }
     }
-    [RelayCommand]
-    private void ToggleVat() => VatEnabled = !VatEnabled;
-
-    [RelayCommand]
-    private void ToggleShowCurrencySymbol() => ShowCurrencySymbol = !ShowCurrencySymbol;
 }
-
-public record TimeframeOption(string Key, string DisplayName);

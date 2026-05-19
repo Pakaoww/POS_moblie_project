@@ -78,38 +78,65 @@
 
                     <BoxView HeightRequest="1" Color="#E0E0E0" Margin="16,0"/>
 
-                    <!-- Profit Report -->
-                    <StackLayout Orientation="Horizontal" Padding="16,12" Spacing="12">
-                        <Label Text="📊" FontSize="20" VerticalOptions="Center"/>
-                        <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Profit Report" TextColor="#222222" FontSize="14"/>
-                            <Label Text="Show Profit Report on dashboard" TextColor="#888888" FontSize="12"/>
+                    <!-- Profit Report + Graph Time Frame -->
+                    <StackLayout Spacing="0">
+
+                        <!-- Toggle Row -->
+                        <StackLayout Orientation="Horizontal" Padding="16,12" Spacing="12">
+                            <Label Text="📊" FontSize="20" VerticalOptions="Center"/>
+                            <StackLayout HorizontalOptions="FillAndExpand" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Profit Report" TextColor="#222222" FontSize="14"/>
+                                <Label Text="Show Profit Report on dashboard" TextColor="#888888" FontSize="12"/>
+                            </StackLayout>
+                            <Border WidthRequest="62" HeightRequest="30"
+                                    StrokeThickness="0"
+                                    BackgroundColor="{Binding ShowProfitReport, Converter={StaticResource BoolToColorConverter}}"
+                                    VerticalOptions="Center">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="15"/>
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleShowProfitReportCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,*" Padding="3,0">
+                                    <Label Text="{Binding ShowProfitReport, Converter={StaticResource BoolToVisibleTextConverter}}"
+                                           FontSize="10" FontAttributes="Bold" TextColor="White"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           Grid.Column="{Binding ShowProfitReport, Converter={StaticResource BoolToLabelColumnConverter}}"/>
+                                    <Border WidthRequest="22" HeightRequest="22"
+                                            BackgroundColor="White" StrokeThickness="0"
+                                            HorizontalOptions="Center" VerticalOptions="Center"
+                                            Grid.Column="{Binding ShowProfitReport, Converter={StaticResource BoolToThumbColumnConverter}}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="11"/>
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </Grid>
+                            </Border>
                         </StackLayout>
-                        <Border WidthRequest="62" HeightRequest="30"
-                                StrokeThickness="0"
-                                BackgroundColor="{Binding ShowProfitReport, Converter={StaticResource BoolToColorConverter}}"
-                                VerticalOptions="Center">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="15"/>
-                            </Border.StrokeShape>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ToggleShowProfitReportCommand}"/>
-                            </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="*,*" Padding="3,0">
-                                <Label Text="{Binding ShowProfitReport, Converter={StaticResource BoolToVisibleTextConverter}}"
-                                       FontSize="10" FontAttributes="Bold" TextColor="White"
-                                       HorizontalOptions="Center" VerticalOptions="Center"
-                                       Grid.Column="{Binding ShowProfitReport, Converter={StaticResource BoolToLabelColumnConverter}}"/>
-                                <Border WidthRequest="22" HeightRequest="22"
-                                        BackgroundColor="White" StrokeThickness="0"
-                                        HorizontalOptions="Center" VerticalOptions="Center"
-                                        Grid.Column="{Binding ShowProfitReport, Converter={StaticResource BoolToThumbColumnConverter}}">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="11"/>
-                                    </Border.StrokeShape>
-                                </Border>
-                            </Grid>
-                        </Border>
+
+                        <!-- Graph Time Frame — แสดงเมื่อ Profit Report เปิด -->
+                        <StackLayout Padding="16,0,16,12"
+                                     Spacing="8"
+                                     IsVisible="{Binding ShowProfitReport}">
+                            <StackLayout Orientation="Horizontal" Spacing="8">
+                                <Label Text="📅" FontSize="16" VerticalOptions="Center"/>
+                                <Label Text="Graph Time Frame"
+                                       TextColor="#222222" FontSize="13"
+                                       VerticalOptions="Center"/>
+                            </StackLayout>
+                            <Border BackgroundColor="#F5F5F7"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="12,4">
+                                <Picker ItemsSource="{Binding TimeframeOptions}"
+                                        ItemDisplayBinding="{Binding DisplayName}"
+                                        SelectedItem="{Binding SelectedTimeframe}"
+                                        BackgroundColor="Transparent"
+                                        FontSize="14"/>
+                            </Border>
+                        </StackLayout>
+
                     </StackLayout>
 
                     <BoxView HeightRequest="1" Color="#E0E0E0" Margin="16,0"/>
@@ -151,7 +178,7 @@
                 </StackLayout>
             </Border>
 
-            <!-- ADMIN PASSWORD -->
+            <!-- ADMIN SECURITY -->
             <Label Text="Admin Security"
                    TextColor="#222222" FontAttributes="Bold"
                    Margin="0,0,0,8"/>
