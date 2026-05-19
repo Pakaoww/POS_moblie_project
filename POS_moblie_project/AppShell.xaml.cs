@@ -26,37 +26,11 @@ namespace POS_moblie_project
             Routing.RegisterRoute("AdminPasswordPage", typeof(AdminPasswordPage));
             Routing.RegisterRoute("PasswordPage", typeof(PasswordPage));
 
-            RefreshFlyoutVisibility();
         }
 
         /// <summary>
         /// เรียกเมื่อ Admin เปลี่ยนค่า visibility ใน AdminPanelPage
         /// </summary>
-        public void RefreshFlyoutVisibility()
-        {
-            bool showSales = Preferences.Get("admin_show_sales_report", true);
-            bool showProfit = Preferences.Get("admin_show_profit_report", true);
-            bool showTransaction = Preferences.Get("admin_show_transaction_history", true);
-
-            // ค้นหา FlyoutItem ตาม Route แล้วซ่อน/แสดง
-            foreach (var item in Items)
-            {
-                if (item is FlyoutItem flyout)
-                {
-                    switch (flyout.Route)
-                    {
-                        case "reports":
-                            flyout.IsVisible = showSales;
-                            break;
-                        case "profitreport":
-                            flyout.IsVisible = showProfit;
-                            break;
-                        case "transactions":
-                            flyout.IsVisible = showTransaction;
-                            break;
-                    }
-                }
-            }
-        }
+        
     }
 }
