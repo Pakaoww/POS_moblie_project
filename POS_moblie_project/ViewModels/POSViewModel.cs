@@ -51,7 +51,9 @@ public partial class POSViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            _allProducts = await _databaseService.GetVisibleProductsAsync();
+            _allProducts = (await _databaseService.GetVisibleProductsAsync())
+                    .Where(p => !p.IsDeleted)   // ← เพิ่มบรรทัดนี้
+                    .ToList();
             _allCategories = await _databaseService.GetAllCategoriesAsync();
 
             _stockCache.Clear();

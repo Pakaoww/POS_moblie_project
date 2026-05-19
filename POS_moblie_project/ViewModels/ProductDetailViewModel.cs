@@ -21,6 +21,7 @@ public partial class ProductDetailViewModel : ObservableObject
     [ObservableProperty] private Category? selectedCategory;
     [ObservableProperty] private string pageTitle = "New Product";
     [ObservableProperty] private bool isEditMode;
+    [ObservableProperty] private bool isLoading;
 
     // First lot fields — Add mode only
     [ObservableProperty] private decimal costPrice;
@@ -126,39 +127,36 @@ public partial class ProductDetailViewModel : ObservableObject
     {
         var tcs = new TaskCompletionSource<string>(
             TaskCreationOptions.RunContinuationsAsynchronously);
+
         var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
             tcs.TrySetResult(result));
-        scannerPage.Disappearing += (s, e) =>
-            tcs.TrySetResult(string.Empty);
+
         await Application.Current!.MainPage!.Navigation.PushModalAsync(scannerPage);
+
         var scannedValue = await tcs.Task;
+
         if (!string.IsNullOrWhiteSpace(scannedValue))
             ProductCode = scannedValue;
     }
 
-    [ObservableProperty]
-    private bool _isLoading;
-
     [RelayCommand]
     private async Task SaveAsync()
     {
-        // ── Validation — บังคับแค่ชื่อสินค้าอย่างเดียว ──────
         if (string.IsNullOrWhiteSpace(ProductName))
-        {
-            await AppAlert.ShowWarningAsync("Validation", "Product code is required.");
-            return;
-        }
-
-        if (SelectedCategory == null)
         {
             await AppAlert.ShowWarningAsync("Validation", "Product name is required.");
             return;
         }
 
+        if (SelectedCategory == null)
+        {
+            await AppAlert.ShowWarningAsync("Validation", "Please select a category.");
+            return;
+        }
+
         if (!IsEditMode && InitialQuantity <= 0)
         {
-            await AppAlert.ShowWarningAsync("Validation", "Sale price must be 0 or greater.");
-
+            await AppAlert.ShowWarningAsync("Validation", "Initial quantity must be greater than 0.");
             return;
         }
 
@@ -168,7 +166,7 @@ public partial class ProductDetailViewModel : ObservableObject
             var excludeId = IsEditMode ? ProductId : 0;
             if (await _databaseService.IsProductCodeExistsAsync(ProductCode.Trim(), excludeId))
             {
-                await AppAlert.ShowWarningAsync("Validation", "Please select a category.");
+                await AppAlert.ShowWarningAsync("Validation", "Product code already exists.");
                 return;
             }
         }
@@ -180,17 +178,17 @@ public partial class ProductDetailViewModel : ObservableObject
                 _editingProduct!.ProductCode = ProductCode.Trim();
                 _editingProduct.Name = ProductName.Trim();
                 _editingProduct.CategoryId = SelectedCategory.Id;
-                _editingProduct.SalePrice = SalePrice;      // 0 ได้
+                _editingProduct.SalePrice = SalePrice;
                 _editingProduct.ImagePath = ImagePath;
                 await _databaseService.UpdateProductAsync(_editingProduct);
             }
             else
             {
                 var product = new Product(
-                    ProductCode.Trim(),  // string.Empty ได้
+                    ProductCode.Trim(),
                     ProductName.Trim(),
                     SelectedCategory.Id,
-                    SalePrice)           // 0 ได้
+                    SalePrice)
                 {
                     ImagePath = ImagePath ?? string.Empty,
                     IsVisible = true
@@ -216,9 +214,9 @@ public partial class ProductDetailViewModel : ObservableObject
         if (!IsEditMode) return;
 
         var confirm = await AppAlert.ConfirmAsync(
-                    "Delete Product",
-                    $"Delete \"{ProductName}\" and all its lots?",
-                    "Delete", "Cancel", isDanger: true);
+            "Delete Product",
+            $"Delete \"{ProductName}\" and all its lots?",
+            "Delete", "Cancel", isDanger: true);
         if (!confirm) return;
 
         try
@@ -244,12 +242,9 @@ public partial class ProductDetailViewModel : ObservableObject
     {
         try
         {
-            var action = await Shell.Current.DisplayActionSheet(
-                "AI Product Detection",
-                "Cancel",
-                null,
-                "📷 Take Photo",
-                "🖼️ Choose from Gallery");
+            var action = await AppAlert.ShowActionSheetAsync(
+                    "AI Product Detection", "Cancel",
+                    "📷 Take Photo", "🖼️ Choose from Gallery");
 
             if (action == null || action == "Cancel") return;
 
@@ -289,11 +284,10 @@ public partial class ProductDetailViewModel : ObservableObject
                 suggestion = await aiService.AnalyzeImageAsync(stream2);
             }
 #else
-        using var stream = await result.OpenReadAsync();
-        suggestion = await aiService.AnalyzeImageAsync(stream);
+            using var stream = await result.OpenReadAsync();
+            suggestion = await aiService.AnalyzeImageAsync(stream);
 #endif
 
-            // ── ใส่แค่ ProductName อย่างเดียว ────────────────
             if (!string.IsNullOrWhiteSpace(suggestion.ProductName))
                 ProductName = suggestion.ProductName;
 

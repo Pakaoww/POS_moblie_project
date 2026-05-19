@@ -93,6 +93,17 @@ public static class AppAlert
         await Application.Current!.MainPage!.Navigation.PushModalAsync(page, animated: false);
         return await page.WaitForResultAsync();
     }
+
+    // ── Action ──────────────────────────────────────────────────
+    public static async Task<string?> ShowActionSheetAsync(
+    string title,
+    string cancel,
+    params string[] options)
+    {
+        var page = new ActionSheetPage(title, cancel, options);
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(page, animated: false);
+        return await page.WaitForResultAsync();
+    }
 }
 
 // ── Config ────────────────────────────────────────────────────────
@@ -285,5 +296,165 @@ internal class AlertPage : ContentPage
         }
 
         Content = new Grid { Children = { bg, card } };
+    }
+}
+
+// ── Action Page ────────────────────────────────────────────────────
+internal class ActionSheetPage : ContentPage
+{
+    private readonly TaskCompletionSource<string?> _tcs = new();
+    public Task<string?> WaitForResultAsync() => _tcs.Task;
+
+    public ActionSheetPage(string title, string cancel, string[] options)
+    {
+        BackgroundColor = Color.FromArgb("#80000000");
+        Shell.SetNavBarIsVisible(this, false);
+
+        var optionButtons = new VerticalStackLayout { Spacing = 0 };
+
+        foreach (var opt in options)
+        {
+            var btn = new Border
+            {
+                BackgroundColor = Colors.White,
+                StrokeThickness = 0,
+                Padding = new Thickness(20, 14),
+            };
+
+            btn.Content = new Label
+            {
+                Text = opt,
+                FontSize = 15,
+                TextColor = Color.FromArgb("#222222"),
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Center
+            };
+
+            btn.GestureRecognizers.Add(new TapGestureRecognizer
+            {
+                Command = new Command(async () =>
+                {
+                    await Navigation.PopModalAsync(false);
+                    _tcs.TrySetResult(opt);
+                })
+            });
+
+            optionButtons.Children.Add(btn);
+            optionButtons.Children.Add(new BoxView
+            {
+                HeightRequest = 1,
+                Color = Color.FromArgb("#c8e6a0")
+            });
+        }
+
+        // Card หลัก
+        var card = new Border
+        {
+            BackgroundColor = Colors.White,
+            StrokeThickness = 0,
+            Margin = new Thickness(20, 0),
+            VerticalOptions = LayoutOptions.End,
+            StrokeShape = new RoundRectangle { CornerRadius = 20 },
+            Shadow = new Shadow
+            {
+                Brush = new SolidColorBrush(Color.FromArgb("#00000040")),
+                Offset = new Point(0, 4),
+                Radius = 16,
+                Opacity = 0.3f
+            },
+            Content = new VerticalStackLayout
+            {
+                Spacing = 0,
+                Children =
+                {
+                    // Icon + Title
+                    new VerticalStackLayout
+                    {
+                        Spacing = 4,
+                        Padding = new Thickness(20, 20, 20, 16),
+                        Children =
+                        {
+                            new Label
+                            {
+                                Text = "🤖",
+                                FontSize = 32,
+                                HorizontalOptions = LayoutOptions.Center
+                            },
+                            new Label
+                            {
+                                Text = title,
+                                FontSize = 16,
+                                FontAttributes = FontAttributes.Bold,
+                                TextColor = Color.FromArgb("#2d6a2d"),
+                                HorizontalOptions = LayoutOptions.Center,
+                                HorizontalTextAlignment = TextAlignment.Center
+                            }
+                        }
+                    },
+                    // Divider
+                    new BoxView { HeightRequest = 1, Color = Color.FromArgb("#c8e6a0") },
+                    // Options
+                    optionButtons
+                }
+            }
+        };
+
+        // Cancel button — แยกออกมา
+        var cancelBorder = new Border
+        {
+            BackgroundColor = Colors.White,
+            StrokeThickness = 0,
+            Padding = new Thickness(20, 14),
+            Margin = new Thickness(20, 10, 20, 0),
+            StrokeShape = new RoundRectangle { CornerRadius = 14 },
+            Shadow = new Shadow
+            {
+                Brush = new SolidColorBrush(Color.FromArgb("#00000020")),
+                Offset = new Point(0, 2),
+                Radius = 8,
+                Opacity = 0.2f
+            },
+            Content = new Label
+            {
+                Text = cancel,
+                FontSize = 15,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#E53935"),
+                HorizontalOptions = LayoutOptions.Center
+            }
+        };
+        cancelBorder.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () =>
+            {
+                await Navigation.PopModalAsync(false);
+                _tcs.TrySetResult(null);
+            })
+        });
+
+        // Dim background
+        var bg = new BoxView { BackgroundColor = Color.FromArgb("#80000000") };
+        bg.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () =>
+            {
+                await Navigation.PopModalAsync(false);
+                _tcs.TrySetResult(null);
+            })
+        });
+
+        Content = new Grid
+        {
+            Children =
+            {
+                bg,
+                new VerticalStackLayout
+                {
+                    VerticalOptions = LayoutOptions.End,
+                    Padding = new Thickness(0, 0, 0, 40),
+                    Children = { card, cancelBorder }
+                }
+            }
+        };
     }
 }

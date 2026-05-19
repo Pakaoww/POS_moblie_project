@@ -148,12 +148,10 @@ public partial class AddStockViewModel : ObservableObject
         var scannerPage = new Views.Shared.BarcodeScannerPage(result =>
             tcs.TrySetResult(result));
 
-        scannerPage.Disappearing += (s, e) =>
-            tcs.TrySetResult(string.Empty);
-
         await Application.Current!.MainPage!.Navigation.PushModalAsync(scannerPage);
 
         var scannedValue = await tcs.Task;
+
         if (!string.IsNullOrWhiteSpace(scannedValue))
         {
             var product = await _databaseService.GetProductByCodeAsync(scannedValue);

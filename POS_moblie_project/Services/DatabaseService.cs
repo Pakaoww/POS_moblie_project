@@ -168,7 +168,7 @@ public class DatabaseService
     {
         await EnsureInitializedAsync();
         return await _database!.Table<Product>()
-                               .Where(p => p.IsVisible)
+                               .Where(p => p.IsVisible && !p.IsDeleted)
                                .OrderBy(p => p.Name)
                                .ToListAsync();
     }
