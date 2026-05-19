@@ -20,7 +20,8 @@ public partial class CartPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InitializeCommand.ExecuteAsync(null);
+        if (_viewModel.CurrentState == CartState.Cart)
+            await _viewModel.InitializeCommand.ExecuteAsync(null);
     }
 
     private async Task<bool> CaptureReceiptAsync()

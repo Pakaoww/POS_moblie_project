@@ -20,9 +20,19 @@ public partial class AdminPanelViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowChangePinButton))]
+    [NotifyPropertyChangedFor(nameof(ShowLockSettings))]
     private bool _isPinLockEnabled;
 
     public bool ShowChangePinButton => IsPinLockEnabled;
+    public bool ShowLockSettings => IsPinLockEnabled;
+
+    private const string LockSalesReportKey = "admin_lock_sales_report";
+    private const string LockProfitReportKey = "admin_lock_profit_report";
+    private const string LockTransactionKey = "admin_lock_transaction_history";
+
+    [ObservableProperty] private bool _lockSalesReport;
+    [ObservableProperty] private bool _lockProfitReport;
+    [ObservableProperty] private bool _lockTransactionHistory;
 
     // ── Timeframe ─────────────────────────────────────────
     public ObservableCollection<TimeframeOption> TimeframeOptions { get; } = new()
@@ -53,6 +63,10 @@ public partial class AdminPanelViewModel : ObservableObject
         _showSalesReport = Preferences.Get(ShowSalesReportKey, true);
         _showProfitReport = Preferences.Get(ShowProfitReportKey, true);
         _showTransactionHistory = Preferences.Get(ShowTransactionKey, true);
+
+        _lockSalesReport = Preferences.Get(LockSalesReportKey, false);
+        _lockProfitReport = Preferences.Get(LockProfitReportKey, false);
+        _lockTransactionHistory = Preferences.Get(LockTransactionKey, false);
 
         _ = LoadAsync();
     }
@@ -100,16 +114,10 @@ public partial class AdminPanelViewModel : ObservableObject
         {
             if (!IsPinLockEnabled)
             {
-                // ── เปิด PIN Lock → ไปสร้างรหัสครั้งแรก (เหมือนตอนเข้า app ครั้งแรก) ──
                 await Shell.Current.GoToAsync("PasswordPage?mode=admin");
-                // IsPinLockEnabled จะถูก refresh ใน OnAppearing ของ AdminPanelPage
-                // เมื่อกลับมาจากหน้า PasswordPage สำเร็จ
             }
             else
             {
-                // ── ปิด PIN Lock → confirm แล้วลบทันที ──
-                // set flag ก่อนแสดง dialog เพราะ PopModalAsync จะ trigger OnAppearing
-                // ซึ่งเรียก RefreshPinStateAsync ที่อาจอ่านค่าจาก SecureStorage ก่อน Remove
                 _suppressRefresh = true;
 
                 bool confirm = await AppAlert.ConfirmAsync(
@@ -119,17 +127,16 @@ public partial class AdminPanelViewModel : ObservableObject
 
                 if (!confirm)
                 {
-                    _suppressRefresh = false;
                     return;
                 }
 
                 SecureStorage.Remove("admin_pin");
                 IsPinLockEnabled = false;
-                // ไม่ navigate ไปไหน อยู่หน้าเดิม
             }
         }
         finally
         {
+            _suppressRefresh = false;
             _isToggling = false;
         }
     }
@@ -181,11 +188,26 @@ public partial class AdminPanelViewModel : ObservableObject
     [RelayCommand] private void ToggleShowProfitReport() => ShowProfitReport = !ShowProfitReport;
     [RelayCommand] private void ToggleShowTransactionHistory() => ShowTransactionHistory = !ShowTransactionHistory;
 
-    public static async Task<bool> VerifyAdminAsync(string pin)
+    // ── Toggle Lock Settings ──────────────────────────────
+
+    partial void OnLockSalesReportChanged(bool value)
     {
-        var saved = await SecureStorage.GetAsync(AdminPinKey);
-        return saved is null || saved == pin;
+        Preferences.Set(LockSalesReportKey, value);
     }
+
+    partial void OnLockProfitReportChanged(bool value)
+    {
+        Preferences.Set(LockProfitReportKey, value);
+    }
+
+    partial void OnLockTransactionHistoryChanged(bool value)
+    {
+        Preferences.Set(LockTransactionKey, value);
+    }
+
+    [RelayCommand] private void ToggleLockSalesReport() => LockSalesReport = !LockSalesReport;
+    [RelayCommand] private void ToggleLockProfitReport() => LockProfitReport = !LockProfitReport;
+    [RelayCommand] private void ToggleLockTransactionHistory() => LockTransactionHistory = !LockTransactionHistory;
 }
 
 public record TimeframeOption(string Key, string DisplayName);

@@ -397,7 +397,6 @@ public partial class CartViewModel : ObservableObject
             if (success)
             {
                 IsReceiptPrinted = true;
-                await GoHomeAsync();
             }
         }
     }

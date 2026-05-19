@@ -7,7 +7,7 @@ namespace POS_moblie_project.ViewModels.Settings;
 public partial class AdminManagePasswordViewModel : ObservableObject
 {
     private const string AdminPinKey = "admin_pin";
-    private const int    PinLength   = 6;
+    private const int PinLength = 6;
 
     // ════════════════════════════════════════════════════════
     //  MODE — รับจาก AdminPanelViewModel
@@ -51,7 +51,7 @@ public partial class AdminManagePasswordViewModel : ObservableObject
 
     public event Action<string>? OnPinError;
     public event Action<string>? OnStepChanged;
-    public event Action?         OnPinSuccess;
+    public event Action? OnPinSuccess;
 
     // ════════════════════════════════════════════════════════
     //  INIT — เรียกจาก Page พร้อมบอก mode
@@ -59,23 +59,23 @@ public partial class AdminManagePasswordViewModel : ObservableObject
 
     public void Initialize(AdminPinMode mode)
     {
-        _mode        = mode;
-        _newPinTemp  = string.Empty;
-        EnteredPin   = string.Empty;
-        IsError      = false;
+        _mode = mode;
+        _newPinTemp = string.Empty;
+        EnteredPin = string.Empty;
+        IsError = false;
         ErrorMessage = string.Empty;
 
         if (_mode == AdminPinMode.SetNew)
         {
             // ข้ามรอบ VerifyCurrent ไปเลย
-            CurrentStep     = PinStep.EnterNew;
-            StepTitle       = "Set new admin PIN";
+            CurrentStep = PinStep.EnterNew;
+            StepTitle = "Set new admin PIN";
             StepDescription = "Step 1 of 2";
         }
         else
         {
-            CurrentStep     = PinStep.VerifyCurrent;
-            StepTitle       = "Enter current admin PIN";
+            CurrentStep = PinStep.VerifyCurrent;
+            StepTitle = "Enter current admin PIN";
             StepDescription = "Step 1 of 3";
         }
     }
@@ -97,18 +97,18 @@ public partial class AdminManagePasswordViewModel : ObservableObject
     private void DigitPressed(string digit)
     {
         if (EnteredPin.Length >= PinLength) return;
-        IsError      = false;
+        IsError = false;
         ErrorMessage = string.Empty;
-        EnteredPin  += digit;
+        EnteredPin += digit;
     }
 
     [RelayCommand]
     private void Delete()
     {
         if (EnteredPin.Length == 0) return;
-        IsError      = false;
+        IsError = false;
         ErrorMessage = string.Empty;
-        EnteredPin   = EnteredPin[..^1];
+        EnteredPin = EnteredPin[..^1];
     }
 
     [RelayCommand]
@@ -116,20 +116,20 @@ public partial class AdminManagePasswordViewModel : ObservableObject
     {
         if (EnteredPin.Length < PinLength)
         {
-            IsError      = true;
+            IsError = true;
             ErrorMessage = "Please enter all 6 digits";
             OnPinError?.Invoke(ErrorMessage);
             return;
         }
 
-        var pin    = EnteredPin;
+        var pin = EnteredPin;
         EnteredPin = string.Empty;
 
         switch (CurrentStep)
         {
             case PinStep.VerifyCurrent: await HandleVerifyCurrentAsync(pin); break;
-            case PinStep.EnterNew:      HandleEnterNew(pin);                 break;
-            case PinStep.ConfirmNew:    await HandleConfirmNewAsync(pin);    break;
+            case PinStep.EnterNew: HandleEnterNew(pin); break;
+            case PinStep.ConfirmNew: await HandleConfirmNewAsync(pin); break;
         }
     }
 
@@ -149,15 +149,15 @@ public partial class AdminManagePasswordViewModel : ObservableObject
         var saved = await SecureStorage.GetAsync(AdminPinKey);
         if (saved is not null && saved != pin)
         {
-            IsError      = true;
+            IsError = true;
             ErrorMessage = "Incorrect admin PIN. Please try again.";
             OnPinError?.Invoke(ErrorMessage);
             return;
         }
 
-        CurrentStep     = PinStep.EnterNew;
+        CurrentStep = PinStep.EnterNew;
         StepDescription = "Step 2 of 3";
-        StepTitle       = "Enter new admin PIN";
+        StepTitle = "Enter new admin PIN";
         OnStepChanged?.Invoke(StepTitle);
     }
 
@@ -168,7 +168,7 @@ public partial class AdminManagePasswordViewModel : ObservableObject
 
         // step description ต่างกันตาม mode
         StepDescription = _mode == AdminPinMode.SetNew ? "Step 2 of 2" : "Step 3 of 3";
-        StepTitle       = "Confirm new admin PIN";
+        StepTitle = "Confirm new admin PIN";
         OnStepChanged?.Invoke(StepTitle);
     }
 
@@ -176,13 +176,13 @@ public partial class AdminManagePasswordViewModel : ObservableObject
     {
         if (pin != _newPinTemp)
         {
-            IsError      = true;
+            IsError = true;
             ErrorMessage = "PINs do not match. Try again.";
-            _newPinTemp  = string.Empty;
-            CurrentStep  = PinStep.EnterNew;
+            _newPinTemp = string.Empty;
+            CurrentStep = PinStep.EnterNew;
 
             StepDescription = _mode == AdminPinMode.SetNew ? "Step 1 of 2" : "Step 2 of 3";
-            StepTitle       = _mode == AdminPinMode.SetNew ? "Set new admin PIN" : "Enter new admin PIN";
+            StepTitle = _mode == AdminPinMode.SetNew ? "Set new admin PIN" : "Enter new admin PIN";
 
             OnPinError?.Invoke(ErrorMessage);
             return;
@@ -201,13 +201,4 @@ public partial class AdminManagePasswordViewModel : ObservableObject
         await Shell.Current.GoToAsync("..");
     }
 
-    // ════════════════════════════════════════════════════════
-    //  STATIC HELPER
-    // ════════════════════════════════════════════════════════
-
-    public static async Task<bool> VerifyAdminAsync(string inputPin)
-    {
-        var saved = await SecureStorage.GetAsync(AdminPinKey);
-        return saved is null || saved == inputPin;
-    }
 }

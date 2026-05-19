@@ -16,7 +16,6 @@ public partial class POSPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (_viewModel.Products.Count == 0)
-            await _viewModel.LoadProductsCommand.ExecuteAsync(null);
+        await _viewModel.LoadProductsCommand.ExecuteAsync(null);
     }
 }
