@@ -22,6 +22,8 @@ public partial class CartViewModel : ObservableObject
 
     public ObservableCollection<CartItem> CartItems => _posViewModel.CartItems;
 
+    private bool _isInitialized;
+
     [ObservableProperty]
     private CartState currentState = CartState.Cart;
 
@@ -103,6 +105,10 @@ public partial class CartViewModel : ObservableObject
     [RelayCommand]
     public async Task InitializeAsync()
     {
+        if (_isInitialized)
+            return;
+        _isInitialized = true;
+
         CurrentState = CartState.Cart;
         MoneyReceivedInput = string.Empty;
         MoneyReceived = 0;
@@ -389,7 +395,10 @@ public partial class CartViewModel : ObservableObject
         {
             bool success = await PrintReceiptRequested.Invoke();
             if (success)
+            {
                 IsReceiptPrinted = true;
+                await GoHomeAsync();
+            }
         }
     }
 

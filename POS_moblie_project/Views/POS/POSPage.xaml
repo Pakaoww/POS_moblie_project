@@ -8,13 +8,57 @@
              Title="POS"
              BackgroundColor="{StaticResource BgColor}">
 
-    <Grid RowDefinitions="*,Auto" RowSpacing="0" BackgroundColor="{StaticResource BgColor}"
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="0" BackgroundColor="White"
           Padding="0,0,0,0">
 
-        <RefreshView Grid.Row="0"
+        <!-- Top section: search + category filters (outside CollectionView) -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="16,16,16,0"
+                             BackgroundColor="White">
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Border Grid.Column="0" BackgroundColor="#F5F5F7"
+                        Padding="12,4" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20"/>
+                    </Border.StrokeShape>
+                    <Entry Placeholder="Enter your product..."
+                           Text="{Binding SearchText}"
+                           BackgroundColor="Transparent"/>
+                </Border>
+                <Button Grid.Column="1" Text="📷" FontSize="18"
+                        WidthRequest="48" HeightRequest="48"
+                        CornerRadius="24" BackgroundColor="#a9d888"
+                        TextColor="White" Padding="0"
+                        Command="{Binding ScanBarcodeCommand}"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Border Grid.Column="0" BackgroundColor="#F5F5F7"
+                        Padding="12,4" StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="20"/>
+                    </Border.StrokeShape>
+                    <Picker Title="Category"
+                        ItemsSource="{Binding CategoryFilters}"
+                        ItemDisplayBinding="{Binding Name}"
+                        SelectedItem="{Binding SelectedCategory}"
+                        BackgroundColor="#F5F5F7"/>
+                </Border>
+                <Button Text="On Hold" FontSize="10" VerticalOptions="Center"
+                        Grid.Column="1"
+                        BackgroundColor="#a9d888" TextColor="Black"
+                        Command="{Binding GoToHoldCommand}"/>
+            </Grid>
+        </VerticalStackLayout>
+
+        
+
+        <RefreshView Grid.Row="1"
                      IsRefreshing="{Binding IsLoading}"
                      Command="{Binding LoadProductsCommand}"
-                     BackgroundColor="White">
+                     BackgroundColor="White"
+                     Margin="0,12,0,0">
+            
             <CollectionView ItemsSource="{Binding Products}"
                             SelectionMode="None"
                             BackgroundColor="White">
@@ -22,48 +66,6 @@
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
                 </CollectionView.ItemsLayout>
-
-                <CollectionView.Header>
-                    <VerticalStackLayout Spacing="8" Padding="16,16,16,0"
-                                         BackgroundColor="White">
-
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                            <Border Grid.Column="0" BackgroundColor="#F5F5F7"
-                                    Padding="12,4" StrokeThickness="0">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="20"/>
-                                </Border.StrokeShape>
-                                <Entry Placeholder="Enter your product..."
-                                       Text="{Binding SearchText}"
-                                       BackgroundColor="Transparent"/>
-                            </Border>
-                            <Button Grid.Column="1" Text="📷" FontSize="18"
-                                    WidthRequest="48" HeightRequest="48"
-                                    CornerRadius="24" BackgroundColor="#a9d888"
-                                    TextColor="White" Padding="0"
-                                    Command="{Binding ScanBarcodeCommand}"/>
-                        </Grid>
-
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                            <Border Grid.Column="0" BackgroundColor="#F5F5F7"
-                                    Padding="12,4" StrokeThickness="0">
-                                <Border.StrokeShape>
-                                    <RoundRectangle CornerRadius="20"/>
-                                </Border.StrokeShape>
-                                <Picker Title="Category"
-                                    ItemsSource="{Binding CategoryFilters}"
-                                    ItemDisplayBinding="{Binding Name}"
-                                    SelectedItem="{Binding SelectedCategory}"
-                                    BackgroundColor="#F5F5F7"/>
-                            </Border>
-                            <Button Text="On Hold" FontSize="10" VerticalOptions="Center"
-                                    Grid.Column="1"
-                                    BackgroundColor="#a9d888" TextColor="Black"
-                                    Command="{Binding GoToHoldCommand}"/>
-                        </Grid>
-                        
-                    </VerticalStackLayout>
-                </CollectionView.Header>
 
                 <CollectionView.EmptyView>
                     <Label Text="No products available"
@@ -137,7 +139,7 @@
         </RefreshView>
 
         <!-- Bottom cart bar — ติดด้านล่างเสมอ ไม่ scroll -->
-        <Border Grid.Row="1" BackgroundColor="#a9d888"
+        <Border Grid.Row="2" BackgroundColor="#a9d888"
                 Padding="16,12" StrokeThickness="0" Margin="16,8,16,16">
             <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
             <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">

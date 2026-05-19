@@ -95,11 +95,21 @@ public partial class POSViewModel : ObservableObject
                 p.ProductCode.ToLowerInvariant().Contains(s));
         }
 
-        Products.Clear();
+        var filteredIds = new HashSet<int>(filtered.Select(p => p.Id));
+
+        for (int i = Products.Count - 1; i >= 0; i--)
+        {
+            if (!filteredIds.Contains(Products[i].ProductId))
+                Products.RemoveAt(i);
+        }
+
         foreach (var p in filtered)
         {
-            var stock = _stockCache.TryGetValue(p.Id, out var s) ? s : 0;
-            Products.Add(new ProductWithQuantity(p, 0) { TotalStock = stock });
+            if (!Products.Any(ep => ep.ProductId == p.Id))
+            {
+                var stock = _stockCache.TryGetValue(p.Id, out var s) ? s : 0;
+                Products.Add(new ProductWithQuantity(p, 0) { TotalStock = stock });
+            }
         }
     }
 
