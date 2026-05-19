@@ -1,4 +1,5 @@
-﻿using POS_moblie_project.Views.POS;
+﻿using POS_moblie_project.Views.Auth;
+using POS_moblie_project.Views.POS;
 using POS_moblie_project.Views.Reports;
 using POS_moblie_project.Views.Settings;
 using POS_moblie_project.Views.Stock;
@@ -23,6 +24,7 @@ namespace POS_moblie_project
             Routing.RegisterRoute("AdminPanelPage", typeof(AdminPanelPage));
             Routing.RegisterRoute("AdminManagePasswordPage", typeof(AdminManagePasswordPage));
             Routing.RegisterRoute("AdminPasswordPage", typeof(AdminPasswordPage));
+            Routing.RegisterRoute("PasswordPage", typeof(PasswordPage));
 
             // ตั้งค่า visibility ครั้งแรกตาม Preferences
             RefreshFlyoutVisibility();

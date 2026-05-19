@@ -2,7 +2,7 @@ using POS_moblie_project.ViewModels.Settings;
 
 namespace POS_moblie_project.Views.Settings;
 
-public partial class AdminManagePasswordPage : ContentPage
+public partial class AdminManagePasswordPage : ContentPage, IQueryAttributable
 {
     private readonly AdminManagePasswordViewModel _viewModel;
     private AdminManagePasswordViewModel.AdminPinMode _mode = AdminManagePasswordViewModel.AdminPinMode.Change;
@@ -18,17 +18,20 @@ public partial class AdminManagePasswordPage : ContentPage
         _viewModel.OnPinSuccess += HandlePinSuccess;
     }
 
-    /// <summary>ให้ AdminPanelViewModel เรียกเพื่อตั้ง mode</summary>
-    public void SetMode(AdminManagePasswordViewModel.AdminPinMode mode)
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        _mode = mode;
-        _viewModel.Initialize(mode);
+        if (query.TryGetValue("mode", out var modeObj) && modeObj is string modeStr)
+        {
+            if (Enum.TryParse<AdminManagePasswordViewModel.AdminPinMode>(modeStr, out var mode))
+            {
+                _mode = mode;
+            }
+        }
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // Initialize ใหม่ด้วย mode ที่เคย set ไว้ เพื่อให้ step กลับมาถูกต้อง
         _viewModel.Initialize(_mode);
     }
 

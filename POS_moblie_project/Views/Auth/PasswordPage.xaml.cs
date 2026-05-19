@@ -2,7 +2,7 @@ using POS_moblie_project.ViewModels;
 
 namespace POS_moblie_project.Views.Auth;
 
-public partial class PasswordPage : ContentPage
+public partial class PasswordPage : ContentPage, IQueryAttributable
 {
     private readonly PasswordViewModel _viewModel;
     private HorizontalStackLayout _pinDotsLayout;
@@ -17,6 +17,14 @@ public partial class PasswordPage : ContentPage
         _pinDotsLayout = this.FindByName<HorizontalStackLayout>("PinDotsLayout");
 
         _viewModel.OnError += HandleError;
+    }
+
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("mode", out var modeObj) && modeObj is string modeStr)
+        {
+            _viewModel.IsAdminSetup = modeStr == "admin";
+        }
     }
 
     protected override async void OnAppearing()

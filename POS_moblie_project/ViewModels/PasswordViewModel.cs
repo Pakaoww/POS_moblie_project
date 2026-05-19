@@ -23,6 +23,9 @@ public partial class PasswordViewModel : ObservableObject
     [ObservableProperty]
     private bool isFirstTimeSetup;
 
+    [ObservableProperty]
+    private bool isAdminSetup;
+
     private string _firstPinAttempt = string.Empty;
     private bool _isConfirmingNewPin;
 
@@ -37,11 +40,18 @@ public partial class PasswordViewModel : ObservableObject
     [RelayCommand]
     public async Task InitializeAsync()
     {
-        var storedHash = await _databaseService.GetSettingAsync("password_hash");
-        IsFirstTimeSetup = string.IsNullOrEmpty(storedHash);
+        if (!IsAdminSetup)
+        {
+            var storedHash = await _databaseService.GetSettingAsync("password_hash");
+            IsFirstTimeSetup = string.IsNullOrEmpty(storedHash);
+        }
+        else
+        {
+            IsFirstTimeSetup = true;
+        }
 
         StatusMessage = IsFirstTimeSetup
-            ? "Create a 6-digit PIN"
+            ? (IsAdminSetup ? "Create a 6-digit Admin PIN" : "Create a 6-digit PIN")
             : "Enter password";
     }
 
@@ -90,8 +100,18 @@ public partial class PasswordViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Cancel()
+    private async Task CancelAsync()
     {
+        if (IsAdminSetup)
+        {
+            _firstPinAttempt = string.Empty;
+            _isConfirmingNewPin = false;
+            EnteredPin = string.Empty;
+            IsError = false;
+            await Shell.Current.GoToAsync("..");
+            return;
+        }
+
         EnteredPin = string.Empty;
         IsError = false;
 
@@ -116,9 +136,17 @@ public partial class PasswordViewModel : ObservableObject
         {
             if (EnteredPin == _firstPinAttempt)
             {
-                var hash = HashPin(EnteredPin);
-                await _databaseService.SetSettingAsync("password_hash", hash);
-                NavigateToShell();
+                if (IsAdminSetup)
+                {
+                    await SecureStorage.SetAsync("admin_pin", EnteredPin);
+                    await Shell.Current.GoToAsync("..");
+                }
+                else
+                {
+                    var hash = HashPin(EnteredPin);
+                    await _databaseService.SetSettingAsync("password_hash", hash);
+                    NavigateToShell();
+                }
             }
             else
             {
@@ -128,7 +156,7 @@ public partial class PasswordViewModel : ObservableObject
                 _firstPinAttempt = string.Empty;
                 _isConfirmingNewPin = false;
                 IsError = false;
-                StatusMessage = "Create a 6-digit PIN";
+                StatusMessage = IsAdminSetup ? "Create a 6-digit Admin PIN" : "Create a 6-digit PIN";
             }
         }
     }

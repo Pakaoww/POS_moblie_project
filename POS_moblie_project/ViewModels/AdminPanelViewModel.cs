@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using POS_moblie_project.Services;
-using POS_moblie_project.Views.Settings;
 using System.Collections.ObjectModel;
 
 namespace POS_moblie_project.ViewModels.Settings;
@@ -70,6 +69,11 @@ public partial class AdminPanelViewModel : ObservableObject
     /// <summary>เรียกจาก AdminPanelPage.OnAppearing ทุกครั้งที่กลับมา</summary>
     public async Task RefreshPinStateAsync()
     {
+        if (_suppressRefresh)
+        {
+            _suppressRefresh = false;
+            return;
+        }
         var saved = await SecureStorage.GetAsync(AdminPinKey);
         IsPinLockEnabled = !string.IsNullOrWhiteSpace(saved);
     }
@@ -78,36 +82,46 @@ public partial class AdminPanelViewModel : ObservableObject
 
     private bool _isToggling = false;
 
+    /// <summary>
+    /// เมื่อปิด PIN Lock จะ set flag นี้ เพื่อป้องกันไม่ให้
+    /// RefreshPinStateAsync (ที่เรียกจาก OnAppearing หลังจาก modal dismiss)
+    /// อ่าน SecureStorage ที่ยังเป็นค่าเก่าอยู่ แล้ว override ค่า IsPinLockEnabled
+    /// </summary>
+    private bool _suppressRefresh;
+
     [RelayCommand]
     private async Task TogglePinLockAsync()
     {
         if (_isToggling) return;
         _isToggling = true;
+        _suppressRefresh = false;
 
         try
         {
             if (!IsPinLockEnabled)
             {
-                // ── เปิด PIN Lock → ไปสร้างรหัสก่อน ──
-                var page = ServiceHelper.GetService<AdminManagePasswordPage>();
-                var vm = page.BindingContext as AdminManagePasswordViewModel;
-                if (vm != null)
-                {
-                    vm.Initialize(AdminManagePasswordViewModel.AdminPinMode.SetNew);
-                }
-                await Shell.Current.GoToAsync("AdminManagePasswordPage");
+                // ── เปิด PIN Lock → ไปสร้างรหัสครั้งแรก (เหมือนตอนเข้า app ครั้งแรก) ──
+                await Shell.Current.GoToAsync("PasswordPage?mode=admin");
                 // IsPinLockEnabled จะถูก refresh ใน OnAppearing ของ AdminPanelPage
-                // เมื่อกลับมาจากหน้า SetNew สำเร็จ
+                // เมื่อกลับมาจากหน้า PasswordPage สำเร็จ
             }
             else
             {
                 // ── ปิด PIN Lock → confirm แล้วลบทันที ──
+                // set flag ก่อนแสดง dialog เพราะ PopModalAsync จะ trigger OnAppearing
+                // ซึ่งเรียก RefreshPinStateAsync ที่อาจอ่านค่าจาก SecureStorage ก่อน Remove
+                _suppressRefresh = true;
+
                 bool confirm = await AppAlert.ConfirmAsync(
                     "Disable PIN Lock",
                     "Admin Panel will be accessible without a password. Continue?",
                     "Disable", "Cancel", isDanger: true);
 
-                if (!confirm) return;
+                if (!confirm)
+                {
+                    _suppressRefresh = false;
+                    return;
+                }
 
                 SecureStorage.Remove("admin_pin");
                 IsPinLockEnabled = false;
@@ -125,9 +139,7 @@ public partial class AdminPanelViewModel : ObservableObject
     [RelayCommand]
     private async Task ChangeAdminPasswordAsync()
     {
-        var vm = ServiceHelper.GetService<AdminManagePasswordViewModel>();
-        vm.Initialize(AdminManagePasswordViewModel.AdminPinMode.Change);
-        await Shell.Current.GoToAsync("AdminManagePasswordPage");
+        await Shell.Current.GoToAsync("AdminManagePasswordPage?mode=Change");
     }
 
     // ── Toggle Visibility ─────────────────────────────────
